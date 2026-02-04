@@ -3,12 +3,14 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from "@/pages/Home";
 import Auth from "@/pages/Auth";
 import NotFound from "@/pages/NotFound";
-import Header from "@/components/custom/Header";
+import ThemeSwitch from "./components/custom/ThemeSwitch";
 
 const App: FC = () => {
 	return (
 		<BrowserRouter>
-      <Header />
+			<div className="absolute right-2 top-2">
+				<ThemeSwitch />
+			</div>
 			<Routes>
 				<Route path="/" element={<Home />} />
 				<Route path="/auth" element={<Auth />} />
