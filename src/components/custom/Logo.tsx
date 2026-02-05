@@ -12,8 +12,8 @@ const Logo = ({ className }: LogoProps) => {
 				"flex gap-2 items-center justify-center text-white",
 				className,
 			)}>
-			<MemoizeIcon />
-			<span>Memoize</span>
+			<MemoizeIcon className="text-2xl"/>
+			<span className="text-xl font-light">Memoize</span>
 		</div>
 	);
 };
