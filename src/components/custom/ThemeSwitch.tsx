@@ -12,7 +12,18 @@ import {
 import { Switch } from "../ui/switch";
 import { getAccentColor } from "@/lib/utils";
 
-const ThemeSwitch: FC = () => {
+interface ThemeSwitchProps {
+	buttonStyle?: "accent" | "themed";
+}
+
+const styleMap = {
+	accent:
+		"bg-accent-light hover:bg-accent-light/80 dark:bg-accent-dark dark:hover:bg-accent-dark/80 text-white",
+	themed:
+		"bg-white dark:bg-black hover:bg-white/80 hover:dark:bg-black/80 text-accent-dark",
+};
+
+const ThemeSwitch: FC<ThemeSwitchProps> = ({ buttonStyle = "accent" }) => {
 	const { theme, setTheme, setAccent } = useTheme();
 
 	const toggleTheme = () => {
@@ -23,10 +34,7 @@ const ThemeSwitch: FC = () => {
 		<Popover>
 			<PopoverTrigger asChild>
 				<Button
-					className="rounded-full p-2 cursor-pointer box-border 
-            text-white
-            bg-accent-light hover:bg-accent-light/80
-            dark:bg-accent-dark dark:hover:bg-accent-dark/80">
+					className={`rounded-full p-2 cursor-pointer box-border ${styleMap[buttonStyle]}`}>
 					{theme === "dark" ? <Sun /> : <Moon />}
 				</Button>
 			</PopoverTrigger>
@@ -35,7 +43,7 @@ const ThemeSwitch: FC = () => {
 					<PopoverHeader>Accent & Theme</PopoverHeader>
 					<div className="w-full flex flex-col gap-2 mt-2">
 						<PopoverDescription>Toggle theme</PopoverDescription>
-						<div className="flex gap-2">
+						<div className="flex gap-2 mt-1">
 							<Switch
 								size="lg"
 								checked={theme === "dark"}

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import {
 	createContext,
 	useContext,
@@ -22,6 +23,19 @@ const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode => {
 	const [theme, setTheme] = useState<Theme>("dark");
 	const [accent, setAccent] = useState<Accent>("default");
 
+	const modifyTheme = (newTheme: Theme) => {
+		setTheme(newTheme);
+		localStorage.setItem("theme", newTheme);
+		document.documentElement.classList.remove("light", "dark");
+		document.documentElement.classList.add(newTheme);
+	};
+
+	const modifyAccent = (newAccent: Accent) => {
+		setAccent(newAccent);
+		localStorage.setItem("accent", newAccent);
+		document.documentElement.setAttribute("data-accent", newAccent);
+	};
+
 	useEffect(() => {
 		const storedTheme = localStorage.getItem("theme");
 		if (!!storedTheme && (storedTheme === "light" || storedTheme === "dark")) {
@@ -38,19 +52,6 @@ const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode => {
 		}
 	}, []);
 
-	const modifyTheme = (newTheme: Theme) => {
-		setTheme(newTheme);
-		localStorage.setItem("theme", newTheme);
-		document.documentElement.classList.remove("light", "dark");
-		document.documentElement.classList.add(newTheme);
-	};
-
-	const modifyAccent = (newAccent: Accent) => {
-		setAccent(newAccent);
-		localStorage.setItem("accent", newAccent);
-		document.documentElement.setAttribute("data-accent", newAccent);
-	};
-
 	return (
 		<ThemeContext.Provider
 			value={{ theme, setTheme: modifyTheme, accent, setAccent: modifyAccent }}>
@@ -59,8 +60,6 @@ const ThemeProvider = ({ children }: { children: ReactNode }): ReactNode => {
 	);
 };
 
-export const useTheme = () => {
-	return useContext(ThemeContext);
-};
+export const useTheme = () => useContext(ThemeContext);
 
 export default ThemeProvider;
