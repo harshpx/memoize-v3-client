@@ -7,14 +7,13 @@ import {
 	PopoverContent,
 	PopoverDescription,
 	PopoverHeader,
-	PopoverTitle,
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { Switch } from "../ui/switch";
 import { getAccentColor } from "@/lib/utils";
 
 const ThemeSwitch: FC = () => {
-	const { theme, setTheme, accent, setAccent } = useTheme();
+	const { theme, setTheme, setAccent } = useTheme();
 
 	const toggleTheme = () => {
 		setTheme(theme === "dark" ? "light" : "dark");
