@@ -7,6 +7,7 @@ import Notes from "./pages/Notes";
 import Tasks from "./pages/Tasks";
 import Dashboard from "./pages/Dashboard";
 import DashboardLayout from "./pages/DashboardLayout";
+import { Toaster } from "./components/ui/sonner";
 
 const App: FC = () => {
 	return (
@@ -21,6 +22,7 @@ const App: FC = () => {
 				</Route>
 				<Route path="*" element={<NotFound />} />
 			</Routes>
+			<Toaster />
 		</BrowserRouter>
 	);
 };
