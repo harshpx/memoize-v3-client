@@ -1,18 +1,29 @@
-import { useAuth } from "@/context/AuthProvider";
 import { useStateContext } from "@/context/StateProvider";
 import { loginSchema } from "@/lib/validations";
-import { login } from "@/services/services";
+import { loginAndFetchUserInfo } from "@/services/services";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
+import CustomizableButton from "./CustomizableButton";
+import {
+	Form,
+	FormControl,
+	FormField,
+	FormItem,
+	FormLabel,
+	FormMessage,
+} from "../ui/form";
+import { Input } from "../ui/input";
+import { FaArrowRight as ArrowRight } from "react-icons/fa";
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
-	const { setUser, setAccessToken } = useAuth();
-	const { loading, setLoading } = useStateContext();
+	const navigate = useNavigate();
+	const { setLoading } = useStateContext();
 	const [responseMessage, setResponseMessage] = useState("");
 	const [responseError, setResponseError] = useState(false);
 
@@ -29,30 +40,116 @@ const LoginForm = () => {
 	const onSubmit = async (data: LoginFormData) => {
 		try {
 			setLoading(true);
-			const res = await login(data.identifier, data.password);
-			setAccessToken(res?.accessToken || "");
-			toast.success("Login successful!", {
-				description: "Welcome back!",
+			await loginAndFetchUserInfo(data);
+			navigate("/dashboard", { replace: true });
+			toast.success("Welcome back to Memoize!", {
+				description: "Login successful! Redirecting to dashboard...",
 				duration: 2000,
 			});
-			setResponseMessage("Login successful!");
-			setResponseError(false);
 		} catch (error) {
-			toast.error(
-				(error as Error).message || "An error occurred during login",
-				{
-					description: "Please try again.",
-					duration: 2000,
-				},
-			);
-			setResponseMessage((error as Error).message);
+			let errorMessage: string =
+				"An error occurred during login. Please try again.";
+			if (error instanceof Error) errorMessage = error.message;
+			setResponseMessage(errorMessage);
 			setResponseError(true);
+			toast.error("Login failed", {
+				description: errorMessage,
+				duration: 2000,
+			});
 		} finally {
 			setLoading(false);
 		}
 	};
 
-	return <div>LoginForm</div>;
+	return (
+		<Form {...formController}>
+			<form
+				onSubmit={formController.handleSubmit(onSubmit)}
+				className="text-left flex flex-col gap-2 items-center">
+				<div className="gap-3 grid grid-cols-1 sm:grid-cols-2 items-start">
+					<FormField
+						control={formController.control}
+						name="identifier"
+						render={({ field }) => (
+							<FormItem className="w-50">
+								<FormLabel
+									className={
+										formController.formState.errors.identifier
+											? "text-red-600"
+											: ""
+									}>
+									Username or Email
+								</FormLabel>
+								<FormControl>
+									<Input
+										type="text"
+										placeholder="Enter your username or email"
+										className="border-neutral-400 dark:border-neutral-600"
+										value={field.value}
+										onChange={(e) => {
+											field.onChange(e.target.value);
+											setResponseMessage("");
+											setResponseError(false);
+										}}
+									/>
+								</FormControl>
+								<FormMessage className="text-[12px] text-red-600" />
+							</FormItem>
+						)}
+					/>
+					<FormField
+						control={formController.control}
+						name="password"
+						render={({ field }) => (
+							<FormItem className="w-50">
+								<FormLabel
+									className={
+										formController.formState.errors.password
+											? "text-red-600"
+											: ""
+									}>
+									Password
+								</FormLabel>
+								<FormControl>
+									<Input
+										type="password"
+										placeholder="Password"
+										className="border-neutral-400 dark:border-neutral-600"
+										value={field.value}
+										width={400}
+										onChange={(e) => {
+											field.onChange(e.target.value);
+											setResponseMessage("");
+											setResponseError(false);
+										}}
+									/>
+								</FormControl>
+								<FormMessage className="text-[12px] text-red-600" />
+							</FormItem>
+						)}
+					/>
+				</div>
+				{responseMessage && (
+					<div
+						className={`text-center text-sm ${responseError ? "text-red-600" : "text-green-600"}`}>
+						{responseMessage}
+					</div>
+				)}
+				<CustomizableButton
+					type="submit"
+					className="
+						mt-6 border-2 border-black dark:border-white 
+						hover:border-accent-light dark:hover:border-accent-dark 
+						hover:bg-accent-light dark:hover:bg-accent-dark hover:text-white
+						transition-colors">
+					<div className="flex items-center gap-2">
+						<span className="text-sm">Get Started</span>
+						<ArrowRight size={14} className="" />
+					</div>
+				</CustomizableButton>
+			</form>
+		</Form>
+	);
 };
 
 export default LoginForm;

@@ -19,9 +19,21 @@ export interface User {
 	role?: string;
 }
 
+export interface LoginRequest {
+	identifier: string; // can be username or email
+	password: string;
+}
+
+export interface SignupRequest {
+	name: string;
+	username: string;
+	email: string;
+	password: string;
+}
+
 export interface AuthResponse {
 	accessToken: string;
-	user: User;
+	userId: string;
 }
 
 export interface AccessTokenResponse {

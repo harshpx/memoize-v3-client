@@ -8,22 +8,56 @@ import Tasks from "./pages/Tasks";
 import Dashboard from "./pages/Dashboard";
 import DashboardLayout from "./pages/DashboardLayout";
 import { Toaster } from "./components/ui/sonner";
+import StateProvider from "./context/StateProvider";
+import ThemeProvider from "./context/ThemeProvider";
+import AuthProvider from "./context/AuthProvider";
+import ProtectedRoute from "./components/wrapper/ProtectedRoute";
+import PublicRoute from "./components/wrapper/PublicRoute";
+import AuthInit from "./components/wrapper/AuthInit";
 
 const App: FC = () => {
 	return (
-		<BrowserRouter>
-			<Routes>
-				<Route path="/" element={<Home />} />
-				<Route path="/auth" element={<Auth />} />
-				<Route path="/dashboard" element={<DashboardLayout />}>
-					<Route index element={<Dashboard />} />
-					<Route path="notes" element={<Notes />} />
-					<Route path="tasks" element={<Tasks />} />
-				</Route>
-				<Route path="*" element={<NotFound />} />
-			</Routes>
-			<Toaster />
-		</BrowserRouter>
+		<StateProvider>
+			<ThemeProvider>
+				<AuthProvider>
+					<BrowserRouter>
+						<AuthInit>
+							<Routes>
+								<Route
+									path="/"
+									element={
+										<PublicRoute>
+											<Home />
+										</PublicRoute>
+									}
+								/>
+								<Route
+									path="/auth"
+									element={
+										<PublicRoute>
+											<Auth />
+										</PublicRoute>
+									}
+								/>
+								<Route
+									path="/dashboard"
+									element={
+										<ProtectedRoute>
+											<DashboardLayout />
+										</ProtectedRoute>
+									}>
+									<Route index element={<Dashboard />} />
+									<Route path="notes" element={<Notes />} />
+									<Route path="tasks" element={<Tasks />} />
+								</Route>
+								<Route path="*" element={<NotFound />} />
+							</Routes>
+						</AuthInit>
+						<Toaster />
+					</BrowserRouter>
+				</AuthProvider>
+			</ThemeProvider>
+		</StateProvider>
 	);
 };
 

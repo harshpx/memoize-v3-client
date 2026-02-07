@@ -15,6 +15,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { useStateContext } from "@/context/StateProvider";
+import Loader from "@/components/custom/Loader";
 
 const tabs = [
 	{
@@ -47,9 +49,11 @@ const tabs = [
 
 const Auth: FC = () => {
 	const isLargeScreen = useMediaQuery("(min-width: 1024px)");
+	const { loading } = useStateContext();
 	const [activePage, setActivePage] = useState("login");
 	return (
 		<div className="relative h-screen w-full flex flex-col items-center justify-center transition-all duration-400 ease-in">
+			{loading && <Loader />}
 			<div
 				className={`${isLargeScreen ? "absolute top-0 left-0" : "bg-linear-to-l from-accent-dark to-accent-light"} px-4 py-4 w-full flex items-center justify-between ${activePage === "signup" && isLargeScreen ? "" : "flex-row-reverse"}`}>
 				<ThemeSwitch buttonStyle={isLargeScreen ? "accent" : "themed"} />
@@ -107,7 +111,7 @@ const Auth: FC = () => {
 									: "Get started with"}
 							</p>
 
-							<div className="text-3xl font-semibold">Codeboxes</div>
+							<div className="text-3xl font-semibold">Memoize</div>
 						</div>
 					)}
 					<Tabs

@@ -1,154 +1,92 @@
-import type { AccessTokenResponse, ApiResponse, User } from "@/lib/commonTypes";
+import type { LoginRequest, SignupRequest, User } from "@/lib/commonTypes";
+import { AuthError } from "@/lib/errors";
+import { getUserInfo, login, logout, refresh, signup } from "@/services/apis";
+import { setAccessToken, setUser } from "@/services/authBridge";
 
-export const BASE_URL = "http://localhost:8080";
-
-export const login = async (
-	identifier: string,
-	password: string,
-): Promise<AccessTokenResponse> => {
-	const url = `${BASE_URL}/auth/login`;
-	const options: RequestInit = {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		credentials: "include",
-		body: JSON.stringify({ identifier, password }),
-	};
-	const response = await fetch(url, options);
-	const result: ApiResponse<AccessTokenResponse> = await response.json();
-	if (!response.ok || !result.success) {
-		const errorString = String(result.data);
-		throw new Error(
-			errorString.substring(0, Math.min(100, errorString.length)) ||
-				"Unable to login",
-		);
-	}
-	return result.data as AccessTokenResponse;
+/**
+ * @access public
+ * @param {LoginRequest} loginRequest
+ * @returns {Promise<void>}
+ * @description Logs in the user and fetches their information.
+ * Sets the access token and user in the auth context.
+ * @throws {Error} If login fails or fetching user info fails.
+ */
+export const loginAndFetchUserInfo = async (
+	loginRequest: LoginRequest,
+): Promise<void> => {
+	const { accessToken } = await login(loginRequest);
+	setAccessToken(accessToken);
+	const user: User = await getUserInfo();
+	setUser(user);
 };
 
-export const signup = async (
-	name: string,
-	username: string,
-	email: string,
-	password: string,
-): Promise<AccessTokenResponse> => {
-	const url = `${BASE_URL}/auth/signup`;
-	const options: RequestInit = {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		credentials: "include",
-		body: JSON.stringify({ name, username, email, password }),
-	};
-	const response = await fetch(url, options);
-	const result: ApiResponse<AccessTokenResponse> = await response.json();
-	if (!response.ok || !result.success) {
-		const errorString = String(result.data);
-		throw new Error(
-			errorString.substring(0, Math.min(100, errorString.length)) ||
-				"Unable to signup",
-		);
-	}
-	return result.data as AccessTokenResponse;
+/**
+ * @access public
+ * @param {SignupRequest} signupRequest
+ * @returns {Promise<void>}
+ * @description Signs up the user and fetches their information.
+ * Sets the access token and user in the auth context.
+ * @throws {Error} If signup fails or fetching user info fails.
+ */
+export const signupAndFetchUserInfo = async (
+	signupRequest: SignupRequest,
+): Promise<void> => {
+	const { accessToken } = await signup(signupRequest);
+	setAccessToken(accessToken);
+	const user: User = await getUserInfo();
+	setUser(user);
 };
 
-export const refresh = async (): Promise<AccessTokenResponse> => {
-	const url = `${BASE_URL}/auth/refresh`;
-	const options: RequestInit = {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		credentials: "include",
-	};
-	const response = await fetch(url, options);
-	const result: ApiResponse<AccessTokenResponse> = await response.json();
-	if (!response.ok || !result.success) {
-		const errorString = String(result.data);
-		throw new Error(
-			errorString.substring(0, Math.min(100, errorString.length)) ||
-				"Unable to refresh token",
-		);
-	}
-	return result.data as AccessTokenResponse;
+/**
+ * @access public
+ * @returns {Promise<void>}
+ * @description Logs out the user by calling the logout API.
+ * Clears the access token and user from the auth context.
+ */
+export const logoutUser = async (): Promise<void> => {
+	await logout();
+	setAccessToken(null);
+	setUser(null);
 };
 
-export const logout = async (): Promise<void> => {
-	const url = `${BASE_URL}/auth/logout`;
-	const options: RequestInit = {
-		method: "POST",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		credentials: "include",
-	};
+/**
+ *
+ * @template T - The expected return type of the API call.
+ * @template A - The type of the arguments array for the API call.
+ * @param {(...args: A) => Promise<T>} apiCall - The API call function to be executed.
+ * @param {A} args - The arguments to be passed to the API call function.
+ * @returns {Promise<T>}
+ * @description This function takes an API call and its arguments, and attempts to execute it.
+ * If the API call fails with an AuthError, it will attempt to refresh the access token and retry the API call once.
+ * If the second attempt also fails, it will log out the user and throw the error.
+ * @throws {Error} If the API call fails for reasons other than auth, or if the token refresh fails.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const retryWithRefresh = async <T, A extends any[]>(
+	apiCall: (...args: A) => Promise<T>,
+	args: A,
+): Promise<T> => {
 	try {
-		await fetch(url, options);
-	} catch (error) {}
-};
-
-export const checkUsernameAvailability = async (
-	username: string,
-): Promise<boolean> => {
-	const url = `${BASE_URL}/auth/check-username?username=${encodeURIComponent(username)}`;
-	const options: RequestInit = {
-		method: "GET",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		credentials: "include",
-	};
-	const response = await fetch(url, options);
-	const result: ApiResponse<boolean> = await response.json();
-	if (!response.ok || !result.success) {
-		const errorString = String(result.data);
-		throw new Error(
-			errorString.substring(0, Math.min(50, errorString.length)) ||
-				"Failed to check username availability",
-		);
+		return await apiCall(...args);
+	} catch (error) {
+		// if not an auth error, rethrow it
+		if (!(error instanceof AuthError)) {
+			throw error;
+		}
+		try {
+			// attempt to refresh the token
+			const { accessToken } = await refresh();
+			setAccessToken(accessToken);
+			const user: User = await getUserInfo();
+			setUser(user);
+			// retry the original API call
+			return await apiCall(...args);
+		} catch (refreshError) {
+			// log out the user on 2nd failure
+			await logout();
+			setAccessToken(null);
+			setUser(null);
+			throw refreshError;
+		}
 	}
-	return result.data as boolean;
-};
-
-export const checkEmailAvailability = async (
-	email: string,
-): Promise<boolean> => {
-	const url = `${BASE_URL}/auth/check-email?email=${encodeURIComponent(email)}`;
-	const options: RequestInit = {
-		method: "GET",
-		headers: {
-			"Content-Type": "application/json",
-		},
-		credentials: "include",
-	};
-	const response = await fetch(url, options);
-	const result: ApiResponse<boolean> = await response.json();
-	if (!response.ok || !result.success) {
-		const errorString = String(result.data);
-		throw new Error(
-			errorString.substring(0, Math.min(100, errorString.length)) ||
-				"Unable to refresh token",
-		);
-	}
-	return result.data as boolean;
-};
-
-export const getUserInfo = async (accessToken: string): Promise<User> => {
-	const url = `${BASE_URL}/user/me`;
-	const options: RequestInit = {
-		method: "GET",
-		headers: {
-			"Content-Type": "application/json",
-			Authorization: `Bearer ${accessToken}`,
-		},
-		credentials: "include",
-	};
-	const response = await fetch(url, options);
-	const result: ApiResponse<User> = await response.json();
-	if (!response.ok) {
-		throw new Error(String(result?.data) || "Failed to fetch user info");
-	}
-	return result.data as User;
 };
