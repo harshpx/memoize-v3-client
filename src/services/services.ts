@@ -1,7 +1,11 @@
+import { useStore } from "@/context/store";
 import type { LoginRequest, SignupRequest, User } from "@/lib/commonTypes";
 import { AuthError } from "@/lib/errors";
 import { getUserInfo, login, logout, refresh, signup } from "@/services/apis";
-import { setAccessToken, setUser } from "@/services/authBridge";
+
+const updateAuthState = (accessToken: string | null, user: User | null) => {
+	useStore.getState().setAuth(accessToken, user);
+};
 
 /**
  * @access public
@@ -15,9 +19,9 @@ export const loginAndFetchUserInfo = async (
 	loginRequest: LoginRequest,
 ): Promise<void> => {
 	const { accessToken } = await login(loginRequest);
-	setAccessToken(accessToken);
+	updateAuthState(accessToken, null);
 	const user: User = await getUserInfo();
-	setUser(user);
+	updateAuthState(accessToken, user);
 };
 
 /**
@@ -32,9 +36,9 @@ export const signupAndFetchUserInfo = async (
 	signupRequest: SignupRequest,
 ): Promise<void> => {
 	const { accessToken } = await signup(signupRequest);
-	setAccessToken(accessToken);
+	updateAuthState(accessToken, null);
 	const user: User = await getUserInfo();
-	setUser(user);
+	updateAuthState(accessToken, user);
 };
 
 /**
@@ -44,9 +48,11 @@ export const signupAndFetchUserInfo = async (
  * Clears the access token and user from the auth context.
  */
 export const logoutUser = async (): Promise<void> => {
-	await logout();
-	setAccessToken(null);
-	setUser(null);
+	try {
+		await logout();
+	} finally {
+		updateAuthState(null, null);
+	}
 };
 
 /**
@@ -76,16 +82,14 @@ export const retryWithRefresh = async <T, A extends any[]>(
 		try {
 			// attempt to refresh the token
 			const { accessToken } = await refresh();
-			setAccessToken(accessToken);
+			updateAuthState(accessToken, null);
 			const user: User = await getUserInfo();
-			setUser(user);
+			updateAuthState(accessToken, user);
 			// retry the original API call
 			return await apiCall(...args);
 		} catch (refreshError) {
 			// log out the user on 2nd failure
-			await logout();
-			setAccessToken(null);
-			setUser(null);
+			await logoutUser();
 			throw refreshError;
 		}
 	}

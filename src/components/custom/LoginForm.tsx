@@ -1,4 +1,3 @@
-import { useStateContext } from "@/context/StateProvider";
 import { loginSchema } from "@/lib/validations";
 import { loginAndFetchUserInfo } from "@/services/services";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -18,12 +17,13 @@ import {
 } from "../ui/form";
 import { Input } from "../ui/input";
 import { FaArrowRight as ArrowRight } from "react-icons/fa";
+import { useStore } from "@/context/store";
 
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
 	const navigate = useNavigate();
-	const { setLoading } = useStateContext();
+	const { setLoading } = useStore();
 	const [responseMessage, setResponseMessage] = useState("");
 	const [responseError, setResponseError] = useState(false);
 
@@ -138,10 +138,12 @@ const LoginForm = () => {
 				<CustomizableButton
 					type="submit"
 					className="
-						mt-6 border-2 border-black dark:border-white 
+						border border-accent-light/50 dark:border-accent-dark/40 
+						shadow-2xl bg-accent-light/40 dark:bg-accent-light/30
 						hover:border-accent-light dark:hover:border-accent-dark 
 						hover:bg-accent-light dark:hover:bg-accent-dark hover:text-white
-						transition-colors">
+						transition-colors mt-6
+					">
 					<div className="flex items-center gap-2">
 						<span className="text-sm">Get Started</span>
 						<ArrowRight size={14} className="" />

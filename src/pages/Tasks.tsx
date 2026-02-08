@@ -1,5 +1,5 @@
 const Tasks = () => {
-	return <div>Tasks</div>;
+	return <div className="p-4 grow">Tasks</div>;
 };
 
 export default Tasks;

@@ -1,3 +1,4 @@
+import { useStore } from "@/context/store";
 import {
 	LuCircleCheck as CircleCheckIcon,
 	LuInfo as InfoIcon,
@@ -5,11 +6,10 @@ import {
 	LuOctagonX as OctagonXIcon,
 	LuTriangleAlert as TriangleAlertIcon,
 } from "react-icons/lu";
-import { useTheme } from "next-themes";
 import { Toaster as Sonner, type ToasterProps } from "sonner";
 
 const Toaster = ({ ...props }: ToasterProps) => {
-	const { theme = "system" } = useTheme();
+	const { theme } = useStore();
 
 	return (
 		<Sonner

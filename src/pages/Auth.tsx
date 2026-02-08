@@ -15,8 +15,8 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { useStateContext } from "@/context/StateProvider";
 import Loader from "@/components/custom/Loader";
+import { useStore } from "@/context/store";
 
 const tabs = [
 	{
@@ -49,7 +49,7 @@ const tabs = [
 
 const Auth: FC = () => {
 	const isLargeScreen = useMediaQuery("(min-width: 1024px)");
-	const { loading } = useStateContext();
+	const { loading } = useStore();
 	const [activePage, setActivePage] = useState("login");
 	return (
 		<div className="relative h-screen w-full flex flex-col items-center justify-center transition-all duration-400 ease-in">
@@ -100,7 +100,7 @@ const Auth: FC = () => {
             ${isLargeScreen ? "w-1/2 self-center" : "w-full sm:w-150 self-start"} 
             flex flex-col items-center justify-center py-4 rounded-xl
             transition-transform duration-100 ease-in-out 
-            ${isLargeScreen ? "bg-none" : "bg-white dark:bg-[#1e1e1e]"}
+            ${isLargeScreen ? "bg-none" : "bg-white dark:bg-black"}
             ${activePage === "signup" && isLargeScreen ? "-translate-x-full" : "translate-x-0"}
           `}>
 					{!isLargeScreen && (

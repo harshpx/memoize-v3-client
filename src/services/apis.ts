@@ -1,3 +1,4 @@
+import { useStore } from "@/context/store";
 import type {
 	AccessTokenResponse,
 	ApiResponse,
@@ -5,7 +6,6 @@ import type {
 	SignupRequest,
 	User,
 } from "@/lib/commonTypes";
-import { getAccessToken } from "./authBridge";
 import { AuthError } from "@/lib/errors";
 
 export const BASE_URL = "http://localhost:8080";
@@ -210,7 +210,7 @@ export const checkEmailAvailability = async (
  * It retrieves the user's information.
  */
 export const getUserInfo = async (): Promise<User> => {
-	const accessToken = getAccessToken();
+	const { accessToken } = useStore.getState();
 	if (!accessToken) {
 		throw new AuthError("No access token present");
 	}

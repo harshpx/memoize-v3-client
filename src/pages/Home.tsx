@@ -19,7 +19,8 @@ const Home: FC = () => {
 			</div>
 			<CustomizableButton
 				className="
-          border-2 border-black dark:border-white 
+          border border-accent-light/50 dark:border-accent-dark/40 
+					shadow-2xl bg-accent-light/40 dark:bg-accent-light/30
           hover:border-accent-light dark:hover:border-accent-dark 
           hover:bg-accent-light dark:hover:bg-accent-dark hover:text-white
           transition-colors

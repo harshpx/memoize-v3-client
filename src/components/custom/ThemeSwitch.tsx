@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { ACCENTS, useTheme, type Accent } from "@/context/ThemeProvider";
 import { type CSSProperties, type FC } from "react";
 import { LuMoon as Moon, LuSunMedium as Sun } from "react-icons/lu";
 import {
@@ -10,7 +9,8 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { Switch } from "../ui/switch";
-import { getAccentColor } from "@/lib/utils";
+import { ACCENTS, getAccentColor } from "@/lib/utils";
+import { useStore, type Accent } from "@/context/store";
 
 interface ThemeSwitchProps {
 	buttonStyle?: "accent" | "themed";
@@ -24,7 +24,7 @@ const styleMap = {
 };
 
 const ThemeSwitch: FC<ThemeSwitchProps> = ({ buttonStyle = "accent" }) => {
-	const { theme, setTheme, setAccent } = useTheme();
+	const { theme, setTheme, setAccent } = useStore();
 
 	const toggleTheme = () => {
 		setTheme(theme === "dark" ? "light" : "dark");
@@ -38,7 +38,7 @@ const ThemeSwitch: FC<ThemeSwitchProps> = ({ buttonStyle = "accent" }) => {
 					{theme === "dark" ? <Sun /> : <Moon />}
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent className="border-accent-dark border-2 mr-1">
+			<PopoverContent className="border-accent-dark border mr-1">
 				<PopoverHeader>
 					<PopoverHeader>Accent & Theme</PopoverHeader>
 					<div className="w-full flex flex-col gap-2 mt-2">
@@ -62,7 +62,7 @@ const ThemeSwitch: FC<ThemeSwitchProps> = ({ buttonStyle = "accent" }) => {
 										key={acc}
 										style={{ "--accent": accentColor } as CSSProperties}
 										onClick={() => setAccent(acc)}
-										className="h-10 w-10 rounded-full border bg-accent"></div>
+										className="h-10 w-10 rounded-full border bg-accent cursor-pointer"></div>
 								);
 							})}
 						</div>
