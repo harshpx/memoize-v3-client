@@ -192,7 +192,11 @@ const UserPopover = ({ collapsed = true }: { collapsed?: boolean }) => {
 		try {
 			await logoutUser();
 		} catch (error) {
-			console.error("DB hit failed for logout, doing client side cleanup");
+			if (error instanceof Error) {
+				console.error("Logout failed:", error.message.substring(0, 30));
+			} else {
+				console.error("DB hit failed for logout, doing client side cleanup");
+			}
 		} finally {
 			logout();
 		}
