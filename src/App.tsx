@@ -12,6 +12,7 @@ import ThemeInit from "./components/wrapper/ThemeInit";
 import AuthInit from "./components/wrapper/AuthInit";
 import PublicRoute from "./components/wrapper/PublicRoute";
 import ProtectedRoute from "./components/wrapper/ProtectedRoute";
+import NotePage from "./pages/NotePage";
 
 const App: FC = () => {
 	return (
@@ -26,8 +27,9 @@ const App: FC = () => {
 						<Route element={<ProtectedRoute />}>
 							<Route path="/dashboard" element={<DashboardLayout />}>
 								<Route index element={<Dashboard />} />
-								<Route path="/dashboard/notes" element={<Notes />} />
-								<Route path="/dashboard/tasks" element={<Tasks />} />
+								<Route path="notes" element={<Notes />} />
+								<Route path="notes/:noteId" element={<NotePage />} />
+								<Route path="tasks" element={<Tasks />} />
 							</Route>
 						</Route>
 						<Route path="*" element={<NotFound />} />

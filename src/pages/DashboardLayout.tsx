@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import {
 	Popover,
 	PopoverContent,
-	PopoverHeader,
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import {
@@ -16,6 +15,7 @@ import {
 import { useStore } from "@/context/store";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
+import { logoutUser } from "@/services/services";
 import { useState } from "react";
 import { FaTasks } from "react-icons/fa";
 import { LuNotebookPen } from "react-icons/lu";
@@ -185,10 +185,21 @@ const DockComponents = () => {
 };
 
 const UserPopover = ({ collapsed = true }: { collapsed?: boolean }) => {
-	const { user } = useStore();
+	const { user, logout } = useStore();
 	const isDesktop = useMediaQuery("(min-width: 768px)");
+	const [popoverOpen, setPopoverOpen] = useState(false);
+	const logoutHandler = async () => {
+		try {
+			await logoutUser();
+		} catch (error) {
+			console.error("DB hit failed for logout, doing client side cleanup");
+		} finally {
+			logout();
+		}
+	};
+
 	return (
-		<Popover>
+		<Popover onOpenChange={(open) => setPopoverOpen(open)}>
 			<PopoverTrigger asChild>
 				<Button
 					variant="ghost"
@@ -197,6 +208,9 @@ const UserPopover = ({ collapsed = true }: { collapsed?: boolean }) => {
 						flex justify-start items-center gap-2 overflow-hidden cursor-pointer
 						`,
 						collapsed ? "justify-center" : "justify-start",
+						popoverOpen
+							? "bg-accent text-accent-foreground hover:bg-accent/50"
+							: "",
 					)}>
 					<Avatar className="">
 						<AvatarImage src={user?.avatarUrl || ""} />
@@ -214,8 +228,30 @@ const UserPopover = ({ collapsed = true }: { collapsed?: boolean }) => {
 			<PopoverContent
 				side={isDesktop ? "right" : "top"}
 				align="end"
-				className={cn("border rounded-xl", isDesktop ? "ml-2" : "mb-2 -mr-2")}>
-				<PopoverHeader>User menu</PopoverHeader>
+				className={cn("border rounded-xl", isDesktop ? "ml-3" : "mb-3 -mr-2")}>
+				<div className="flex flex-col gap-4">
+					{/* avatar & user info */}
+					<div className="flex gap-4 items-center">
+						<Avatar className="size-14">
+							<AvatarImage src={user?.avatarUrl || ""} />
+							<AvatarFallback>
+								{user?.name?.[0] || user?.username?.[0] || "U"}
+							</AvatarFallback>
+						</Avatar>
+						<div className="flex flex-col">
+							<span className="text-xl">{user?.name || user?.username}</span>
+							<span className="text-sm font-light italic">{user?.email}</span>
+						</div>
+					</div>
+					{/* actions */}
+					<div className="flex flex-col gap-1">
+						<CustomizableButton
+							className="w-full bg-neutral-200 dark:bg-neutral-800"
+							onClick={logoutHandler}>
+							<span className="text-sm">Logout</span>
+						</CustomizableButton>
+					</div>
+				</div>
 			</PopoverContent>
 		</Popover>
 	);
