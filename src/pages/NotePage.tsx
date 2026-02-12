@@ -4,13 +4,10 @@ import StarterKit from "@tiptap/starter-kit";
 import TextAlign from "@tiptap/extension-text-align";
 import { TaskItem, TaskList } from "@tiptap/extension-list";
 import Highlight from "@tiptap/extension-highlight";
-import Image from "@tiptap/extension-image";
 import Subscript from "@tiptap/extension-subscript";
 import Superscript from "@tiptap/extension-superscript";
 import Typography from "@tiptap/extension-typography";
-import { ImageUploadNode } from "@/components/tiptap-node/image-upload-node";
-import { handleImageUpload, MAX_FILE_SIZE } from "@/lib/tiptap-utils";
-import { Selection } from "@tiptap/extensions";
+import { Placeholder, Selection } from "@tiptap/extensions";
 import {
 	ToolbarGroup,
 	ToolbarSeparator,
@@ -22,7 +19,6 @@ import { BlockquoteButton } from "@/components/tiptap-ui/blockquote-button";
 import { CodeBlockButton } from "@/components/tiptap-ui/code-block-button";
 import { MarkButton } from "@/components/tiptap-ui/mark-button";
 import { TextAlignButton } from "@/components/tiptap-ui/text-align-button";
-import { ImageUploadButton } from "@/components/tiptap-ui/image-upload-button";
 
 import "@/components/tiptap-node/blockquote-node/blockquote-node.scss";
 import "@/components/tiptap-node/code-block-node/code-block-node.scss";
@@ -53,23 +49,18 @@ const NotePage = () => {
 					enableClickSelection: true,
 				},
 			}),
+			Placeholder.configure({
+				placeholder: "Start typing here...",
+			}),
 			HorizontalRule,
 			TextAlign.configure({ types: ["heading", "paragraph"] }),
 			TaskList,
 			TaskItem.configure({ nested: true }),
 			Highlight.configure({ multicolor: true }),
-			Image,
 			Typography,
 			Superscript,
 			Subscript,
 			Selection,
-			ImageUploadNode.configure({
-				accept: "image/*",
-				maxSize: MAX_FILE_SIZE,
-				limit: 3,
-				upload: handleImageUpload,
-				onError: (error: Error) => console.error("Upload failed:", error),
-			}),
 		],
 		content: "<p></p>",
 	});
@@ -79,7 +70,7 @@ const NotePage = () => {
 	return (
 		<div className="p-4 grow h-full w-full flex justify-center">
 			<EditorContext.Provider value={{ editor }}>
-				<div className="md:w-[90%] flex flex-col gap-1">
+				<div className="md:w-[90%] flex flex-col gap-4">
 					<MainToolbarContent />
 					<EditorContent
 						editor={editor}
@@ -132,12 +123,6 @@ const MainToolbarContent = () => {
 				<TextAlignButton align="center" />
 				<TextAlignButton align="right" />
 				<TextAlignButton align="justify" />
-			</ToolbarGroup>
-
-			<ToolbarSeparator />
-
-			<ToolbarGroup>
-				<ImageUploadButton text="Add" />
 			</ToolbarGroup>
 		</div>
 	);

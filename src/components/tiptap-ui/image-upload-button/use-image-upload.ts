@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useHotkeys } from "react-hotkeys-hook";
 import { type Editor } from "@tiptap/react";
 
@@ -162,7 +162,7 @@ export function useImageUpload(config?: UseImageUploadConfig) {
 		};
 	}, [editor, hideWhenUnavailable]);
 
-	const handleImage = useCallback(() => {
+	const handleImage = () => {
 		if (!editor) return false;
 
 		const success = insertImage(editor);
@@ -170,7 +170,7 @@ export function useImageUpload(config?: UseImageUploadConfig) {
 			onInserted?.();
 		}
 		return success;
-	}, [editor, onInserted]);
+	};
 
 	useHotkeys(
 		IMAGE_UPLOAD_SHORTCUT_KEY,

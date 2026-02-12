@@ -1,4 +1,4 @@
-import { forwardRef, useCallback } from "react";
+import { forwardRef } from "react";
 
 // --- Lib ---
 import { parseShortcutKeys } from "@/lib/tiptap-utils";
@@ -76,14 +76,11 @@ export const UndoRedoButton = forwardRef<
 				onExecuted,
 			});
 
-		const handleClick = useCallback(
-			(event: React.MouseEvent<HTMLButtonElement>) => {
-				onClick?.(event);
-				if (event.defaultPrevented) return;
-				handleAction();
-			},
-			[handleAction, onClick],
-		);
+		const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+			onClick?.(event);
+			if (event.defaultPrevented) return;
+			handleAction();
+		};
 
 		if (!isVisible) {
 			return null;

@@ -1,4 +1,4 @@
-import { forwardRef, useCallback } from "react";
+import { forwardRef } from "react";
 
 // --- Lib ---
 import { parseShortcutKeys } from "@/lib/tiptap-utils";
@@ -84,14 +84,11 @@ export const ImageUploadButton = forwardRef<
 			onInserted,
 		});
 
-		const handleClick = useCallback(
-			(event: React.MouseEvent<HTMLButtonElement>) => {
-				onClick?.(event);
-				if (event.defaultPrevented) return;
-				handleImage();
-			},
-			[handleImage, onClick],
-		);
+		const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+			onClick?.(event);
+			if (event.defaultPrevented) return;
+			handleImage();
+		};
 
 		if (!isVisible) {
 			return null;

@@ -450,15 +450,14 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
 
 		if (urls.length > 0) {
 			const pos = props.getPos();
-
+			const cleanUrls = urls.map((url) => url.replace(/^public\//, "/"));
 			if (isValidPosition(pos)) {
-				const imageNodes = urls.map((url, index) => {
+				const imageNodes = cleanUrls.map((url, index) => {
 					const filename =
-						files[index]?.name.replace(/\.[^/.]+$/, "") || "unknown";
+						files[index]?.name.replace(/\.[^/.]+$/, "") || "image";
 					return {
-						type: extension.options.type,
+						type: "image", // Force 'image' type explicitly
 						attrs: {
-							...extension.options,
 							src: url,
 							alt: filename,
 							title: filename,
@@ -469,11 +468,13 @@ export const ImageUploadNode: React.FC<NodeViewProps> = (props) => {
 				props.editor
 					.chain()
 					.focus()
+					// Delete the current upload placeholder node
 					.deleteRange({ from: pos, to: pos + props.node.nodeSize })
+					// Insert the actual images at that exact spot
 					.insertContentAt(pos, imageNodes)
 					.run();
 
-				focusNextNode(props.editor);
+				setTimeout(() => focusNextNode(props.editor), 10);
 			}
 		}
 	};
