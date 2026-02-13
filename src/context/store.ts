@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { User } from "@/lib/commonTypes";
+import type { Note, User } from "@/lib/commonTypes";
 import type { ACCENTS } from "@/lib/utils";
 
 export type Accent = (typeof ACCENTS)[number];
@@ -21,7 +21,12 @@ interface ThemeState {
 	setAccent: (accent: Accent) => void;
 }
 
-interface AppState extends AuthState, ThemeState {
+interface DataState {
+	notes: Note[] | null;
+	setNotes: (notes: Note[] | null) => void;
+}
+
+interface AppState extends AuthState, ThemeState, DataState {
 	loading: boolean;
 	setLoading: (loading: boolean) => void;
 }
@@ -33,7 +38,7 @@ export const useStore = create<AppState>((set) => ({
 	init: false,
 	setAuth: (token, user) => set({ accessToken: token, user }),
 	setInit: (init) => set({ init }),
-	logout: () => set({ accessToken: null, user: null }),
+	logout: () => set({ accessToken: null, user: null, notes: null }),
 	// theme
 	theme: (localStorage.getItem("theme") as Theme) || "dark",
 	accent: (localStorage.getItem("accent") as Accent) || "default",
@@ -48,6 +53,9 @@ export const useStore = create<AppState>((set) => ({
 		document.documentElement.setAttribute("data-accent", accent);
 		set({ accent });
 	},
+	// data state
+	notes: null,
+	setNotes: (notes) => set({ notes }),
 	// ui state
 	loading: false,
 	setLoading: (loading) => set({ loading }),

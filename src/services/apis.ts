@@ -3,12 +3,14 @@ import type {
 	AccessTokenResponse,
 	ApiResponse,
 	LoginRequest,
+	Note,
+	NoteModifyRequest,
 	SignupRequest,
 	User,
 } from "@/lib/commonTypes";
 import { AuthError } from "@/lib/errors";
 
-export const BASE_URL = "http://localhost:8080";
+export const BASE_URL = "http://localhost:8086";
 
 // ------------------ Auth services ------------------ //
 
@@ -232,4 +234,110 @@ export const getUserInfo = async (): Promise<User> => {
 		throw new Error(String(result?.data) || "Failed to fetch user info");
 	}
 	return result.data as User;
+};
+
+export const fetchNotes = async (): Promise<Note[]> => {
+	const { accessToken } = useStore.getState();
+	if (!accessToken) {
+		throw new AuthError("No access token present");
+	}
+	const url = `${BASE_URL}/notes`;
+	const options: RequestInit = {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+		credentials: "include",
+	};
+	const response = await fetch(url, options);
+	const result: ApiResponse<Note[]> = await response.json();
+	if (!response.ok) {
+		if (response.status === 401) {
+			throw new AuthError("Unauthorized. Please log in again.");
+		}
+		throw new Error(String(result?.data) || "Failed to fetch notes");
+	}
+	return result.data as Note[];
+};
+
+export const createNote = async (
+	requestBody: NoteModifyRequest,
+): Promise<Note> => {
+	const { accessToken } = useStore.getState();
+	if (!accessToken) {
+		throw new AuthError("No access token present");
+	}
+	const url = `${BASE_URL}/notes`;
+	const options: RequestInit = {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+		credentials: "include",
+		body: JSON.stringify(requestBody),
+	};
+	const response = await fetch(url, options);
+	const result: ApiResponse<Note> = await response.json();
+	if (!response.ok) {
+		if (response.status === 401) {
+			throw new AuthError("Unauthorized. Please log in again.");
+		}
+		throw new Error(String(result?.data) || "Failed to create note");
+	}
+	return result.data as Note;
+};
+
+export const updateNote = async (
+	noteId: string,
+	requestBody: NoteModifyRequest,
+): Promise<Note> => {
+	const { accessToken } = useStore.getState();
+	if (!accessToken) {
+		throw new AuthError("No access token present");
+	}
+	const url = `${BASE_URL}/notes/${noteId}`;
+	const options: RequestInit = {
+		method: "PUT",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+		credentials: "include",
+		body: JSON.stringify(requestBody),
+	};
+	const response = await fetch(url, options);
+	const result: ApiResponse<Note> = await response.json();
+	if (!response.ok) {
+		if (response.status === 401) {
+			throw new AuthError("Unauthorized. Please log in again.");
+		}
+		throw new Error(String(result?.data) || "Failed to create note");
+	}
+	return result.data as Note;
+};
+
+export const deleteNote = async (noteId: string): Promise<void> => {
+	const { accessToken } = useStore.getState();
+	if (!accessToken) {
+		throw new AuthError("No access token present");
+	}
+	const url = `${BASE_URL}/notes/${noteId}`;
+	const options: RequestInit = {
+		method: "DELETE",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+		credentials: "include",
+	};
+	const response = await fetch(url, options);
+	const result: ApiResponse<void> = await response.json();
+	if (!response.ok) {
+		if (response.status === 401) {
+			throw new AuthError("Unauthorized. Please log in again.");
+		}
+		throw new Error(String(result?.data) || "Failed to create note");
+	}
 };

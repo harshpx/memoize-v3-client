@@ -1,4 +1,5 @@
 import CustomizableButton from "@/components/custom/CustomizableButton";
+import Loader from "@/components/custom/Loader";
 import ThemeSwitch from "@/components/custom/ThemeSwitch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -14,9 +15,11 @@ import {
 } from "@/components/ui/resizable";
 import { useStore } from "@/context/store";
 import useMediaQuery from "@/hooks/useMediaQuery";
+import type { Note } from "@/lib/commonTypes";
 import { cn } from "@/lib/utils";
+import { fetchNotes } from "@/services/apis";
 import { logoutUser } from "@/services/services";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FaTasks } from "react-icons/fa";
 import { LuNotebookPen } from "react-icons/lu";
 import { MdDashboardCustomize } from "react-icons/md";
@@ -28,6 +31,29 @@ const DashboardLayout = () => {
 	const isDesktop = useMediaQuery("(min-width: 768px)");
 	const sidebarRef = usePanelRef();
 	const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+	const { setNotes, loading, setLoading } = useStore();
+
+	// fetch notes on mount!
+	useEffect(() => {
+		(async () => {
+			setLoading(true);
+			try {
+				const notes: Note[] = await fetchNotes();
+				setNotes(notes);
+			} catch (error) {
+				const errorMessage: string =
+					error instanceof Error ? error.message : "Failed to fetch notes";
+				console.error(errorMessage);
+			} finally {
+				setLoading(false);
+			}
+		})();
+	}, []);
+
+	if (loading) {
+		return <Loader />;
+	}
+
 	return (
 		<div className="h-screen w-full overflow-hidden">
 			<div className="absolute right-2 top-2">

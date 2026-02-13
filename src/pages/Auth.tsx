@@ -52,7 +52,7 @@ const Auth: FC = () => {
 	const { loading } = useStore();
 	const [activePage, setActivePage] = useState("login");
 	return (
-		<div className="relative h-screen w-full flex flex-col items-center justify-center transition-all duration-400 ease-in">
+		<div className="relative h-screen w-screen flex flex-col items-center justify-center transition-all duration-400 ease-in">
 			{loading && <Loader />}
 			<div
 				className={`${isLargeScreen ? "absolute top-0 left-0" : "bg-linear-to-l from-accent-dark to-accent-light"} px-4 py-4 w-full flex items-center justify-between ${activePage === "signup" && isLargeScreen ? "" : "flex-row-reverse"}`}>
@@ -117,7 +117,7 @@ const Auth: FC = () => {
 					<Tabs
 						value={activePage}
 						onValueChange={setActivePage}
-						className="p-4 w-full sm:w-150 flex flex-col items-center">
+						className="p-2 xl:p-4 w-full sm:w-150 flex flex-col items-center">
 						{!isLargeScreen && (
 							<TabsList className="grid grid-cols-2 w-full sm:w-100 h-10">
 								{tabs.map((tab, key) => (
@@ -128,19 +128,19 @@ const Auth: FC = () => {
 							</TabsList>
 						)}
 						{tabs.map((tab, key) => (
-							<TabsContent key={key} value={tab?.value} className="w-full">
+							<TabsContent key={key} value={tab?.value} className="w-fit">
 								<motion.div
 									initial={tab.initial}
 									animate={tab.animate}
 									transition={tab.transition}>
-									<Card className="border-none bg-transparent shadow-none">
-										<CardHeader className="text-center">
+									<Card className="border-none w-fit p-0 bg-transparent shadow-none items-center">
+										<CardHeader className="text-center w-full">
 											<CardTitle className="text-xl">{tab?.label}</CardTitle>
 											<CardDescription className="flex flex-col gap-1">
 												<span>{tab?.description}</span>
 											</CardDescription>
 										</CardHeader>
-										<CardContent className="flex items-center justify-center">
+										<CardContent className="flex items-center justify-center w-fit">
 											{tab?.content}
 										</CardContent>
 										<CardFooter className="justify-center">

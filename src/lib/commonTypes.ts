@@ -40,3 +40,16 @@ export interface AccessTokenResponse {
 	accessToken: string;
 	userId?: string;
 }
+
+export interface Note {
+	id: string;
+	content: string;
+	preview: string;
+	createdAt: string;
+	updatedAt: string;
+}
+
+export interface NoteModifyRequest {
+	content: string;
+	preview: string;
+}
