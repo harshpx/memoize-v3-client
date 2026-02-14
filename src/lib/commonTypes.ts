@@ -42,11 +42,11 @@ export interface AccessTokenResponse {
 }
 
 export interface Note {
-	id: string;
+	id?: string;
 	content: string;
 	preview: string;
-	createdAt: string;
-	updatedAt: string;
+	createdAt?: string;
+	updatedAt?: string;
 }
 
 export interface NoteModifyRequest {

@@ -236,6 +236,14 @@ export const getUserInfo = async (): Promise<User> => {
 	return result.data as User;
 };
 
+// ------------------ Note services ------------------ //
+
+/**
+ * @access private
+ * @returns {Promise<Note>}
+ * @throws {Error}
+ * @description This function fetches all the notes of a user
+ */
 export const fetchNotes = async (): Promise<Note[]> => {
 	const { accessToken } = useStore.getState();
 	if (!accessToken) {
@@ -276,6 +284,7 @@ export const createNote = async (
 			Authorization: `Bearer ${accessToken}`,
 		},
 		credentials: "include",
+		keepalive: true,
 		body: JSON.stringify(requestBody),
 	};
 	const response = await fetch(url, options);
@@ -305,6 +314,7 @@ export const updateNote = async (
 			Authorization: `Bearer ${accessToken}`,
 		},
 		credentials: "include",
+		keepalive: true,
 		body: JSON.stringify(requestBody),
 	};
 	const response = await fetch(url, options);

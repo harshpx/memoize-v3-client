@@ -52,18 +52,27 @@ const Auth: FC = () => {
 	const { loading } = useStore();
 	const [activePage, setActivePage] = useState("login");
 	return (
-		<div className="relative h-screen w-screen flex flex-col items-center justify-center transition-all duration-400 ease-in">
+		<div className="relative h-screen w-screen flex flex-col items-center justify-center">
 			{loading && <Loader />}
-			<div
-				className={`${isLargeScreen ? "absolute top-0 left-0" : "bg-linear-to-l from-accent-dark to-accent-light"} px-4 py-4 w-full flex items-center justify-between ${activePage === "signup" && isLargeScreen ? "" : "flex-row-reverse"}`}>
+			<motion.div
+				layout
+				className={`${isLargeScreen ? "absolute top-0 left-0" : "bg-linear-to-l from-accent-dark to-accent-light"} px-4 py-4 w-full flex items-center justify-between ${isLargeScreen && activePage === "signup" ? "" : "flex-row-reverse"}`}
+				transition={{ duration: 0.3 }}>
 				<ThemeSwitch buttonStyle={isLargeScreen ? "accent" : "themed"} />
 				{!isLargeScreen && <Logo className="dark:text-black" />}
-			</div>
+			</motion.div>
 			<div
 				className={`grow flex justify-center items-stretch w-full p-4 py-5 transition-all duration-400 ease-in ${!isLargeScreen ? "bg-linear-to-l from-accent-dark to-accent-light" : ""}`}>
 				{isLargeScreen && (
-					<div
-						className={`z-20 relative w-1/2 bg-linear-to-b from-accent-dark to-accent-dark/90 rounded-2xl flex flex-col items-center justify-center gap-4 transition-transform duration-500 ease-in-out ${activePage === "signup" && isLargeScreen ? "translate-x-full" : "translate-x-0"}`}>
+					<motion.div
+						layout
+						className={`z-20 relative w-1/2 bg-linear-to-b from-accent-dark to-accent-dark/90 rounded-2xl flex flex-col items-center justify-center gap-4 ${activePage === "signup" ? "translate-x-full" : "translate-x-0"}`}
+						transition={{
+							duration: 0.2,
+							type: "spring",
+							damping: 14,
+							stiffness: 140,
+						}}>
 						<div className="absolute top-4 left-4">
 							<Logo />
 						</div>
@@ -93,16 +102,21 @@ const Auth: FC = () => {
 								{activePage === "login" ? "to get started!" : "and continue!"}
 							</p>
 						</div>
-					</div>
+					</motion.div>
 				)}
-				<div
+				<motion.div
+					layout
 					className={`
-            ${isLargeScreen ? "w-1/2 self-center" : "w-full sm:w-150 self-start"} 
+            ${isLargeScreen ? "w-1/2 self-center bg-none" : "w-full sm:w-150 self-start bg-white dark:bg-black"} 
             flex flex-col items-center justify-center py-4 rounded-xl
-            transition-transform duration-100 ease-in-out 
-            ${isLargeScreen ? "bg-none" : "bg-white dark:bg-black"}
-            ${activePage === "signup" && isLargeScreen ? "-translate-x-full" : "translate-x-0"}
-          `}>
+            ${isLargeScreen && activePage === "signup" ? "-translate-x-full" : "translate-x-0"}
+          `}
+					transition={{
+						duration: 0.2,
+						type: "spring",
+						damping: 14,
+						stiffness: 140,
+					}}>
 					{!isLargeScreen && (
 						<div className="flex flex-col gap-2 items-center justify-center">
 							<p className="text-2xl font-extralight">
@@ -117,7 +131,7 @@ const Auth: FC = () => {
 					<Tabs
 						value={activePage}
 						onValueChange={setActivePage}
-						className="p-2 xl:p-4 w-full sm:w-150 flex flex-col items-center">
+						className="p-2 xl:p-4 w-full flex flex-col items-center">
 						{!isLargeScreen && (
 							<TabsList className="grid grid-cols-2 w-full sm:w-100 h-10">
 								{tabs.map((tab, key) => (
@@ -129,40 +143,35 @@ const Auth: FC = () => {
 						)}
 						{tabs.map((tab, key) => (
 							<TabsContent key={key} value={tab?.value} className="w-fit">
-								<motion.div
-									initial={tab.initial}
-									animate={tab.animate}
-									transition={tab.transition}>
-									<Card className="border-none w-fit p-0 bg-transparent shadow-none items-center">
-										<CardHeader className="text-center w-full">
-											<CardTitle className="text-xl">{tab?.label}</CardTitle>
-											<CardDescription className="flex flex-col gap-1">
-												<span>{tab?.description}</span>
-											</CardDescription>
-										</CardHeader>
-										<CardContent className="flex items-center justify-center w-fit">
-											{tab?.content}
-										</CardContent>
-										<CardFooter className="justify-center">
-											<div className="flex gap-1 text-[14px]">
-												<div>{tab?.footer?.text}</div>
-												<div
-													className="text-accent-dark cursor-pointer hover:underline"
-													onClick={() =>
-														setActivePage(
-															tab?.value === "login" ? "signup" : "login",
-														)
-													}>
-													{tab?.footer?.link}
-												</div>
+								<Card className="border-none w-fit p-0 bg-transparent shadow-none items-center">
+									<CardHeader className="text-center w-full">
+										<CardTitle className="text-xl">{tab?.label}</CardTitle>
+										<CardDescription className="flex flex-col gap-1">
+											<span>{tab?.description}</span>
+										</CardDescription>
+									</CardHeader>
+									<CardContent className="flex items-center justify-center w-fit">
+										{tab?.content}
+									</CardContent>
+									<CardFooter className="justify-center">
+										<div className="flex gap-1 text-[14px]">
+											<div>{tab?.footer?.text}</div>
+											<div
+												className="text-accent-dark cursor-pointer hover:underline"
+												onClick={() =>
+													setActivePage(
+														tab?.value === "login" ? "signup" : "login",
+													)
+												}>
+												{tab?.footer?.link}
 											</div>
-										</CardFooter>
-									</Card>
-								</motion.div>
+										</div>
+									</CardFooter>
+								</Card>
 							</TabsContent>
 						))}
 					</Tabs>
-				</div>
+				</motion.div>
 			</div>
 		</div>
 	);

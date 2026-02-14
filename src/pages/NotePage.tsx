@@ -1,3 +1,10 @@
+import { useLocation } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import type { Note } from "@/lib/commonTypes";
+import { emptyNoteTemplate, safeParseForEditor } from "@/lib/utils";
+import { useStore } from "@/context/store";
+import { createNote, updateNote } from "@/services/apis";
+import { toast } from "sonner";
 import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -29,8 +36,113 @@ import "@/components/tiptap-node/image-node/image-node.scss";
 import "@/components/tiptap-node/list-node/list-node.scss";
 import "@/components/tiptap-node/paragraph-node/paragraph-node.scss";
 
+export interface NoteNavData {
+	note?: Note;
+}
+
 const NotePage = () => {
+	const location = useLocation();
+	const initialNote = (location.state as NoteNavData).note ?? emptyNoteTemplate;
+
+	const [currentNote, setCurrentNote] = useState<Note>(initialNote);
+	const [dirty, setDirty] = useState<boolean>(
+		initialNote.content !== currentNote.content,
+	);
+
+	const currentNoteRef = useRef(currentNote);
+	const dirtyRef = useRef(dirty);
+
+	useEffect(() => {
+		currentNoteRef.current = currentNote;
+		dirtyRef.current = dirty;
+	}, [currentNote, dirty]);
+
+	const { notes, setNotes } = useStore();
+
+	const createNoteHelper = async () => {
+		try {
+			const newNote = await createNote({
+				content: currentNoteRef.current.content,
+				preview: currentNoteRef.current.preview,
+			});
+			setNotes(Array.isArray(notes) ? [newNote, ...notes] : [newNote]);
+			toast.success("Saved successfully!", { duration: 1000 });
+		} catch (error) {
+			if (error instanceof Error) {
+				console.error(error.message);
+			}
+			toast.error("Failed to save note", { duration: 1000 });
+		}
+	};
+
+	const updateNoteHelper = async () => {
+		try {
+			if (!currentNoteRef.current.id)
+				throw new Error("Cannot trigger update on a new note");
+			const updatedNote = await updateNote(currentNoteRef.current.id, {
+				content: currentNoteRef.current.content,
+				preview: currentNoteRef.current.preview,
+			});
+			setNotes(
+				Array.isArray(notes)
+					? [
+							updatedNote,
+							...notes.filter((note) => note?.id !== updatedNote?.id),
+						]
+					: [updatedNote],
+			);
+			toast.success("Note updated", { duration: 1000 });
+		} catch (error) {
+			if (error instanceof Error) {
+				console.error(error.message);
+			}
+			toast.error("Failed to update note", { duration: 1000 });
+		}
+	};
+
+	// trigger save on unmount
+	useEffect(() => {
+		return () => {
+			if (dirtyRef.current) {
+				console.log("To be updated!");
+				if (currentNote.id) {
+					updateNoteHelper();
+				} else {
+					createNoteHelper();
+				}
+			}
+		};
+	}, []);
+
+	// trigger save on unload
+	useEffect(() => {
+		const handleUnload = (e: BeforeUnloadEvent) => {
+			e.preventDefault();
+			if (dirtyRef.current) {
+				if (currentNote.id) {
+					updateNoteHelper();
+				} else {
+					createNoteHelper();
+				}
+			}
+		};
+		window.addEventListener("beforeunload", handleUnload);
+		return () => {
+			window.removeEventListener("beforeunload", handleUnload);
+		};
+	}, []);
+
 	const editor = useEditor({
+		onUpdate: (state) => {
+			const contentJson = state.editor.getJSON();
+			const contentPreview = state.editor.getHTML();
+			setDirty(JSON.stringify(contentJson) !== initialNote.content);
+			setCurrentNote((prev) => ({
+				...prev,
+				content: JSON.stringify(contentJson),
+				preview: contentPreview,
+			}));
+		},
 		immediatelyRender: false,
 		editorProps: {
 			attributes: {
@@ -62,7 +174,7 @@ const NotePage = () => {
 			Subscript,
 			Selection,
 		],
-		content: "<p></p>",
+		content: safeParseForEditor(currentNote.content),
 	});
 
 	if (!editor) return null;

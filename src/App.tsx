@@ -28,7 +28,7 @@ const App: FC = () => {
 							<Route path="/dashboard" element={<DashboardLayout />}>
 								<Route index element={<Dashboard />} />
 								<Route path="notes" element={<Notes />} />
-								<Route path="notes/:noteId" element={<NotePage />} />
+								<Route path="notes/editor" element={<NotePage />} />
 								<Route path="tasks" element={<Tasks />} />
 							</Route>
 						</Route>

@@ -123,7 +123,7 @@ const SidebarComponents = ({ collapsed }: { collapsed: boolean }) => {
 					onClick={() => navigate("/dashboard/notes")}
 					className={cn(
 						"w-full hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
-						pathname === "/dashboard/notes"
+						pathname.split("/").includes("notes")
 							? "bg-accent-light/40 dark:bg-accent-light/30"
 							: "",
 						collapsed ? "justify-center" : "justify-start",
@@ -137,7 +137,7 @@ const SidebarComponents = ({ collapsed }: { collapsed: boolean }) => {
 					onClick={() => navigate("/dashboard/tasks")}
 					className={cn(
 						"w-full hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
-						pathname === "/dashboard/tasks"
+						pathname.split("/").includes("tasks")
 							? "bg-accent-light/40 dark:bg-accent-light/30"
 							: "",
 						collapsed ? "justify-center" : "justify-start",
@@ -182,7 +182,7 @@ const DockComponents = () => {
 					onClick={() => navigate("/dashboard/notes")}
 					className={cn(
 						"hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
-						pathname === "/dashboard/notes"
+						pathname.split("/").includes("notes")
 							? "bg-accent-light/40 dark:bg-accent-light/30"
 							: "",
 					)}>
@@ -194,7 +194,7 @@ const DockComponents = () => {
 					onClick={() => navigate("/dashboard/tasks")}
 					className={cn(
 						"hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
-						pathname === "/dashboard/tasks"
+						pathname.split("/").includes("tasks")
 							? "bg-accent-light/40 dark:bg-accent-light/30"
 							: "",
 					)}>
