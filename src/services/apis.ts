@@ -240,11 +240,11 @@ export const getUserInfo = async (): Promise<User> => {
 
 /**
  * @access private
- * @returns {Promise<Note>}
+ * @returns {Promise<Note[]>}
  * @throws {Error}
- * @description This function fetches all the notes of a user
+ * @description This function fetches all active notes of a user
  */
-export const fetchNotes = async (): Promise<Note[]> => {
+export const fetchActiveNotes = async (): Promise<Note[]> => {
 	const { accessToken } = useStore.getState();
 	if (!accessToken) {
 		throw new AuthError("No access token present");
@@ -269,6 +269,43 @@ export const fetchNotes = async (): Promise<Note[]> => {
 	return result.data as Note[];
 };
 
+/**
+ * @access private
+ * @returns {Promise<Note[]>}
+ * @throws {Error}
+ * @description This function fetches all deleted notes of a user
+ */
+export const fetchDeletedNotes = async (): Promise<Note[]> => {
+	const { accessToken } = useStore.getState();
+	if (!accessToken) {
+		throw new AuthError("No access token present");
+	}
+	const url = `${BASE_URL}/notes/deleted`;
+	const options: RequestInit = {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+		credentials: "include",
+	};
+	const response = await fetch(url, options);
+	const result: ApiResponse<Note[]> = await response.json();
+	if (!response.ok) {
+		if (response.status === 401) {
+			throw new AuthError("Unauthorized. Please log in again.");
+		}
+		throw new Error(String(result?.data) || "Failed to fetch notes");
+	}
+	return result.data as Note[];
+};
+
+/**
+ * @access private
+ * @returns {Promise<Note>}
+ * @throws {Error}
+ * @description This function creates a new note for a user
+ */
 export const createNote = async (
 	requestBody: NoteModifyRequest,
 ): Promise<Note> => {
@@ -298,6 +335,12 @@ export const createNote = async (
 	return result.data as Note;
 };
 
+/**
+ * @access private
+ * @returns {Promise<Note>}
+ * @throws {Error}
+ * @description This function updates an existing note of a user
+ */
 export const updateNote = async (
 	noteId: string,
 	requestBody: NoteModifyRequest,
@@ -328,7 +371,13 @@ export const updateNote = async (
 	return result.data as Note;
 };
 
-export const deleteNote = async (noteId: string): Promise<void> => {
+/**
+ * @access private
+ * @returns {Promise<Note>}
+ * @throws {Error}
+ * @description This function soft deletes a note of a user
+ */
+export const deleteNote = async (noteId: string): Promise<Note> => {
 	const { accessToken } = useStore.getState();
 	if (!accessToken) {
 		throw new AuthError("No access token present");
@@ -343,11 +392,43 @@ export const deleteNote = async (noteId: string): Promise<void> => {
 		credentials: "include",
 	};
 	const response = await fetch(url, options);
-	const result: ApiResponse<void> = await response.json();
+	const result: ApiResponse<Note> = await response.json();
 	if (!response.ok) {
 		if (response.status === 401) {
 			throw new AuthError("Unauthorized. Please log in again.");
 		}
 		throw new Error(String(result?.data) || "Failed to create note");
 	}
+	return result.data as Note;
+};
+
+/**
+ * @access private
+ * @returns {Promise<Note>}
+ * @throws {Error}
+ * @description This function restores a soft deleted note of a user
+ */
+export const restoreNote = async (noteId: string): Promise<Note> => {
+	const { accessToken } = useStore.getState();
+	if (!accessToken) {
+		throw new AuthError("No access token present");
+	}
+	const url = `${BASE_URL}/notes/${noteId}/restore`;
+	const options: RequestInit = {
+		method: "PUT",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+		credentials: "include",
+	};
+	const response = await fetch(url, options);
+	const result: ApiResponse<Note> = await response.json();
+	if (!response.ok) {
+		if (response.status === 401) {
+			throw new AuthError("Unauthorized. Please log in again.");
+		}
+		throw new Error(String(result?.data) || "Failed to create note");
+	}
+	return result.data as Note;
 };

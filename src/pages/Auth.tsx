@@ -54,25 +54,18 @@ const Auth: FC = () => {
 	return (
 		<div className="relative h-screen w-screen flex flex-col items-center justify-center">
 			{loading && <Loader />}
-			<motion.div
-				layout
-				className={`${isLargeScreen ? "absolute top-0 left-0" : "bg-linear-to-l from-accent-dark to-accent-light"} px-4 py-4 w-full flex items-center justify-between ${isLargeScreen && activePage === "signup" ? "" : "flex-row-reverse"}`}
-				transition={{ duration: 0.3 }}>
+			<div
+				className={`${isLargeScreen ? "absolute top-0 left-0" : "bg-linear-to-l from-accent-dark to-accent-light"} px-4 py-4 w-full flex items-center justify-between ${isLargeScreen && activePage === "signup" ? "" : "flex-row-reverse"}`}>
 				<ThemeSwitch buttonStyle={isLargeScreen ? "accent" : "themed"} />
 				{!isLargeScreen && <Logo className="dark:text-black" />}
-			</motion.div>
+			</div>
 			<div
 				className={`grow flex justify-center items-stretch w-full p-4 py-5 transition-all duration-400 ease-in ${!isLargeScreen ? "bg-linear-to-l from-accent-dark to-accent-light" : ""}`}>
 				{isLargeScreen && (
 					<motion.div
 						layout
 						className={`z-20 relative w-1/2 bg-linear-to-b from-accent-dark to-accent-dark/90 rounded-2xl flex flex-col items-center justify-center gap-4 ${activePage === "signup" ? "translate-x-full" : "translate-x-0"}`}
-						transition={{
-							duration: 0.2,
-							type: "spring",
-							damping: 14,
-							stiffness: 140,
-						}}>
+						transition={{ duration: 0.15 }}>
 						<div className="absolute top-4 left-4">
 							<Logo />
 						</div>
@@ -111,12 +104,7 @@ const Auth: FC = () => {
             flex flex-col items-center justify-center py-4 rounded-xl
             ${isLargeScreen && activePage === "signup" ? "-translate-x-full" : "translate-x-0"}
           `}
-					transition={{
-						duration: 0.2,
-						type: "spring",
-						damping: 14,
-						stiffness: 140,
-					}}>
+					transition={{ duration: 0.15 }}>
 					{!isLargeScreen && (
 						<div className="flex flex-col gap-2 items-center justify-center">
 							<p className="text-2xl font-extralight">

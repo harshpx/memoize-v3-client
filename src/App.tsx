@@ -4,7 +4,6 @@ import Home from "@/pages/Home";
 import Auth from "@/pages/Auth";
 import NotFound from "@/pages/NotFound";
 import Notes from "./pages/Notes";
-import Tasks from "./pages/Tasks";
 import Dashboard from "./pages/Dashboard";
 import DashboardLayout from "./pages/DashboardLayout";
 import { Toaster } from "./components/ui/sonner";
@@ -13,6 +12,8 @@ import AuthInit from "./components/wrapper/AuthInit";
 import PublicRoute from "./components/wrapper/PublicRoute";
 import ProtectedRoute from "./components/wrapper/ProtectedRoute";
 import NotePage from "./pages/NotePage";
+import Events from "./pages/Events";
+import Trash from "./pages/Trash";
 
 const App: FC = () => {
 	return (
@@ -29,7 +30,8 @@ const App: FC = () => {
 								<Route index element={<Dashboard />} />
 								<Route path="notes" element={<Notes />} />
 								<Route path="notes/editor" element={<NotePage />} />
-								<Route path="tasks" element={<Tasks />} />
+								<Route path="events" element={<Events />} />
+								<Route path="trash" element={<Trash />} />
 							</Route>
 						</Route>
 						<Route path="*" element={<NotFound />} />

@@ -27,8 +27,8 @@ const NoteListItem = ({ note }: NoteListItemProps) => {
 			}
 			className={`rounded-lg border-2 
         ${!note ? "border-accent-light dark:border-accent-dark" : ""} 
-        p-4 flex flex-col justify-between gap-2 break-inside-avoid min-h-52 mb-4 w-full
-        hover:border-accent-light hover:dark:border-accent-dark
+        p-4 flex flex-col justify-between gap-2 break-inside-avoid min-h-52 max-h-96 mb-4 w-full
+        hover:border-accent-light hover:dark:border-accent-dark cursor-pointer
       `}>
 			{note ? (
 				<div
@@ -40,7 +40,7 @@ const NoteListItem = ({ note }: NoteListItemProps) => {
 					<LuPlus className="text-7xl text-accent-light dark:text-accent-dark" />
 				</div>
 			)}
-			<div className="text-[12px] italic text-neutral-500">
+			<div className="text-[12px] italic text-neutral-500 shrink-0">
 				{note?.updatedAt ? formatDate(note.updatedAt) : ""}
 			</div>
 		</div>

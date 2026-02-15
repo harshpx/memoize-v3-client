@@ -7,18 +7,18 @@ import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 const Notes = () => {
 	const navigate = useNavigate();
-	const { notes } = useStore();
+	const { activeNotes } = useStore();
 	return (
 		<div className="p-4 grow h-full w-full flex items-center justify-center overflow-scroll">
-			{!!notes && notes.length > 0 ? (
+			{!!activeNotes && activeNotes.length > 0 ? (
 				<ResponsiveMasonry
 					className="w-full h-full"
 					columnsCountBreakPoints={{ 640: 2, 1024: 3, 1280: 4, 1536: 5 }}>
 					<Masonry className="w-full">
-						{notes.map((note) => (
+						<NoteListItem />
+						{activeNotes.map((note) => (
 							<NoteListItem key={note.id} note={note} />
 						))}
-						<NoteListItem />
 					</Masonry>
 				</ResponsiveMasonry>
 			) : (

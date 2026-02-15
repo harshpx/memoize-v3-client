@@ -22,8 +22,10 @@ interface ThemeState {
 }
 
 interface DataState {
-	notes: Note[] | null;
-	setNotes: (notes: Note[] | null) => void;
+	activeNotes: Note[] | null;
+	setActiveNotes: (notes: Note[] | null) => void;
+	deletedNotes: Note[] | null;
+	setDeletedNotes: (notes: Note[] | null) => void;
 }
 
 interface AppState extends AuthState, ThemeState, DataState {
@@ -38,7 +40,13 @@ export const useStore = create<AppState>((set) => ({
 	init: false,
 	setAuth: (token, user) => set({ accessToken: token, user }),
 	setInit: (init) => set({ init }),
-	logout: () => set({ accessToken: null, user: null, notes: null }),
+	logout: () =>
+		set({
+			accessToken: null,
+			user: null,
+			activeNotes: null,
+			deletedNotes: null,
+		}),
 	// theme
 	theme: (localStorage.getItem("theme") as Theme) || "dark",
 	accent: (localStorage.getItem("accent") as Accent) || "default",
@@ -54,8 +62,10 @@ export const useStore = create<AppState>((set) => ({
 		set({ accent });
 	},
 	// data state
-	notes: null,
-	setNotes: (notes) => set({ notes }),
+	activeNotes: null,
+	setActiveNotes: (notes) => set({ activeNotes: notes }),
+	deletedNotes: null,
+	setDeletedNotes: (notes) => set({ deletedNotes: notes }),
 	// ui state
 	loading: false,
 	setLoading: (loading) => set({ loading }),

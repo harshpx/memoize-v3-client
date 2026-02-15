@@ -35,6 +35,7 @@ import "@/components/tiptap-node/heading-node/heading-node.scss";
 import "@/components/tiptap-node/image-node/image-node.scss";
 import "@/components/tiptap-node/list-node/list-node.scss";
 import "@/components/tiptap-node/paragraph-node/paragraph-node.scss";
+import { retryWithRefresh } from "@/services/services";
 
 export interface NoteNavData {
 	note?: Note;
@@ -57,15 +58,22 @@ const NotePage = () => {
 		dirtyRef.current = dirty;
 	}, [currentNote, dirty]);
 
-	const { notes, setNotes } = useStore();
+	const { activeNotes, setActiveNotes } = useStore();
 
 	const createNoteHelper = async () => {
+		if (currentNoteRef.current.id) {
+			throw new Error("Cannot create a new note with an existing Id");
+		}
 		try {
-			const newNote = await createNote({
-				content: currentNoteRef.current.content,
-				preview: currentNoteRef.current.preview,
-			});
-			setNotes(Array.isArray(notes) ? [newNote, ...notes] : [newNote]);
+			const newNote = await retryWithRefresh(createNote, [
+				{
+					content: currentNoteRef.current.content,
+					preview: currentNoteRef.current.preview,
+				},
+			]);
+			setActiveNotes(
+				Array.isArray(activeNotes) ? [newNote, ...activeNotes] : [newNote],
+			);
 			toast.success("Saved successfully!", { duration: 1000 });
 		} catch (error) {
 			if (error instanceof Error) {
@@ -79,15 +87,19 @@ const NotePage = () => {
 		try {
 			if (!currentNoteRef.current.id)
 				throw new Error("Cannot trigger update on a new note");
-			const updatedNote = await updateNote(currentNoteRef.current.id, {
-				content: currentNoteRef.current.content,
-				preview: currentNoteRef.current.preview,
-			});
-			setNotes(
-				Array.isArray(notes)
+
+			const updatedNote = await retryWithRefresh(updateNote, [
+				currentNoteRef.current.id,
+				{
+					content: currentNoteRef.current.content,
+					preview: currentNoteRef.current.preview,
+				},
+			]);
+			setActiveNotes(
+				Array.isArray(activeNotes)
 					? [
 							updatedNote,
-							...notes.filter((note) => note?.id !== updatedNote?.id),
+							...activeNotes.filter((note) => note?.id !== updatedNote?.id),
 						]
 					: [updatedNote],
 			);
@@ -100,11 +112,20 @@ const NotePage = () => {
 		}
 	};
 
+	// const deleteNoteHelper = async () => {
+	// 	if (currentNote.id && (currentNote.content === emptyNoteTemplate.content)) {
+	// 		try {
+
+	// 		} catch (error) {
+
+	// 		}
+	// 	}
+	// }
+
 	// trigger save on unmount
 	useEffect(() => {
 		return () => {
 			if (dirtyRef.current) {
-				console.log("To be updated!");
 				if (currentNote.id) {
 					updateNoteHelper();
 				} else {
@@ -186,7 +207,7 @@ const NotePage = () => {
 					<MainToolbarContent />
 					<EditorContent
 						editor={editor}
-						className="w-full grow [&_.ProseMirror]:h-full [&_.ProseMirror]:min-h-full [&_.ProseMirror]:outline-none"
+						className="w-full overflow-scroll grow [&_.ProseMirror]:h-full [&_.ProseMirror]:min-h-full [&_.ProseMirror]:outline-none"
 					/>
 				</div>
 			</EditorContext.Provider>

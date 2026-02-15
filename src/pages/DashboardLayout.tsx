@@ -17,13 +17,15 @@ import { useStore } from "@/context/store";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import type { Note } from "@/lib/commonTypes";
 import { cn } from "@/lib/utils";
-import { fetchNotes } from "@/services/apis";
+import { fetchActiveNotes } from "@/services/apis";
 import { logoutUser } from "@/services/services";
 import { useEffect, useState } from "react";
-import { FaTasks } from "react-icons/fa";
-import { LuNotebookPen } from "react-icons/lu";
-import { MdDashboardCustomize } from "react-icons/md";
-import { TbLayoutDashboardFilled } from "react-icons/tb";
+import {
+	LuLayoutDashboard,
+	LuNotebookPen,
+	LuCalendar,
+	LuTrash,
+} from "react-icons/lu";
 import { usePanelRef } from "react-resizable-panels";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
@@ -31,15 +33,15 @@ const DashboardLayout = () => {
 	const isDesktop = useMediaQuery("(min-width: 768px)");
 	const sidebarRef = usePanelRef();
 	const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-	const { setNotes, loading, setLoading } = useStore();
+	const { setActiveNotes, loading, setLoading } = useStore();
 
 	// fetch notes on mount!
 	useEffect(() => {
 		(async () => {
 			setLoading(true);
 			try {
-				const notes: Note[] = await fetchNotes();
-				setNotes(notes);
+				const notes: Note[] = await fetchActiveNotes();
+				setActiveNotes(notes);
 			} catch (error) {
 				const errorMessage: string =
 					error instanceof Error ? error.message : "Failed to fetch notes";
@@ -115,7 +117,7 @@ const SidebarComponents = ({ collapsed }: { collapsed: boolean }) => {
 						collapsed ? "justify-center" : "justify-start",
 					)}>
 					<div className="flex items-center gap-1">
-						<TbLayoutDashboardFilled />
+						<LuLayoutDashboard />
 						<span className="text-sm">{collapsed ? "" : "Dashboard"}</span>
 					</div>
 				</CustomizableButton>
@@ -134,17 +136,31 @@ const SidebarComponents = ({ collapsed }: { collapsed: boolean }) => {
 					</div>
 				</CustomizableButton>
 				<CustomizableButton
-					onClick={() => navigate("/dashboard/tasks")}
+					onClick={() => navigate("/dashboard/events")}
 					className={cn(
 						"w-full hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
-						pathname.split("/").includes("tasks")
+						pathname.split("/").includes("events")
 							? "bg-accent-light/40 dark:bg-accent-light/30"
 							: "",
 						collapsed ? "justify-center" : "justify-start",
 					)}>
 					<div className="flex items-center gap-1">
-						<FaTasks />
-						<span className="text-sm">{collapsed ? "" : "Tasks"}</span>
+						<LuCalendar />
+						<span className="text-sm">{collapsed ? "" : "Events"}</span>
+					</div>
+				</CustomizableButton>
+				<CustomizableButton
+					onClick={() => navigate("/dashboard/trash")}
+					className={cn(
+						"w-full hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
+						pathname.split("/").includes("trash")
+							? "bg-accent-light/40 dark:bg-accent-light/30"
+							: "",
+						collapsed ? "justify-center" : "justify-start",
+					)}>
+					<div className="flex items-center gap-1">
+						<LuTrash />
+						<span className="text-sm">{collapsed ? "" : "Trash"}</span>
 					</div>
 				</CustomizableButton>
 			</div>
@@ -175,7 +191,7 @@ const DockComponents = () => {
 							: "",
 					)}>
 					<div className="flex flex-col items-center justify-center gap-1">
-						<MdDashboardCustomize className="size-5" />
+						<LuLayoutDashboard className="size-5" />
 					</div>
 				</CustomizableButton>
 				<CustomizableButton
@@ -191,15 +207,27 @@ const DockComponents = () => {
 					</div>
 				</CustomizableButton>
 				<CustomizableButton
-					onClick={() => navigate("/dashboard/tasks")}
+					onClick={() => navigate("/dashboard/events")}
 					className={cn(
 						"hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
-						pathname.split("/").includes("tasks")
+						pathname.split("/").includes("events")
 							? "bg-accent-light/40 dark:bg-accent-light/30"
 							: "",
 					)}>
 					<div className="flex flex-col items-center justify-center gap-1">
-						<FaTasks className="size-5" />
+						<LuCalendar className="size-5" />
+					</div>
+				</CustomizableButton>
+				<CustomizableButton
+					onClick={() => navigate("/dashboard/trash")}
+					className={cn(
+						"hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
+						pathname.split("/").includes("trash")
+							? "bg-accent-light/40 dark:bg-accent-light/30"
+							: "",
+					)}>
+					<div className="flex flex-col items-center justify-center gap-1">
+						<LuTrash className="size-5" />
 					</div>
 				</CustomizableButton>
 			</div>
