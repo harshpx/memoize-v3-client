@@ -36,6 +36,8 @@ import "@/components/tiptap-node/image-node/image-node.scss";
 import "@/components/tiptap-node/list-node/list-node.scss";
 import "@/components/tiptap-node/paragraph-node/paragraph-node.scss";
 import { retryWithRefresh } from "@/services/services";
+import { LuTrash } from "react-icons/lu";
+import CustomizableButton from "@/components/custom/CustomizableButton";
 
 export interface NoteNavData {
 	note?: Note;
@@ -256,6 +258,17 @@ const MainToolbarContent = () => {
 				<TextAlignButton align="center" />
 				<TextAlignButton align="right" />
 				<TextAlignButton align="justify" />
+			</ToolbarGroup>
+
+			<ToolbarSeparator />
+
+			<ToolbarGroup>
+				<CustomizableButton
+					className="
+					text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-200 
+					hover:bg-neutral-200 dark:hover:bg-neutral-700/80 p-2">
+					<LuTrash />
+				</CustomizableButton>
 			</ToolbarGroup>
 		</div>
 	);

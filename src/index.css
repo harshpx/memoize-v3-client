@@ -153,3 +153,12 @@
 		@apply font-poppins bg-background text-foreground;
 	}
 }
+
+/* Hide scrollbars everywhere */
+*::-webkit-scrollbar {
+  display: none;
+}
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

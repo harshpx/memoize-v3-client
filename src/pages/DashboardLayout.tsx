@@ -35,7 +35,7 @@ const DashboardLayout = () => {
 	const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 	const { setActiveNotes, loading, setLoading } = useStore();
 
-	// fetch notes on mount!
+	// fetch notes on mount
 	useEffect(() => {
 		(async () => {
 			setLoading(true);
