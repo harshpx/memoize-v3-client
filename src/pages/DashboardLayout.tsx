@@ -15,11 +15,9 @@ import {
 } from "@/components/ui/resizable";
 import { useStore } from "@/context/store";
 import useMediaQuery from "@/hooks/useMediaQuery";
-import type { Note } from "@/lib/commonTypes";
 import { cn } from "@/lib/utils";
-import { fetchActiveNotes } from "@/services/apis";
 import { logoutUser } from "@/services/services";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
 	LuLayoutDashboard,
 	LuNotebookPen,
@@ -33,24 +31,7 @@ const DashboardLayout = () => {
 	const isDesktop = useMediaQuery("(min-width: 768px)");
 	const sidebarRef = usePanelRef();
 	const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-	const { setActiveNotes, loading, setLoading } = useStore();
-
-	// fetch notes on mount
-	useEffect(() => {
-		(async () => {
-			setLoading(true);
-			try {
-				const notes: Note[] = await fetchActiveNotes();
-				setActiveNotes(notes);
-			} catch (error) {
-				const errorMessage: string =
-					error instanceof Error ? error.message : "Failed to fetch notes";
-				console.error(errorMessage);
-			} finally {
-				setLoading(false);
-			}
-		})();
-	}, []);
+	const loading = useStore((state) => state.loading);
 
 	if (loading) {
 		return <Loader />;

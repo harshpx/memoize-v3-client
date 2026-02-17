@@ -1,10 +1,7 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import type { Note } from "@/lib/commonTypes";
 import { emptyNoteTemplate, safeParseForEditor } from "@/lib/utils";
-import { useStore } from "@/context/store";
-import { createNote, updateNote } from "@/services/apis";
-import { toast } from "sonner";
 import HorizontalRule from "@tiptap/extension-horizontal-rule";
 import { EditorContent, EditorContext, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -35,8 +32,14 @@ import "@/components/tiptap-node/heading-node/heading-node.scss";
 import "@/components/tiptap-node/image-node/image-node.scss";
 import "@/components/tiptap-node/list-node/list-node.scss";
 import "@/components/tiptap-node/paragraph-node/paragraph-node.scss";
-import { retryWithRefresh } from "@/services/services";
+import {
+	noteCreateHandler,
+	noteRestoreHandler,
+	noteSoftDeleteHandler,
+	noteUpdateHandler,
+} from "@/services/services";
 import { LuTrash } from "react-icons/lu";
+import { MdRestore } from "react-icons/md";
 import CustomizableButton from "@/components/custom/CustomizableButton";
 
 export interface NoteNavData {
@@ -45,6 +48,7 @@ export interface NoteNavData {
 
 const NotePage = () => {
 	const location = useLocation();
+	const navigate = useNavigate();
 	const initialNote = (location.state as NoteNavData).note ?? emptyNoteTemplate;
 
 	const [currentNote, setCurrentNote] = useState<Note>(initialNote);
@@ -60,78 +64,27 @@ const NotePage = () => {
 		dirtyRef.current = dirty;
 	}, [currentNote, dirty]);
 
-	const { activeNotes, setActiveNotes } = useStore();
-
-	const createNoteHelper = async () => {
-		if (currentNoteRef.current.id) {
-			throw new Error("Cannot create a new note with an existing Id");
-		}
-		try {
-			const newNote = await retryWithRefresh(createNote, [
-				{
-					content: currentNoteRef.current.content,
-					preview: currentNoteRef.current.preview,
-				},
-			]);
-			setActiveNotes(
-				Array.isArray(activeNotes) ? [newNote, ...activeNotes] : [newNote],
-			);
-			toast.success("Saved successfully!", { duration: 1000 });
-		} catch (error) {
-			if (error instanceof Error) {
-				console.error(error.message);
-			}
-			toast.error("Failed to save note", { duration: 1000 });
-		}
-	};
-
-	const updateNoteHelper = async () => {
-		try {
-			if (!currentNoteRef.current.id)
-				throw new Error("Cannot trigger update on a new note");
-
-			const updatedNote = await retryWithRefresh(updateNote, [
-				currentNoteRef.current.id,
-				{
-					content: currentNoteRef.current.content,
-					preview: currentNoteRef.current.preview,
-				},
-			]);
-			setActiveNotes(
-				Array.isArray(activeNotes)
-					? [
-							updatedNote,
-							...activeNotes.filter((note) => note?.id !== updatedNote?.id),
-						]
-					: [updatedNote],
-			);
-			toast.success("Note updated", { duration: 1000 });
-		} catch (error) {
-			if (error instanceof Error) {
-				console.error(error.message);
-			}
-			toast.error("Failed to update note", { duration: 1000 });
-		}
-	};
-
-	// const deleteNoteHelper = async () => {
-	// 	if (currentNote.id && (currentNote.content === emptyNoteTemplate.content)) {
-	// 		try {
-
-	// 		} catch (error) {
-
-	// 		}
-	// 	}
-	// }
-
 	// trigger save on unmount
 	useEffect(() => {
 		return () => {
 			if (dirtyRef.current) {
 				if (currentNote.id) {
-					updateNoteHelper();
+					noteUpdateHandler(
+						currentNoteRef.current.id,
+						{
+							content: currentNoteRef.current.content,
+							preview: currentNoteRef.current.preview,
+						},
+						currentNoteRef.current.isDeleted ? "deleted" : "active",
+					);
 				} else {
-					createNoteHelper();
+					noteCreateHandler(
+						{
+							content: currentNoteRef.current.content,
+							preview: currentNoteRef.current.preview,
+						},
+						currentNoteRef.current.isDeleted ? "deleted" : "active",
+					);
 				}
 			}
 		};
@@ -143,9 +96,22 @@ const NotePage = () => {
 			e.preventDefault();
 			if (dirtyRef.current) {
 				if (currentNote.id) {
-					updateNoteHelper();
+					noteUpdateHandler(
+						currentNoteRef.current.id,
+						{
+							content: currentNoteRef.current.content,
+							preview: currentNoteRef.current.preview,
+						},
+						currentNoteRef.current.isDeleted ? "deleted" : "active",
+					);
 				} else {
-					createNoteHelper();
+					noteCreateHandler(
+						{
+							content: currentNoteRef.current.content,
+							preview: currentNoteRef.current.preview,
+						},
+						currentNoteRef.current.isDeleted ? "deleted" : "active",
+					);
 				}
 			}
 		};
@@ -154,6 +120,16 @@ const NotePage = () => {
 			window.removeEventListener("beforeunload", handleUnload);
 		};
 	}, []);
+
+	const noteDeleteHelper = () => {
+		noteSoftDeleteHandler(currentNoteRef.current.id);
+		navigate("/dashboard/notes", { replace: true });
+	};
+
+	const noteRestoreHelper = () => {
+		noteRestoreHandler(currentNoteRef.current.id);
+		navigate("/dashboard/trash", { replace: true });
+	};
 
 	const editor = useEditor({
 		onUpdate: (state) => {
@@ -206,70 +182,63 @@ const NotePage = () => {
 		<div className="p-4 grow h-full w-full flex justify-center">
 			<EditorContext.Provider value={{ editor }}>
 				<div className="md:w-[90%] flex flex-col gap-4">
-					<MainToolbarContent />
+					<div className="flex gap-1 flex-wrap justify-center w-full">
+						<ToolbarGroup>
+							<UndoRedoButton action="undo" />
+							<UndoRedoButton action="redo" />
+						</ToolbarGroup>
+						<ToolbarSeparator />
+						<ToolbarGroup>
+							<HeadingDropdownMenu levels={[1, 2, 3, 4]} />
+							<ListDropdownMenu
+								types={["bulletList", "orderedList", "taskList"]}
+							/>
+							<BlockquoteButton />
+							<CodeBlockButton />
+						</ToolbarGroup>
+						<ToolbarSeparator />
+						<ToolbarGroup>
+							<MarkButton type="bold" />
+							<MarkButton type="italic" />
+							<MarkButton type="strike" />
+							<MarkButton type="code" />
+							<MarkButton type="underline" />
+						</ToolbarGroup>
+						<ToolbarSeparator />
+						<ToolbarGroup>
+							<MarkButton type="superscript" />
+							<MarkButton type="subscript" />
+						</ToolbarGroup>
+						<ToolbarSeparator />
+						<ToolbarGroup>
+							<TextAlignButton align="left" />
+							<TextAlignButton align="center" />
+							<TextAlignButton align="right" />
+							<TextAlignButton align="justify" />
+						</ToolbarGroup>
+						<ToolbarSeparator />
+						<ToolbarGroup>
+							<CustomizableButton
+								onClick={() => {
+									if (currentNoteRef.current.isDeleted) {
+										noteRestoreHelper();
+									} else {
+										noteDeleteHelper();
+									}
+								}}
+								className="
+								text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-200 
+								hover:bg-neutral-200 dark:hover:bg-neutral-700/80 p-2">
+								{currentNote.isDeleted ? <MdRestore /> : <LuTrash />}
+							</CustomizableButton>
+						</ToolbarGroup>
+					</div>
 					<EditorContent
 						editor={editor}
 						className="w-full overflow-scroll grow [&_.ProseMirror]:h-full [&_.ProseMirror]:min-h-full [&_.ProseMirror]:outline-none"
 					/>
 				</div>
 			</EditorContext.Provider>
-		</div>
-	);
-};
-
-const MainToolbarContent = () => {
-	return (
-		<div className="flex gap-1 flex-wrap justify-center w-full">
-			<ToolbarGroup>
-				<UndoRedoButton action="undo" />
-				<UndoRedoButton action="redo" />
-			</ToolbarGroup>
-
-			<ToolbarSeparator />
-
-			<ToolbarGroup>
-				<HeadingDropdownMenu levels={[1, 2, 3, 4]} />
-				<ListDropdownMenu types={["bulletList", "orderedList", "taskList"]} />
-				<BlockquoteButton />
-				<CodeBlockButton />
-			</ToolbarGroup>
-
-			<ToolbarSeparator />
-
-			<ToolbarGroup>
-				<MarkButton type="bold" />
-				<MarkButton type="italic" />
-				<MarkButton type="strike" />
-				<MarkButton type="code" />
-				<MarkButton type="underline" />
-			</ToolbarGroup>
-
-			<ToolbarSeparator />
-
-			<ToolbarGroup>
-				<MarkButton type="superscript" />
-				<MarkButton type="subscript" />
-			</ToolbarGroup>
-
-			<ToolbarSeparator />
-
-			<ToolbarGroup>
-				<TextAlignButton align="left" />
-				<TextAlignButton align="center" />
-				<TextAlignButton align="right" />
-				<TextAlignButton align="justify" />
-			</ToolbarGroup>
-
-			<ToolbarSeparator />
-
-			<ToolbarGroup>
-				<CustomizableButton
-					className="
-					text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-200 
-					hover:bg-neutral-200 dark:hover:bg-neutral-700/80 p-2">
-					<LuTrash />
-				</CustomizableButton>
-			</ToolbarGroup>
 		</div>
 	);
 };

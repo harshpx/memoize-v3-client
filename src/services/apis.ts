@@ -5,6 +5,8 @@ import type {
 	LoginRequest,
 	Note,
 	NoteModifyRequest,
+	Page,
+	PageRequest,
 	SignupRequest,
 	User,
 } from "@/lib/commonTypes";
@@ -244,43 +246,23 @@ export const getUserInfo = async (): Promise<User> => {
  * @throws {Error}
  * @description This function fetches all active notes of a user
  */
-export const fetchActiveNotes = async (): Promise<Note[]> => {
+export const fetchNotes = async ({
+	page = 0,
+	size = 50,
+	deleted = false,
+}: PageRequest): Promise<Page<Note>> => {
 	const { accessToken } = useStore.getState();
 	if (!accessToken) {
 		throw new AuthError("No access token present");
 	}
-	const url = `${BASE_URL}/notes`;
-	const options: RequestInit = {
-		method: "GET",
-		headers: {
-			"Content-Type": "application/json",
-			Authorization: `Bearer ${accessToken}`,
-		},
-		credentials: "include",
-	};
-	const response = await fetch(url, options);
-	const result: ApiResponse<Note[]> = await response.json();
-	if (!response.ok) {
-		if (response.status === 401) {
-			throw new AuthError("Unauthorized. Please log in again.");
-		}
-		throw new Error(String(result?.data) || "Failed to fetch notes");
-	}
-	return result.data as Note[];
-};
 
-/**
- * @access private
- * @returns {Promise<Note[]>}
- * @throws {Error}
- * @description This function fetches all deleted notes of a user
- */
-export const fetchDeletedNotes = async (): Promise<Note[]> => {
-	const { accessToken } = useStore.getState();
-	if (!accessToken) {
-		throw new AuthError("No access token present");
-	}
-	const url = `${BASE_URL}/notes/deleted`;
+	const params = new URLSearchParams();
+	params.append("deleted", String(deleted));
+	params.append("page", String(page));
+	params.append("size", String(size));
+
+	const url = `${BASE_URL}/notes?${params.toString()}`;
+
 	const options: RequestInit = {
 		method: "GET",
 		headers: {
@@ -290,14 +272,14 @@ export const fetchDeletedNotes = async (): Promise<Note[]> => {
 		credentials: "include",
 	};
 	const response = await fetch(url, options);
-	const result: ApiResponse<Note[]> = await response.json();
+	const result: ApiResponse<Page<Note>> = await response.json();
 	if (!response.ok) {
 		if (response.status === 401) {
 			throw new AuthError("Unauthorized. Please log in again.");
 		}
 		throw new Error(String(result?.data) || "Failed to fetch notes");
 	}
-	return result.data as Note[];
+	return result.data as Page<Note>;
 };
 
 /**
@@ -377,7 +359,7 @@ export const updateNote = async (
  * @throws {Error}
  * @description This function soft deletes a note of a user
  */
-export const deleteNote = async (noteId: string): Promise<Note> => {
+export const softDeleteNote = async (noteId: string): Promise<Note> => {
 	const { accessToken } = useStore.getState();
 	if (!accessToken) {
 		throw new AuthError("No access token present");

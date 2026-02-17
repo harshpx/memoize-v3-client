@@ -1,40 +1,30 @@
 import NoteListItem from "@/components/custom/NoteListItem";
 import { useStore } from "@/context/store";
-import { fetchDeletedNotes } from "@/services/apis";
-import { retryWithRefresh } from "@/services/services";
-import { useEffect } from "react";
+import { notesFetchHandler } from "@/services/services";
+import { useEffect, useRef } from "react";
 import { LuTrash } from "react-icons/lu";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 const Trash = () => {
-	const { deletedNotes, setDeletedNotes, setLoading } = useStore();
+	const notes = useStore((state) => state.notes);
 
-	const fetchDeletedNotesHandler = async () => {
-		if (deletedNotes) return;
-		try {
-			setLoading(true);
-			const deletedNotesList = await retryWithRefresh(fetchDeletedNotes, []);
-			setDeletedNotes(deletedNotesList);
-		} catch (error) {
-			if (error instanceof Error) {
-				console.error(error.message);
-			}
-		} finally {
-			setLoading(false);
-		}
-	};
+	const didRun = useRef(false);
+
 	useEffect(() => {
-		fetchDeletedNotesHandler();
+		if (didRun.current) return;
+		didRun.current = true;
+
+		notesFetchHandler("deleted");
 	}, []);
 
 	return (
 		<div className="p-4 grow h-full w-full flex items-center justify-center overflow-scroll">
-			{!!deletedNotes && deletedNotes.length > 0 ? (
+			{notes.deleted.length > 0 ? (
 				<ResponsiveMasonry
 					className="w-full h-full"
 					columnsCountBreakPoints={{ 640: 2, 1024: 3, 1280: 4, 1536: 5 }}>
 					<Masonry className="w-full">
-						{deletedNotes.map((note) => (
+						{notes.deleted.map((note) => (
 							<NoteListItem key={note.id} note={note} />
 						))}
 					</Masonry>

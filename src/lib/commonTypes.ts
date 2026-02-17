@@ -42,14 +42,36 @@ export interface AccessTokenResponse {
 }
 
 export interface Note {
-	id?: string;
+	id: string;
 	content: string;
 	preview: string;
-	createdAt?: string;
-	updatedAt?: string;
+	createdAt: string;
+	updatedAt: string;
+	isArchived: boolean;
+	isDeleted: boolean;
+	deletedAt?: string;
 }
 
 export interface NoteModifyRequest {
 	content: string;
 	preview: string;
+}
+
+export interface PageRequest {
+	page?: number;
+	size?: number;
+	deleted?: boolean;
+	archived?: boolean;
+}
+
+export interface Page<T> {
+	content: T[]; // content
+	empty: boolean; // is page empty
+	first: boolean; // is first page
+	last: boolean; // is last page
+	number: number; // page number
+	numberOfElements: number; // number of elements inside
+	size: number; // max size per page
+	totalElements: number; // total number of elements
+	totalPages: number; // total number of pages
 }

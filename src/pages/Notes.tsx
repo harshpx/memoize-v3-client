@@ -4,25 +4,36 @@ import { useStore } from "@/context/store";
 import { LuNotebookPen as NoteIcon } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
+import { notesFetchHandler } from "@/services/services";
+import { useEffect, useRef } from "react";
 
 const Notes = () => {
 	const navigate = useNavigate();
-	const { activeNotes } = useStore();
+	const notes = useStore((state) => state.notes);
+
+	const didRun = useRef(false);
+
+	useEffect(() => {
+		if (didRun.current) return;
+		didRun.current = true;
+		notesFetchHandler("active");
+	}, []);
+
 	return (
 		<div className="p-4 grow h-full w-full flex items-center justify-center overflow-scroll">
-			{!!activeNotes && activeNotes.length > 0 ? (
+			{notes.active.length > 0 ? (
 				<ResponsiveMasonry
 					className="w-full h-full"
 					columnsCountBreakPoints={{ 640: 2, 1024: 3, 1280: 4, 1536: 5 }}>
 					<Masonry className="w-full">
-						<NoteListItem />
-						{activeNotes.map((note) => (
-							<NoteListItem key={note.id} note={note} />
+						<NoteListItem className="w-full" />
+						{notes.active.map((note) => (
+							<NoteListItem key={note.id} note={note} className="w-full" />
 						))}
 					</Masonry>
 				</ResponsiveMasonry>
 			) : (
-				<div className="flex flex-col items-center gap-2 text-black/70 dark:text-white/70 border border-white">
+				<div className="flex flex-col items-center gap-2 text-black/70 dark:text-white/70">
 					<NoteIcon className="size-20 " />
 					<span>No notes are there</span>
 					<CustomizableButton

@@ -14,9 +14,15 @@ import "@/components/tiptap-node/paragraph-node/paragraph-node.scss";
 
 export interface NoteListItemProps {
 	note?: Note;
+	className?: string;
+	previewClassName?: string;
 }
 
-const NoteListItem = ({ note }: NoteListItemProps) => {
+const NoteListItem = ({
+	note,
+	className = "",
+	previewClassName = "",
+}: NoteListItemProps) => {
 	const navigate = useNavigate();
 	return (
 		<div
@@ -27,12 +33,12 @@ const NoteListItem = ({ note }: NoteListItemProps) => {
 			}
 			className={`rounded-lg border-2 
         ${!note ? "border-accent-light dark:border-accent-dark" : ""} 
-        p-4 flex flex-col justify-between gap-2 break-inside-avoid min-h-52 max-h-96 mb-4 w-full
-        hover:border-accent-light hover:dark:border-accent-dark cursor-pointer
+        p-4 flex flex-col justify-between gap-2 break-inside-avoid min-h-52 max-h-96 mb-4
+        hover:border-accent-light hover:dark:border-accent-dark cursor-pointer ${className}
       `}>
 			{note ? (
 				<div
-					className="tiptap ProseMirror grow overflow-hidden"
+					className={`tiptap ProseMirror grow overflow-hidden ${previewClassName}`}
 					dangerouslySetInnerHTML={{ __html: note.preview }}
 				/>
 			) : (

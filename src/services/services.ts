@@ -1,7 +1,26 @@
-import { useStore } from "@/context/store";
-import type { LoginRequest, SignupRequest, User } from "@/lib/commonTypes";
+import { useStore, type EntityState } from "@/context/store";
+import type {
+	LoginRequest,
+	Note,
+	NoteModifyRequest,
+	Page,
+	SignupRequest,
+	User,
+} from "@/lib/commonTypes";
 import { AuthError } from "@/lib/errors";
-import { getUserInfo, login, logout, refresh, signup } from "@/services/apis";
+import {
+	createNote,
+	fetchNotes,
+	getUserInfo,
+	login,
+	logout,
+	refresh,
+	restoreNote,
+	signup,
+	softDeleteNote,
+	updateNote,
+} from "@/services/apis";
+import { toast } from "sonner";
 
 const updateAuthState = (accessToken: string | null, user: User | null) => {
 	useStore.getState().setAuth(accessToken, user);
@@ -51,7 +70,7 @@ export const logoutUser = async (): Promise<void> => {
 	try {
 		await logout();
 	} finally {
-		updateAuthState(null, null);
+		useStore.getState().logout();
 	}
 };
 
@@ -92,5 +111,137 @@ export const retryWithRefresh = async <T, A extends any[]>(
 			await logoutUser();
 			throw refreshError;
 		}
+	}
+};
+
+export const notesFetchHandler = async (type: EntityState): Promise<void> => {
+	const {
+		setLoading,
+		notePageNumbers,
+		setNotePageNumbers,
+		hasMoreNotes,
+		setHasMoreNotes,
+	} = useStore.getState();
+	if (!hasMoreNotes[type]) return;
+	try {
+		setLoading(true);
+		const notesData: Page<Note> = await retryWithRefresh(fetchNotes, [
+			{
+				page: notePageNumbers[type] + 1,
+				deleted: type === "deleted",
+			},
+		]);
+		useStore.setState((state) => ({
+			notes: {
+				...state.notes,
+				[type]:
+					notesData.number === 0
+						? [...notesData.content]
+						: [...state.notes[type], ...notesData.content],
+			},
+		}));
+		setNotePageNumbers(type, notesData.number);
+		setHasMoreNotes(type, !notesData.last);
+	} catch (error) {
+		if (error instanceof Error) console.error(error.message);
+		toast.error("Error while fetching notes", { duration: 1000 });
+	} finally {
+		setLoading(false);
+	}
+};
+
+export const noteCreateHandler = async (
+	createContent: NoteModifyRequest,
+	type: EntityState,
+): Promise<void> => {
+	try {
+		const newNote = await retryWithRefresh(createNote, [createContent]);
+		useStore.setState((state) => ({
+			notes: { ...state.notes, [type]: [newNote, ...state.notes.active] },
+		}));
+		toast.success("Saved successfully!", { duration: 1000 });
+	} catch (error) {
+		if (error instanceof Error) console.error(error.message);
+		toast.error("Failed to create note", { duration: 1000 });
+	}
+};
+
+export const noteUpdateHandler = async (
+	noteId: string,
+	updateContent: NoteModifyRequest,
+	type: EntityState,
+): Promise<void> => {
+	try {
+		const updatedNote = await retryWithRefresh(updateNote, [
+			noteId,
+			updateContent,
+		]);
+		useStore.setState((state) => ({
+			notes: {
+				...state.notes,
+				[type]: [
+					updatedNote,
+					...state.notes.active.filter((note) => note.id !== updatedNote.id),
+				],
+			},
+		}));
+		toast.success("Note updated", { duration: 1000 });
+	} catch (error) {
+		if (error instanceof Error) console.error(error.message);
+		toast.error("Failed to create note", { duration: 1000 });
+	}
+};
+
+export const noteSoftDeleteHandler = async (noteId: string) => {
+	try {
+		const updatedNote = await retryWithRefresh(softDeleteNote, [noteId]);
+		useStore.setState((state) => ({
+			notes: {
+				...state.notes,
+				active: [
+					...state.notes.active.filter((note) => note.id !== updatedNote.id),
+				],
+				deleted: [updatedNote, ...state.notes.deleted],
+			},
+		}));
+		toast.success("Note deleted", { duration: 1000 });
+	} catch (error) {
+		if (error instanceof Error) console.error(error.message);
+		toast.error("Failed to delete note", { duration: 1000 });
+	}
+};
+
+export const noteRestoreHandler = async (noteId: string) => {
+	try {
+		const updatedNote = await retryWithRefresh(restoreNote, [noteId]);
+		useStore.setState((state) => ({
+			notes: {
+				...state.notes,
+				active: [updatedNote, ...state.notes.active],
+				deleted: [
+					...state.notes.deleted.filter((note) => note.id !== updatedNote.id),
+				],
+			},
+		}));
+		toast.success("Note restored", { duration: 1000 });
+	} catch (error) {
+		if (error instanceof Error) console.error(error.message);
+		toast.error("Failed to restore note", { duration: 1000 });
+	}
+};
+
+export const dashBoardPreviewFetchHandler = async () => {
+	const { notes } = useStore.getState();
+	try {
+		if (notes.active.length >= 2) return;
+		const newNotes = await retryWithRefresh(fetchNotes, [{ page: 0, size: 2 }]);
+		useStore.setState((state) => ({
+			notes: {
+				...state.notes,
+				active: [...newNotes.content],
+			},
+		}));
+	} catch (error) {
+		if (error instanceof Error) console.error(error.message);
 	}
 };
