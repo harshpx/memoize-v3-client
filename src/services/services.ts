@@ -14,6 +14,7 @@ import {
 	getUserInfo,
 	login,
 	logout,
+	permanentlyDeleteNote,
 	refresh,
 	restoreNote,
 	signup,
@@ -114,6 +115,22 @@ export const retryWithRefresh = async <T, A extends any[]>(
 	}
 };
 
+export const dashBoardPreviewFetchHandler = async () => {
+	const { notes } = useStore.getState();
+	try {
+		if (notes.active.length >= 2) return;
+		const newNotes = await retryWithRefresh(fetchNotes, [{ page: 0, size: 2 }]);
+		useStore.setState((state) => ({
+			notes: {
+				...state.notes,
+				active: [...newNotes.content],
+			},
+		}));
+	} catch (error) {
+		if (error instanceof Error) console.error(error.message);
+	}
+};
+
 export const notesFetchHandler = async (type: EntityState): Promise<void> => {
 	const {
 		setLoading,
@@ -152,12 +169,11 @@ export const notesFetchHandler = async (type: EntityState): Promise<void> => {
 
 export const noteCreateHandler = async (
 	createContent: NoteModifyRequest,
-	type: EntityState,
 ): Promise<void> => {
 	try {
 		const newNote = await retryWithRefresh(createNote, [createContent]);
 		useStore.setState((state) => ({
-			notes: { ...state.notes, [type]: [newNote, ...state.notes.active] },
+			notes: { ...state.notes, active: [newNote, ...state.notes.active] },
 		}));
 		toast.success("Saved successfully!", { duration: 1000 });
 	} catch (error) {
@@ -169,7 +185,6 @@ export const noteCreateHandler = async (
 export const noteUpdateHandler = async (
 	noteId: string,
 	updateContent: NoteModifyRequest,
-	type: EntityState,
 ): Promise<void> => {
 	try {
 		const updatedNote = await retryWithRefresh(updateNote, [
@@ -179,7 +194,7 @@ export const noteUpdateHandler = async (
 		useStore.setState((state) => ({
 			notes: {
 				...state.notes,
-				[type]: [
+				active: [
 					updatedNote,
 					...state.notes.active.filter((note) => note.id !== updatedNote.id),
 				],
@@ -230,18 +245,18 @@ export const noteRestoreHandler = async (noteId: string) => {
 	}
 };
 
-export const dashBoardPreviewFetchHandler = async () => {
-	const { notes } = useStore.getState();
+export const notePermanentDeleteHandler = async (noteId: string) => {
 	try {
-		if (notes.active.length >= 2) return;
-		const newNotes = await retryWithRefresh(fetchNotes, [{ page: 0, size: 2 }]);
+		await retryWithRefresh(permanentlyDeleteNote, [noteId]);
 		useStore.setState((state) => ({
 			notes: {
 				...state.notes,
-				active: [...newNotes.content],
+				deleted: state.notes.deleted.filter((note) => note.id !== noteId),
 			},
 		}));
+		toast.success("Note Deleted permanently", { duration: 1000 });
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
+		toast.error("Failed to delete note permanently", { duration: 1000 });
 	}
 };

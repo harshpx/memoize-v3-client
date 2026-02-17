@@ -242,7 +242,7 @@ export const getUserInfo = async (): Promise<User> => {
 
 /**
  * @access private
- * @returns {Promise<Note[]>}
+ * @returns {Promise<Page<Note>>}
  * @throws {Error}
  * @description This function fetches all active notes of a user
  */
@@ -379,7 +379,7 @@ export const softDeleteNote = async (noteId: string): Promise<Note> => {
 		if (response.status === 401) {
 			throw new AuthError("Unauthorized. Please log in again.");
 		}
-		throw new Error(String(result?.data) || "Failed to create note");
+		throw new Error(String(result?.data) || "Failed to delete note");
 	}
 	return result.data as Note;
 };
@@ -413,4 +413,31 @@ export const restoreNote = async (noteId: string): Promise<Note> => {
 		throw new Error(String(result?.data) || "Failed to create note");
 	}
 	return result.data as Note;
+};
+
+export const permanentlyDeleteNote = async (
+	noteId: string,
+): Promise<number> => {
+	const { accessToken } = useStore.getState();
+	if (!accessToken) {
+		throw new AuthError("No access token present");
+	}
+	const url = `${BASE_URL}/notes/${noteId}/permanent`;
+	const options: RequestInit = {
+		method: "DELETE",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+		credentials: "include",
+	};
+	const response = await fetch(url, options);
+	const result: ApiResponse<number> = await response.json();
+	if (!response.ok) {
+		if (response.status === 401) {
+			throw new AuthError("Unauthorized. Please log in again.");
+		}
+		throw new Error(String(result?.data) || "Failed to delete note");
+	}
+	return result.data as number;
 };

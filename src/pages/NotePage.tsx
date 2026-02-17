@@ -34,6 +34,7 @@ import "@/components/tiptap-node/list-node/list-node.scss";
 import "@/components/tiptap-node/paragraph-node/paragraph-node.scss";
 import {
 	noteCreateHandler,
+	notePermanentDeleteHandler,
 	noteRestoreHandler,
 	noteSoftDeleteHandler,
 	noteUpdateHandler,
@@ -50,7 +51,6 @@ const NotePage = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
 	const initialNote = (location.state as NoteNavData).note ?? emptyNoteTemplate;
-
 	const [currentNote, setCurrentNote] = useState<Note>(initialNote);
 	const [dirty, setDirty] = useState<boolean>(
 		initialNote.content !== currentNote.content,
@@ -67,24 +67,17 @@ const NotePage = () => {
 	// trigger save on unmount
 	useEffect(() => {
 		return () => {
-			if (dirtyRef.current) {
+			if (dirtyRef.current && !currentNoteRef.current.isDeleted) {
 				if (currentNote.id) {
-					noteUpdateHandler(
-						currentNoteRef.current.id,
-						{
-							content: currentNoteRef.current.content,
-							preview: currentNoteRef.current.preview,
-						},
-						currentNoteRef.current.isDeleted ? "deleted" : "active",
-					);
+					noteUpdateHandler(currentNoteRef.current.id, {
+						content: currentNoteRef.current.content,
+						preview: currentNoteRef.current.preview,
+					});
 				} else {
-					noteCreateHandler(
-						{
-							content: currentNoteRef.current.content,
-							preview: currentNoteRef.current.preview,
-						},
-						currentNoteRef.current.isDeleted ? "deleted" : "active",
-					);
+					noteCreateHandler({
+						content: currentNoteRef.current.content,
+						preview: currentNoteRef.current.preview,
+					});
 				}
 			}
 		};
@@ -94,24 +87,17 @@ const NotePage = () => {
 	useEffect(() => {
 		const handleUnload = (e: BeforeUnloadEvent) => {
 			e.preventDefault();
-			if (dirtyRef.current) {
+			if (dirtyRef.current && !currentNoteRef.current.isDeleted) {
 				if (currentNote.id) {
-					noteUpdateHandler(
-						currentNoteRef.current.id,
-						{
-							content: currentNoteRef.current.content,
-							preview: currentNoteRef.current.preview,
-						},
-						currentNoteRef.current.isDeleted ? "deleted" : "active",
-					);
+					noteUpdateHandler(currentNoteRef.current.id, {
+						content: currentNoteRef.current.content,
+						preview: currentNoteRef.current.preview,
+					});
 				} else {
-					noteCreateHandler(
-						{
-							content: currentNoteRef.current.content,
-							preview: currentNoteRef.current.preview,
-						},
-						currentNoteRef.current.isDeleted ? "deleted" : "active",
-					);
+					noteCreateHandler({
+						content: currentNoteRef.current.content,
+						preview: currentNoteRef.current.preview,
+					});
 				}
 			}
 		};
@@ -128,6 +114,11 @@ const NotePage = () => {
 
 	const noteRestoreHelper = () => {
 		noteRestoreHandler(currentNoteRef.current.id);
+		navigate("/dashboard/trash", { replace: true });
+	};
+
+	const notePermanentlyDeleteHelper = () => {
+		notePermanentDeleteHandler(currentNoteRef.current.id);
 		navigate("/dashboard/trash", { replace: true });
 	};
 
@@ -174,6 +165,7 @@ const NotePage = () => {
 			Selection,
 		],
 		content: safeParseForEditor(currentNote.content),
+		editable: !currentNoteRef.current.isDeleted,
 	});
 
 	if (!editor) return null;
@@ -182,40 +174,48 @@ const NotePage = () => {
 		<div className="p-4 grow h-full w-full flex justify-center">
 			<EditorContext.Provider value={{ editor }}>
 				<div className="md:w-[90%] flex flex-col gap-4">
-					<div className="flex gap-1 flex-wrap justify-center w-full">
-						<ToolbarGroup>
-							<UndoRedoButton action="undo" />
-							<UndoRedoButton action="redo" />
-						</ToolbarGroup>
-						<ToolbarSeparator />
-						<ToolbarGroup>
-							<HeadingDropdownMenu levels={[1, 2, 3, 4]} />
-							<ListDropdownMenu
-								types={["bulletList", "orderedList", "taskList"]}
-							/>
-							<BlockquoteButton />
-							<CodeBlockButton />
-						</ToolbarGroup>
-						<ToolbarSeparator />
-						<ToolbarGroup>
-							<MarkButton type="bold" />
-							<MarkButton type="italic" />
-							<MarkButton type="strike" />
-							<MarkButton type="code" />
-							<MarkButton type="underline" />
-						</ToolbarGroup>
-						<ToolbarSeparator />
-						<ToolbarGroup>
-							<MarkButton type="superscript" />
-							<MarkButton type="subscript" />
-						</ToolbarGroup>
-						<ToolbarSeparator />
-						<ToolbarGroup>
-							<TextAlignButton align="left" />
-							<TextAlignButton align="center" />
-							<TextAlignButton align="right" />
-							<TextAlignButton align="justify" />
-						</ToolbarGroup>
+					<div className="flex gap-1 flex-wrap justify-center items-center w-full">
+						{currentNoteRef.current.isDeleted ? (
+							<div className="text-[12px] italic text-red-500 p-2">
+								This note is deleted, restore to edit
+							</div>
+						) : (
+							<>
+								<ToolbarGroup>
+									<UndoRedoButton action="undo" />
+									<UndoRedoButton action="redo" />
+								</ToolbarGroup>
+								<ToolbarSeparator />
+								<ToolbarGroup>
+									<HeadingDropdownMenu levels={[1, 2, 3, 4]} />
+									<ListDropdownMenu
+										types={["bulletList", "orderedList", "taskList"]}
+									/>
+									<BlockquoteButton />
+									<CodeBlockButton />
+								</ToolbarGroup>
+								<ToolbarSeparator />
+								<ToolbarGroup>
+									<MarkButton type="bold" />
+									<MarkButton type="italic" />
+									<MarkButton type="strike" />
+									<MarkButton type="code" />
+									<MarkButton type="underline" />
+								</ToolbarGroup>
+								<ToolbarSeparator />
+								<ToolbarGroup>
+									<MarkButton type="superscript" />
+									<MarkButton type="subscript" />
+								</ToolbarGroup>
+								<ToolbarSeparator />
+								<ToolbarGroup>
+									<TextAlignButton align="left" />
+									<TextAlignButton align="center" />
+									<TextAlignButton align="right" />
+									<TextAlignButton align="justify" />
+								</ToolbarGroup>
+							</>
+						)}
 						<ToolbarSeparator />
 						<ToolbarGroup>
 							<CustomizableButton
@@ -229,8 +229,15 @@ const NotePage = () => {
 								className="
 								text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-200 
 								hover:bg-neutral-200 dark:hover:bg-neutral-700/80 p-2">
-								{currentNote.isDeleted ? <MdRestore /> : <LuTrash />}
+								{currentNoteRef.current.isDeleted ? <MdRestore /> : <LuTrash />}
 							</CustomizableButton>
+							{currentNoteRef.current.isDeleted && (
+								<CustomizableButton
+									onClick={() => notePermanentlyDeleteHelper()}
+									className="text-red-500 hover:bg-neutral-200 dark:hover:bg-neutral-700/80 p-2">
+									<LuTrash />
+								</CustomizableButton>
+							)}
 						</ToolbarGroup>
 					</div>
 					<EditorContent
