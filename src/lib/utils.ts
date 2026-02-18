@@ -1,4 +1,4 @@
-import type { Accent, Theme } from "@/context/store";
+import type { Accent, Entity, Theme } from "@/context/store";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 import type { Note } from "./commonTypes";
@@ -67,8 +67,14 @@ export const safeParseForEditor = (jsonString: string) => {
 };
 
 export const emptyNoteTemplate: Note = {
+	id: "",
 	content: `{"type":"doc","content":[{"type":"paragraph","attrs":{"textAlign":null}}]}`,
 	preview: "<p></p>",
+	createdAt: "",
+	updatedAt: "",
+	isArchived: false,
+	isDeleted: false,
+	deletedAt: "",
 };
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -92,4 +98,16 @@ export const deepCompareObjects = (obj1: any, obj2: any): boolean => {
 		);
 	}
 	return false;
+};
+
+export const entityTypeToName = (
+	entityType: keyof Entity,
+	firstCaps = false,
+	plural = true,
+) => {
+	let value = entityType.toString().toLowerCase();
+	if (value.charAt(value.length - 1) === "s") value = value.slice(0, -1);
+	if (firstCaps) value = value.slice(0, 1).toUpperCase() + value.slice(1);
+	if (plural) value += "s";
+	return value;
 };

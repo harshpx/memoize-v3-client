@@ -49,12 +49,34 @@ export interface Note {
 	updatedAt: string;
 	isArchived: boolean;
 	isDeleted: boolean;
-	deletedAt?: string;
+	deletedAt: string;
 }
 
 export interface NoteModifyRequest {
 	content: string;
 	preview: string;
+}
+
+export interface Event {
+	id?: string;
+	title: string;
+	description: string;
+	date: string;
+	startTime: string;
+	endTime: string;
+	createdAt?: string;
+	updatedAt?: string;
+	isArchived?: boolean;
+	isDeleted?: boolean;
+	deletedAt?: string;
+}
+
+export interface EventModifyRequest {
+	title: string;
+	description?: string;
+	date: string;
+	startTime: string;
+	endTime: string;
 }
 
 export interface PageRequest {

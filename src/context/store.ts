@@ -1,12 +1,10 @@
 // single source of truth
 import { create } from "zustand";
-import type { Note, User } from "@/lib/commonTypes";
+import type { Event, Note, User } from "@/lib/commonTypes";
 import type { ACCENTS } from "@/lib/utils";
 
 export type Accent = (typeof ACCENTS)[number];
 export type Theme = "light" | "dark";
-
-export type EntityState = "active" | "deleted";
 
 interface AuthState {
 	accessToken: string | null;
@@ -24,15 +22,21 @@ interface ThemeState {
 	setAccent: (accent: Accent) => void;
 }
 
+export interface PaginatedData<T> {
+	data: T[];
+	pageNumber: number;
+	hasMore: boolean;
+}
+
+export interface Entity {
+	notes: Note;
+	events: Event;
+}
+export type EntityState = "active" | "deleted";
+export type EntityData<T> = Record<EntityState, PaginatedData<T>>;
+
 interface DataState {
-	// notes
-	notes: Record<EntityState, Note[]>;
-	setNotes: (type: EntityState, notes: Note[]) => void;
-	notePageNumbers: Record<EntityState, number>;
-	setNotePageNumbers: (type: EntityState, pageNumber: number) => void;
-	hasMoreNotes: Record<EntityState, boolean>;
-	setHasMoreNotes: (type: EntityState, flag: boolean) => void;
-	// events (will be added) ...
+	data: Record<keyof Entity, EntityData<Entity[keyof Entity]>>;
 }
 
 interface AppState extends AuthState, ThemeState, DataState {
@@ -52,10 +56,17 @@ export const useStore = create<AppState>((set) => ({
 			// reset auth states
 			accessToken: null,
 			user: null,
-			// reset data states
-			notes: { active: [], deleted: [] },
-			notePageNumbers: { active: -1, deleted: -1 },
-			hasMoreNotes: { active: true, deleted: true },
+			// reset data state
+			data: {
+				notes: {
+					active: { data: [], pageNumber: -1, hasMore: true },
+					deleted: { data: [], pageNumber: -1, hasMore: true },
+				},
+				events: {
+					active: { data: [], pageNumber: -1, hasMore: true },
+					deleted: { data: [], pageNumber: -1, hasMore: true },
+				},
+			},
 		}),
 	// theme
 	theme: (localStorage.getItem("theme") as Theme) || "dark",
@@ -72,17 +83,16 @@ export const useStore = create<AppState>((set) => ({
 		set({ accent });
 	},
 	// data state
-	notes: { active: [], deleted: [] },
-	setNotes: (type: EntityState, notes: Note[]) =>
-		set((state) => ({ notes: { ...state.notes, [type]: notes } })),
-	notePageNumbers: { active: -1, deleted: -1 },
-	setNotePageNumbers: (type: EntityState, value: number) =>
-		set((state) => ({
-			notePageNumbers: { ...state.notePageNumbers, [type]: value },
-		})),
-	hasMoreNotes: { active: true, deleted: true },
-	setHasMoreNotes: (type: EntityState, flag: boolean) =>
-		set((state) => ({ hasMoreNotes: { ...state.hasMoreNotes, [type]: flag } })),
+	data: {
+		notes: {
+			active: { data: [], pageNumber: -1, hasMore: true },
+			deleted: { data: [], pageNumber: -1, hasMore: true },
+		},
+		events: {
+			active: { data: [], pageNumber: -1, hasMore: true },
+			deleted: { data: [], pageNumber: -1, hasMore: true },
+		},
+	},
 	// ui state
 	loading: false,
 	setLoading: (loading) => set({ loading }),

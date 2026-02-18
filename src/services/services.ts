@@ -1,5 +1,6 @@
-import { useStore, type EntityState } from "@/context/store";
+import { useStore, type Entity, type EntityState } from "@/context/store";
 import type {
+	EventModifyRequest,
 	LoginRequest,
 	Note,
 	NoteModifyRequest,
@@ -8,6 +9,7 @@ import type {
 	User,
 } from "@/lib/commonTypes";
 import { AuthError } from "@/lib/errors";
+import { entityTypeToName } from "@/lib/utils";
 import {
 	createNote,
 	fetchNotes,
@@ -115,15 +117,23 @@ export const retryWithRefresh = async <T, A extends any[]>(
 	}
 };
 
-export const dashBoardPreviewFetchHandler = async () => {
-	const { notes } = useStore.getState();
+export const dashBoardPreviewFetchHandler = async (
+	entityType: keyof Entity,
+) => {
+	const { data } = useStore.getState();
 	try {
-		if (notes.active.length >= 2) return;
-		const newNotes = await retryWithRefresh(fetchNotes, [{ page: 0, size: 2 }]);
+		if (data[entityType].active.data.length >= 2) return;
+		const newData = await retryWithRefresh(fetchNotes, [{ page: 0, size: 2 }]);
 		useStore.setState((state) => ({
-			notes: {
-				...state.notes,
-				active: [...newNotes.content],
+			data: {
+				...state.data,
+				[entityType]: {
+					...state.data[entityType],
+					active: {
+						...state.data[entityType].active,
+						data: newData.content,
+					},
+				},
 			},
 		}));
 	} catch (error) {
@@ -131,132 +141,241 @@ export const dashBoardPreviewFetchHandler = async () => {
 	}
 };
 
-export const notesFetchHandler = async (type: EntityState): Promise<void> => {
-	const {
-		setLoading,
-		notePageNumbers,
-		setNotePageNumbers,
-		hasMoreNotes,
-		setHasMoreNotes,
-	} = useStore.getState();
-	if (!hasMoreNotes[type]) return;
+export const dataFetchHandler = async (
+	entityType: keyof Entity,
+	entityState: EntityState,
+): Promise<void> => {
+	const { setLoading, data } = useStore.getState();
+	if (!data[entityType][entityState].hasMore) return;
 	try {
 		setLoading(true);
-		const notesData: Page<Note> = await retryWithRefresh(fetchNotes, [
+		const newData: Page<Note> = await retryWithRefresh(fetchNotes, [
 			{
-				page: notePageNumbers[type] + 1,
-				deleted: type === "deleted",
+				page: data[entityType][entityState].pageNumber + 1,
+				deleted: entityState === "deleted",
 			},
 		]);
 		useStore.setState((state) => ({
-			notes: {
-				...state.notes,
-				[type]:
-					notesData.number === 0
-						? [...notesData.content]
-						: [...state.notes[type], ...notesData.content],
+			data: {
+				...state.data,
+				[entityType]: {
+					...state.data[entityType],
+					[entityState]: {
+						data:
+							newData.number === 0
+								? [...newData.content]
+								: [
+										...state.data[entityType][entityState].data,
+										...newData.content,
+									],
+						pageNumber: newData.number,
+						hasMore: !newData.last,
+					},
+				},
 			},
 		}));
-		setNotePageNumbers(type, notesData.number);
-		setHasMoreNotes(type, !notesData.last);
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
-		toast.error("Error while fetching notes", { duration: 1000 });
+		toast.error(`Error while fetching ${entityTypeToName(entityType)}`, {
+			duration: 1000,
+		});
 	} finally {
 		setLoading(false);
 	}
 };
 
-export const noteCreateHandler = async (
-	createContent: NoteModifyRequest,
+export const dataCreateHandler = async (
+	entityType: keyof Entity,
+	createContent: NoteModifyRequest | EventModifyRequest,
 ): Promise<void> => {
 	try {
-		const newNote = await retryWithRefresh(createNote, [createContent]);
-		useStore.setState((state) => ({
-			notes: { ...state.notes, active: [newNote, ...state.notes.active] },
-		}));
-		toast.success("Saved successfully!", { duration: 1000 });
-	} catch (error) {
-		if (error instanceof Error) console.error(error.message);
-		toast.error("Failed to create note", { duration: 1000 });
-	}
-};
-
-export const noteUpdateHandler = async (
-	noteId: string,
-	updateContent: NoteModifyRequest,
-): Promise<void> => {
-	try {
-		const updatedNote = await retryWithRefresh(updateNote, [
-			noteId,
-			updateContent,
+		const newData = await retryWithRefresh(createNote, [
+			createContent as NoteModifyRequest,
 		]);
 		useStore.setState((state) => ({
-			notes: {
-				...state.notes,
-				active: [
-					updatedNote,
-					...state.notes.active.filter((note) => note.id !== updatedNote.id),
-				],
+			data: {
+				...state.data,
+				[entityType]: {
+					...state.data[entityType],
+					active: {
+						...state.data[entityType].active,
+						data: [newData, ...state.data[entityType].active.data],
+					},
+				},
 			},
 		}));
-		toast.success("Note updated", { duration: 1000 });
+		toast.success(
+			`${entityTypeToName(entityType, true, false)} saved successfully!`,
+			{ duration: 1000 },
+		);
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
-		toast.error("Failed to create note", { duration: 1000 });
+		toast.error(
+			`Failed to create ${entityTypeToName(entityType, false, false)}`,
+			{ duration: 1000 },
+		);
 	}
 };
 
-export const noteSoftDeleteHandler = async (noteId: string) => {
+export const dataUpdateHandler = async (
+	entityType: keyof Entity,
+	entityId: string,
+	updateContent: NoteModifyRequest | EventModifyRequest,
+): Promise<void> => {
 	try {
-		const updatedNote = await retryWithRefresh(softDeleteNote, [noteId]);
+		const updatedData = await retryWithRefresh(updateNote, [
+			entityId,
+			updateContent as NoteModifyRequest,
+		]);
 		useStore.setState((state) => ({
-			notes: {
-				...state.notes,
-				active: [
-					...state.notes.active.filter((note) => note.id !== updatedNote.id),
-				],
-				deleted: [updatedNote, ...state.notes.deleted],
+			data: {
+				...state.data,
+				[entityType]: {
+					...state.data[entityType],
+					active: {
+						...state.data[entityType].active,
+						data: [
+							updatedData,
+							...state.data[entityType].active.data.filter(
+								(item) => item.id !== updatedData.id,
+							),
+						],
+					},
+				},
 			},
 		}));
-		toast.success("Note deleted", { duration: 1000 });
+		toast.success(
+			`${entityTypeToName(entityType, true, false)} updated successfully!`,
+			{ duration: 1000 },
+		);
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
-		toast.error("Failed to delete note", { duration: 1000 });
+		toast.error(
+			`Failed to update ${entityTypeToName(entityType, false, false)}`,
+			{ duration: 1000 },
+		);
 	}
 };
 
-export const noteRestoreHandler = async (noteId: string) => {
+export const dataSoftDeleteHandler = async (
+	entityType: keyof Entity,
+	entityId: string,
+) => {
 	try {
-		const updatedNote = await retryWithRefresh(restoreNote, [noteId]);
+		const updatedData = await retryWithRefresh(softDeleteNote, [entityId]);
 		useStore.setState((state) => ({
-			notes: {
-				...state.notes,
-				active: [updatedNote, ...state.notes.active],
-				deleted: [
-					...state.notes.deleted.filter((note) => note.id !== updatedNote.id),
-				],
+			data: {
+				...state.data,
+				[entityType]: {
+					...state.data[entityType],
+					active: {
+						...state.data[entityType].active,
+						data: [
+							...state.data[entityType].active.data.filter(
+								(item) => item.id !== updatedData.id,
+							),
+						],
+					},
+					deleted: {
+						...state.data[entityType].deleted,
+						data: [updatedData, ...state.data[entityType].deleted.data],
+					},
+				},
 			},
 		}));
-		toast.success("Note restored", { duration: 1000 });
+		toast.success(
+			`${entityTypeToName(entityType, true, false)} deleted successfully!`,
+			{ duration: 1000 },
+		);
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
-		toast.error("Failed to restore note", { duration: 1000 });
+		toast.error(
+			`Failed to delete ${entityTypeToName(entityType, false, false)}`,
+			{ duration: 1000 },
+		);
 	}
 };
 
-export const notePermanentDeleteHandler = async (noteId: string) => {
+export const dataRestoreHandler = async (
+	entityType: keyof Entity,
+	entityId: string,
+) => {
 	try {
-		await retryWithRefresh(permanentlyDeleteNote, [noteId]);
+		const updatedData = await retryWithRefresh(restoreNote, [entityId]);
 		useStore.setState((state) => ({
-			notes: {
-				...state.notes,
-				deleted: state.notes.deleted.filter((note) => note.id !== noteId),
+			data: {
+				...state.data,
+				[entityType]: {
+					...state.data[entityType],
+					active: {
+						...state.data[entityType].active,
+						data: [updatedData, ...state.data[entityType].active.data],
+					},
+					deleted: {
+						...state.data[entityType].deleted,
+						data: [
+							...state.data[entityType].deleted.data.filter(
+								(item) => item.id !== updatedData.id,
+							),
+						],
+					},
+				},
 			},
 		}));
-		toast.success("Note Deleted permanently", { duration: 1000 });
+		toast.success(
+			`${entityTypeToName(entityType, true, false)} restored successfully!`,
+			{ duration: 1000 },
+		);
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
-		toast.error("Failed to delete note permanently", { duration: 1000 });
+		toast.error(
+			`Failed to restore ${entityTypeToName(entityType, false, false)}`,
+			{ duration: 1000 },
+		);
+	}
+};
+
+export const dataPermanentDeleteHandler = async (
+	entityType: keyof Entity,
+	entityId: string,
+) => {
+	try {
+		await retryWithRefresh(permanentlyDeleteNote, [entityId]);
+		useStore.setState((state) => ({
+			data: {
+				...state.data,
+				[entityType]: {
+					...state.data[entityType],
+					active: {
+						...state.data[entityType].active,
+						data: [
+							...state.data[entityType].active.data.filter(
+								(item) => item.id !== entityId,
+							),
+						],
+					},
+					deleted: {
+						...state.data[entityType].deleted,
+						data: [
+							...state.data[entityType].deleted.data.filter(
+								(item) => item.id !== entityId,
+							),
+						],
+					},
+				},
+			},
+		}));
+		toast.success(
+			`${entityTypeToName(entityType, true, false)} deleted permanently!`,
+			{ duration: 1000 },
+		);
+	} catch (error) {
+		if (error instanceof Error) console.error(error.message);
+		toast.error(
+			`Failed to delete ${entityTypeToName(entityType, false, false)} permanently`,
+			{
+				duration: 1000,
+			},
+		);
 	}
 };

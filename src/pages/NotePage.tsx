@@ -33,11 +33,11 @@ import "@/components/tiptap-node/image-node/image-node.scss";
 import "@/components/tiptap-node/list-node/list-node.scss";
 import "@/components/tiptap-node/paragraph-node/paragraph-node.scss";
 import {
-	noteCreateHandler,
-	notePermanentDeleteHandler,
-	noteRestoreHandler,
-	noteSoftDeleteHandler,
-	noteUpdateHandler,
+	dataCreateHandler,
+	dataPermanentDeleteHandler,
+	dataRestoreHandler,
+	dataSoftDeleteHandler,
+	dataUpdateHandler,
 } from "@/services/services";
 import { LuTrash } from "react-icons/lu";
 import { MdRestore } from "react-icons/md";
@@ -68,13 +68,13 @@ const NotePage = () => {
 	useEffect(() => {
 		return () => {
 			if (dirtyRef.current && !currentNoteRef.current.isDeleted) {
-				if (currentNote.id) {
-					noteUpdateHandler(currentNoteRef.current.id, {
+				if (currentNoteRef.current.id) {
+					dataUpdateHandler("notes", currentNoteRef.current.id, {
 						content: currentNoteRef.current.content,
 						preview: currentNoteRef.current.preview,
 					});
 				} else {
-					noteCreateHandler({
+					dataCreateHandler("notes", {
 						content: currentNoteRef.current.content,
 						preview: currentNoteRef.current.preview,
 					});
@@ -88,13 +88,13 @@ const NotePage = () => {
 		const handleUnload = (e: BeforeUnloadEvent) => {
 			e.preventDefault();
 			if (dirtyRef.current && !currentNoteRef.current.isDeleted) {
-				if (currentNote.id) {
-					noteUpdateHandler(currentNoteRef.current.id, {
+				if (currentNoteRef.current.id) {
+					dataUpdateHandler("notes", currentNoteRef.current.id, {
 						content: currentNoteRef.current.content,
 						preview: currentNoteRef.current.preview,
 					});
 				} else {
-					noteCreateHandler({
+					dataCreateHandler("notes", {
 						content: currentNoteRef.current.content,
 						preview: currentNoteRef.current.preview,
 					});
@@ -108,17 +108,17 @@ const NotePage = () => {
 	}, []);
 
 	const noteDeleteHelper = () => {
-		noteSoftDeleteHandler(currentNoteRef.current.id);
+		dataSoftDeleteHandler("notes", currentNoteRef.current.id);
 		navigate("/dashboard/notes", { replace: true });
 	};
 
 	const noteRestoreHelper = () => {
-		noteRestoreHandler(currentNoteRef.current.id);
+		dataRestoreHandler("notes", currentNoteRef.current.id);
 		navigate("/dashboard/trash", { replace: true });
 	};
 
 	const notePermanentlyDeleteHelper = () => {
-		notePermanentDeleteHandler(currentNoteRef.current.id);
+		dataPermanentDeleteHandler("notes", currentNoteRef.current.id);
 		navigate("/dashboard/trash", { replace: true });
 	};
 
@@ -216,29 +216,37 @@ const NotePage = () => {
 								</ToolbarGroup>
 							</>
 						)}
-						<ToolbarSeparator />
-						<ToolbarGroup>
-							<CustomizableButton
-								onClick={() => {
-									if (currentNoteRef.current.isDeleted) {
-										noteRestoreHelper();
-									} else {
-										noteDeleteHelper();
-									}
-								}}
-								className="
+						{currentNoteRef.current.id && (
+							<>
+								<ToolbarSeparator />
+								<ToolbarGroup>
+									<CustomizableButton
+										onClick={() => {
+											if (currentNoteRef.current.isDeleted) {
+												noteRestoreHelper();
+											} else {
+												noteDeleteHelper();
+											}
+										}}
+										className="
 								text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-200 
 								hover:bg-neutral-200 dark:hover:bg-neutral-700/80 p-2">
-								{currentNoteRef.current.isDeleted ? <MdRestore /> : <LuTrash />}
-							</CustomizableButton>
-							{currentNoteRef.current.isDeleted && (
-								<CustomizableButton
-									onClick={() => notePermanentlyDeleteHelper()}
-									className="text-red-500 hover:bg-neutral-200 dark:hover:bg-neutral-700/80 p-2">
-									<LuTrash />
-								</CustomizableButton>
-							)}
-						</ToolbarGroup>
+										{currentNoteRef.current.isDeleted ? (
+											<MdRestore />
+										) : (
+											<LuTrash />
+										)}
+									</CustomizableButton>
+									{currentNoteRef.current.isDeleted && (
+										<CustomizableButton
+											onClick={() => notePermanentlyDeleteHelper()}
+											className="text-red-500 hover:bg-neutral-200 dark:hover:bg-neutral-700/80 p-2">
+											<LuTrash />
+										</CustomizableButton>
+									)}
+								</ToolbarGroup>
+							</>
+						)}
 					</div>
 					<EditorContent
 						editor={editor}

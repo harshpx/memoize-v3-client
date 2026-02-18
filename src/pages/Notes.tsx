@@ -4,31 +4,36 @@ import { useStore } from "@/context/store";
 import { LuNotebookPen as NoteIcon } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
-import { notesFetchHandler } from "@/services/services";
+import { dataFetchHandler } from "@/services/services";
 import { useEffect, useRef } from "react";
+import type { Note } from "@/lib/commonTypes";
 
 const Notes = () => {
 	const navigate = useNavigate();
-	const notes = useStore((state) => state.notes);
+	const activeNotes = useStore((state) => state.data.notes.active.data);
 
 	const didRun = useRef(false);
 
 	useEffect(() => {
 		if (didRun.current) return;
 		didRun.current = true;
-		notesFetchHandler("active");
+		dataFetchHandler("notes", "active");
 	}, []);
 
 	return (
 		<div className="p-4 grow h-full w-full flex items-center justify-center overflow-scroll">
-			{notes.active.length > 0 ? (
+			{activeNotes.length > 0 ? (
 				<ResponsiveMasonry
 					className="w-full h-full"
 					columnsCountBreakPoints={{ 640: 2, 1024: 3, 1280: 4, 1536: 5 }}>
 					<Masonry className="w-full">
 						<NoteListItem className="w-full" />
-						{notes.active.map((note) => (
-							<NoteListItem key={note.id} note={note} className="w-full" />
+						{activeNotes.map((note) => (
+							<NoteListItem
+								key={note.id}
+								note={note as Note}
+								className="w-full"
+							/>
 						))}
 					</Masonry>
 				</ResponsiveMasonry>
