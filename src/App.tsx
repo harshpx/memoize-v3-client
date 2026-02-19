@@ -14,6 +14,7 @@ import ProtectedRoute from "./components/wrapper/ProtectedRoute";
 import NotePage from "./pages/NotePage";
 import Events from "./pages/Events";
 import Trash from "./pages/Trash";
+import OAuth2Redirect from "./components/wrapper/OAuth2Redirect";
 
 const App: FC = () => {
 	return (
@@ -24,6 +25,7 @@ const App: FC = () => {
 						<Route element={<PublicRoute />}>
 							<Route path="/" element={<Home />} />
 							<Route path="/auth" element={<Auth />} />
+							<Route path="/oauth2redirect" element={<OAuth2Redirect />} />
 						</Route>
 						<Route element={<ProtectedRoute />}>
 							<Route path="/dashboard" element={<DashboardLayout />}>

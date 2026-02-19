@@ -17,6 +17,8 @@ import {
 } from "@/components/ui/card";
 import Loader from "@/components/custom/Loader";
 import { useStore } from "@/context/store";
+import CustomizableButton from "@/components/custom/CustomizableButton";
+import { FaGoogle } from "react-icons/fa";
 
 const tabs = [
 	{
@@ -28,9 +30,6 @@ const tabs = [
 			text: "First time?",
 			link: "Signup!",
 		},
-		initial: { x: 50, opacity: 0 },
-		animate: { x: 0, opacity: 1 },
-		transition: { duration: 0.3 },
 	},
 	{
 		value: "signup",
@@ -41,9 +40,6 @@ const tabs = [
 			text: "Already registered?",
 			link: "Login!",
 		},
-		initial: { x: -50, opacity: 0 },
-		animate: { x: 0, opacity: 1 },
-		transition: { duration: 0.3 },
 	},
 ];
 
@@ -126,7 +122,7 @@ const Auth: FC = () => {
 						onValueChange={setActivePage}
 						className="p-2 xl:p-4 w-full flex flex-col items-center max-h-full overflow-scroll">
 						{!isLargeScreen && (
-							<TabsList className="grid grid-cols-2 max-w-full min-w-[200px] sm:w-100 h-10">
+							<TabsList className="grid grid-cols-2 max-w-full min-w-50 sm:w-100 h-10">
 								{tabs.map((tab, key) => (
 									<TabsTrigger className="" key={key} value={tab.value}>
 										{tab.label}
@@ -149,7 +145,7 @@ const Auth: FC = () => {
 									<CardContent className="flex items-center justify-center w-full">
 										{tab?.content}
 									</CardContent>
-									<CardFooter className="justify-center">
+									<CardFooter className="flex flex-col justify-center gap-4">
 										<div className="flex gap-1 text-[14px]">
 											<div>{tab?.footer?.text}</div>
 											<div
@@ -162,6 +158,17 @@ const Auth: FC = () => {
 												{tab?.footer?.link}
 											</div>
 										</div>
+										<span>Or</span>
+										<CustomizableButton
+											type="button"
+											onClick={() =>
+												(window.location.href =
+													"http://localhost:8086/oauth2/authorization/google")
+											}
+											className="bg-black dark:bg-white text-white dark:text-black">
+											<FaGoogle className="mr-2" />
+											<span className="text-sm">Continue with Google</span>
+										</CustomizableButton>
 									</CardFooter>
 								</Card>
 							</TabsContent>

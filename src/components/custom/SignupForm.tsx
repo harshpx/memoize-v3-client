@@ -229,7 +229,7 @@ const SignupForm = () => {
 						control={formController.control}
 						name="name"
 						render={({ field }) => (
-							<FormItem className="w-full sm:w-[200px]">
+							<FormItem className="w-full sm:w-50">
 								<FormLabel
 									className={
 										formController.formState.errors.name ? "text-red-600" : ""
@@ -261,7 +261,7 @@ const SignupForm = () => {
 						control={formController.control}
 						name="username"
 						render={({ field }) => (
-							<FormItem className="w-full sm:w-[200px]">
+							<FormItem className="w-full sm:w-50">
 								<FormLabel
 									className={
 										formController.formState.errors.username
@@ -312,7 +312,7 @@ const SignupForm = () => {
 						control={formController.control}
 						name="email"
 						render={({ field }) => (
-							<FormItem className="w-full sm:w-[200px]">
+							<FormItem className="w-full sm:w-50">
 								<FormLabel
 									className={
 										formController.formState.errors.email ? "text-red-600" : ""
@@ -360,7 +360,7 @@ const SignupForm = () => {
 						control={formController.control}
 						name="password"
 						render={({ field }) => (
-							<FormItem className="w-full sm:w-[200px]">
+							<FormItem className="w-full sm:w-50">
 								<FormLabel
 									className={
 										formController.formState.errors.password
@@ -385,7 +385,7 @@ const SignupForm = () => {
 						control={formController.control}
 						name="confirmPassword"
 						render={({ field }) => (
-							<FormItem className="w-full sm:w-[200px]">
+							<FormItem className="w-full sm:w-50">
 								<FormLabel
 									className={
 										formController.formState.errors.confirmPassword
@@ -431,7 +431,7 @@ const SignupForm = () => {
 				)}
 				{otpSent && (
 					<div className="flex flex-col items-start justify-center gap-1 mt-4">
-						<div className="text-[14px] font-[500]">One time password</div>
+						<div className="text-[14px] font-medium">One time password</div>
 						<InputOTP maxLength={6} onChange={(val) => setOtp(val)} value={otp}>
 							<InputOTPGroup>
 								<InputOTPSlot index={0} />
