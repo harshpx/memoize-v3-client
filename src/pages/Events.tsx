@@ -1,5 +1,7 @@
+import { NotesLoadingSkeleton } from "@/components/custom/LoadingSkeletons";
+
 const Events = () => {
-	return <div className="p-4 grow">Events are coming soon ...</div>;
+	return <NotesLoadingSkeleton />;
 };
 
 export default Events;

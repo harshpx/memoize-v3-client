@@ -3,7 +3,6 @@ import { loginAndFetchUserInfo } from "@/services/services";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { z } from "zod";
 import CustomizableButton from "./CustomizableButton";
@@ -22,7 +21,6 @@ import { useStore } from "@/context/store";
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginForm = () => {
-	const navigate = useNavigate();
 	const { setLoading } = useStore();
 	const [responseMessage, setResponseMessage] = useState("");
 	const [responseError, setResponseError] = useState(false);
@@ -41,7 +39,6 @@ const LoginForm = () => {
 		try {
 			setLoading(true);
 			await loginAndFetchUserInfo(data);
-			navigate("/dashboard", { replace: true });
 			toast.success("Welcome back to Memoize!", {
 				description: "Login successful! Redirecting to dashboard...",
 				duration: 2000,
@@ -65,13 +62,13 @@ const LoginForm = () => {
 		<Form {...formController}>
 			<form
 				onSubmit={formController.handleSubmit(onSubmit)}
-				className="text-left flex flex-col gap-2 items-center">
-				<div className="gap-3 grid grid-cols-1 sm:grid-cols-2 items-start">
+				className="text-left flex flex-col gap-2 items-center w-full">
+				<div className="gap-3 grid grid-cols-1 sm:grid-cols-2 items-start w-full">
 					<FormField
 						control={formController.control}
 						name="identifier"
 						render={({ field }) => (
-							<FormItem className="w-50">
+							<FormItem className="w-full sm:w-50">
 								<FormLabel
 									className={
 										formController.formState.errors.identifier
@@ -101,7 +98,7 @@ const LoginForm = () => {
 						control={formController.control}
 						name="password"
 						render={({ field }) => (
-							<FormItem className="w-50">
+							<FormItem className="w-full sm:w-50">
 								<FormLabel
 									className={
 										formController.formState.errors.password
@@ -145,7 +142,7 @@ const LoginForm = () => {
 						transition-colors mt-6
 					">
 					<div className="flex items-center gap-2">
-						<span className="text-sm">Get Started</span>
+						<span className="text-sm">Login</span>
 						<ArrowRight size={14} className="" />
 					</div>
 				</CustomizableButton>

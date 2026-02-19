@@ -54,31 +54,36 @@ const Auth: FC = () => {
 	return (
 		<div className="relative h-screen w-screen flex flex-col items-center justify-center">
 			{loading && <Loader />}
+			{!isLargeScreen && (
+				<div
+					className={`bg-accent-dark px-4 h-[56px] w-full flex items-center justify-between shrink-0 `}>
+					<Logo className="dark:text-black" />
+					<ThemeSwitch buttonStyle="themed" />
+				</div>
+			)}
 			<div
-				className={`${isLargeScreen ? "absolute top-0 left-0" : "bg-linear-to-l from-accent-dark to-accent-light"} px-4 py-4 w-full flex items-center justify-between ${isLargeScreen && activePage === "signup" ? "" : "flex-row-reverse"}`}>
-				<ThemeSwitch buttonStyle={isLargeScreen ? "accent" : "themed"} />
-				{!isLargeScreen && <Logo className="dark:text-black" />}
-			</div>
-			<div
-				className={`grow flex justify-center items-stretch w-full p-4 py-5 transition-all duration-400 ease-in ${!isLargeScreen ? "bg-linear-to-l from-accent-dark to-accent-light" : ""}`}>
+				className={`${isLargeScreen ? "h-full" : "h-[calc(100vh-56px)]"} bg-linear-to-b from-accent-dark to-accent-dark/90 flex justify-center items-stretch w-full p-4 py-5 transition-all duration-400 ease-in`}>
 				{isLargeScreen && (
 					<motion.div
 						layout
-						className={`z-20 relative w-1/2 bg-linear-to-b from-accent-dark to-accent-dark/90 rounded-2xl flex flex-col items-center justify-center gap-4 ${activePage === "signup" ? "translate-x-full" : "translate-x-0"}`}
+						className={`z-20 relative w-1/2 rounded-2xl flex flex-col items-center justify-center gap-4 ${activePage === "signup" ? "translate-x-full" : "translate-x-0"}`}
 						transition={{ duration: 0.15 }}>
-						<div className="absolute top-4 left-4">
-							<Logo />
+						<div
+							className={`absolute top-0 ${activePage === "signup" ? "right-0" : "left-0"}`}>
+							<ThemeSwitch buttonStyle="themed" />
 						</div>
-						<p className="text-5xl text-white text-center font-extralight">
+						<p className="text-5xl text-white dark:text-black text-center font-extralight">
 							{activePage === "login" ? "Welcome back to" : "Get started with"}
 						</p>
-						<div className="text-5xl text-white font-semibold">Memoize</div>
-						<p className="font-extralight text-white w-2/3 text-center">
+						<div className="text-5xl text-white dark:text-black font-semibold">
+							Memoize
+						</div>
+						<p className="font-extralight text-white dark:text-black w-2/3 text-center">
 							{activePage === "login"
 								? "Pick up right where you left off — your notes, tasks, and code are waiting."
 								: "Build your second brain with Memoize: Capture ideas, manage tasks, save code, and keep everything connected."}
 						</p>
-						<div className="absolute bottom-10 w-full flex items-center justify-center gap-2 text-[14px] text-white">
+						<div className="mt-10 w-full flex items-center justify-center gap-2 text-[14px] text-white dark:text-black">
 							<p>
 								{activePage === "login"
 									? "Don't have an account?"
@@ -88,7 +93,7 @@ const Auth: FC = () => {
 								onClick={() => {
 									setActivePage(activePage === "login" ? "signup" : "login");
 								}}
-								className="bg-transparent text-white border border-white dark:border-white hover:bg-white/20">
+								className="cursor-pointer bg-transparent text-white dark:text-black border border-white dark:border-black hover:bg-white/20">
 								{activePage === "login" ? "Signup" : "Login"}
 							</Button>
 							<p>
@@ -100,8 +105,8 @@ const Auth: FC = () => {
 				<motion.div
 					layout
 					className={`
-            ${isLargeScreen ? "w-1/2 self-center bg-none" : "w-full sm:w-150 self-start bg-white dark:bg-black"} 
-            flex flex-col items-center justify-center py-4 rounded-xl
+            ${isLargeScreen ? "w-1/2 self-center h-full" : "w-full sm:w-150 self-start max-h-full"} 
+            bg-white dark:bg-black flex flex-col items-center justify-center py-4 rounded-xl
             ${isLargeScreen && activePage === "signup" ? "-translate-x-full" : "translate-x-0"}
           `}
 					transition={{ duration: 0.15 }}>
@@ -119,9 +124,9 @@ const Auth: FC = () => {
 					<Tabs
 						value={activePage}
 						onValueChange={setActivePage}
-						className="p-2 xl:p-4 w-full flex flex-col items-center">
+						className="p-2 xl:p-4 w-full flex flex-col items-center max-h-full overflow-scroll">
 						{!isLargeScreen && (
-							<TabsList className="grid grid-cols-2 w-full sm:w-100 h-10">
+							<TabsList className="grid grid-cols-2 max-w-full min-w-[200px] sm:w-100 h-10">
 								{tabs.map((tab, key) => (
 									<TabsTrigger className="" key={key} value={tab.value}>
 										{tab.label}
@@ -130,7 +135,10 @@ const Auth: FC = () => {
 							</TabsList>
 						)}
 						{tabs.map((tab, key) => (
-							<TabsContent key={key} value={tab?.value} className="w-fit">
+							<TabsContent
+								key={key}
+								value={tab?.value}
+								className="w-fit overflow-scroll">
 								<Card className="border-none w-fit p-0 bg-transparent shadow-none items-center">
 									<CardHeader className="text-center w-full">
 										<CardTitle className="text-xl">{tab?.label}</CardTitle>
@@ -138,7 +146,7 @@ const Auth: FC = () => {
 											<span>{tab?.description}</span>
 										</CardDescription>
 									</CardHeader>
-									<CardContent className="flex items-center justify-center w-fit">
+									<CardContent className="flex items-center justify-center w-full">
 										{tab?.content}
 									</CardContent>
 									<CardFooter className="justify-center">

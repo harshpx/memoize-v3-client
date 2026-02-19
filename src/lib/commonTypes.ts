@@ -50,7 +50,7 @@ export interface Note {
 	updatedAt: string;
 	isArchived: boolean;
 	isDeleted: boolean;
-	deletedAt: string;
+	deletedAt?: string;
 }
 
 export interface NoteModifyRequest {
@@ -59,16 +59,16 @@ export interface NoteModifyRequest {
 }
 
 export interface Event {
-	id?: string;
+	id: string;
 	title: string;
-	description: string;
+	description?: string;
 	date: string;
 	startTime: string;
 	endTime: string;
-	createdAt?: string;
-	updatedAt?: string;
-	isArchived?: boolean;
-	isDeleted?: boolean;
+	createdAt: string;
+	updatedAt: string;
+	isArchived: boolean;
+	isDeleted: boolean;
 	deletedAt?: string;
 }
 
@@ -87,6 +87,7 @@ export interface PageRequest {
 	archived?: boolean;
 }
 
+// imitating spring's Page<T> response
 export interface Page<T> {
 	content: T[]; // content
 	empty: boolean; // is page empty

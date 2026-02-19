@@ -138,7 +138,11 @@ export const dashboardPreviewFetchHandler = async (
 	const { data, setDataLoading } = useStore.getState();
 	try {
 		setDataLoading(true);
-		if (data[entityType].active.data.length >= 2) return;
+		if (
+			data[entityType].active.data.length >= 2 ||
+			!data[entityType].active.hasMore
+		)
+			return;
 		const newData = await retryWithRefresh(fetchNotes, [{ page: 0, size: 2 }]);
 		useStore.setState((state) => ({
 			data: {

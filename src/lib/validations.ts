@@ -39,6 +39,9 @@ export const loginSchema = z
 // Validation schema for signup form
 export const signupSchema = z
 	.object({
+		name: z
+			.string()
+			.min(3, { message: "Name must be greater than 3 characters" }),
 		username: usernameValidation,
 		email: emailValidation,
 		password: z
