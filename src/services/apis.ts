@@ -50,6 +50,26 @@ export const login = async ({
 	return result.data as AccessTokenResponse;
 };
 
+export const sendVerificationCode = async (email: string): Promise<boolean> => {
+	const url = `${BASE_URL}/auth/verify-email`;
+	const options: RequestInit = {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+		},
+		credentials: "include",
+		body: JSON.stringify({ email }),
+	};
+	const response = await fetch(url, options);
+	const result: ApiResponse<boolean> = await response.json();
+	if (!response.ok) {
+		throw new Error(
+			"Failed to send verification code, verify your email, or contact memoize admin",
+		);
+	}
+	return result.data as boolean;
+};
+
 /**
  * @access public
  * @param {SignupRequest} params - signup request param
@@ -62,6 +82,7 @@ export const login = async ({
  * @description This function sends a POST request to the /auth/signup endpoint with the provided name, username, email and password.
  */
 export const signup = async ({
+	verificationCode,
 	name,
 	username,
 	email,
@@ -74,7 +95,7 @@ export const signup = async ({
 			"Content-Type": "application/json",
 		},
 		credentials: "include",
-		body: JSON.stringify({ name, username, email, password }),
+		body: JSON.stringify({ verificationCode, name, username, email, password }),
 	};
 	const response = await fetch(url, options);
 	const result: ApiResponse<AccessTokenResponse> = await response.json();

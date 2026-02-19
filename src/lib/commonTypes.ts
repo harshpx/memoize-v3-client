@@ -25,6 +25,7 @@ export interface LoginRequest {
 }
 
 export interface SignupRequest {
+	verificationCode: string;
 	name: string;
 	username: string;
 	email: string;

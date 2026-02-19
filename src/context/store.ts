@@ -37,6 +37,8 @@ export type EntityData<T> = Record<EntityState, PaginatedData<T>>;
 
 interface DataState {
 	data: Record<keyof Entity, EntityData<Entity[keyof Entity]>>;
+	dataLoading: boolean;
+	setDataLoading: (flag: boolean) => void;
 }
 
 interface AppState extends AuthState, ThemeState, DataState {
@@ -93,6 +95,8 @@ export const useStore = create<AppState>((set) => ({
 			deleted: { data: [], pageNumber: -1, hasMore: true },
 		},
 	},
+	dataLoading: false,
+	setDataLoading: (flag: boolean) => set({ dataLoading: flag }),
 	// ui state
 	loading: false,
 	setLoading: (loading) => set({ loading }),

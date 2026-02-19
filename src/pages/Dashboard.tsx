@@ -1,20 +1,26 @@
+import Loader from "@/components/custom/Loader";
 import NoteListItem from "@/components/custom/NoteListItem";
 import { useStore } from "@/context/store";
 import type { Note } from "@/lib/commonTypes";
-import { dashBoardPreviewFetchHandler } from "@/services/services";
+import { dashboardPreviewFetchHandler } from "@/services/services";
 import { useEffect, useRef } from "react";
 import { LuNotebookPen as NoteIcon } from "react-icons/lu";
 
 const Dashboard = () => {
 	const activeNotes = useStore((state) => state.data.notes.active.data);
+	const loading = useStore((state) => state.dataLoading);
 
 	const didRun = useRef(false);
 
 	useEffect(() => {
 		if (didRun.current) return;
 		didRun.current = true;
-		dashBoardPreviewFetchHandler("notes");
+		dashboardPreviewFetchHandler("notes");
 	}, []);
+
+	if (loading) {
+		return <Loader />;
+	}
 
 	return (
 		<div className="p-4 grow h-full w-full flex flex-col overflow-scroll">

@@ -117,11 +117,27 @@ export const retryWithRefresh = async <T, A extends any[]>(
 	}
 };
 
-export const dashBoardPreviewFetchHandler = async (
+export const initialAuthRefresh = async () => {
+	const { setInit } = useStore.getState();
+	try {
+		await retryWithRefresh(getUserInfo, []);
+	} catch (error) {
+		if (error instanceof Error) {
+			console.error("Auth initialization failed:", error.message);
+		} else {
+			console.info("Auth: No session found on startup.");
+		}
+	} finally {
+		setInit(true);
+	}
+};
+
+export const dashboardPreviewFetchHandler = async (
 	entityType: keyof Entity,
 ) => {
-	const { data } = useStore.getState();
+	const { data, setDataLoading } = useStore.getState();
 	try {
+		setDataLoading(true);
 		if (data[entityType].active.data.length >= 2) return;
 		const newData = await retryWithRefresh(fetchNotes, [{ page: 0, size: 2 }]);
 		useStore.setState((state) => ({
@@ -138,6 +154,8 @@ export const dashBoardPreviewFetchHandler = async (
 		}));
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
+	} finally {
+		setDataLoading(false);
 	}
 };
 
@@ -145,10 +163,10 @@ export const dataFetchHandler = async (
 	entityType: keyof Entity,
 	entityState: EntityState,
 ): Promise<void> => {
-	const { setLoading, data } = useStore.getState();
+	const { data, setDataLoading } = useStore.getState();
 	if (!data[entityType][entityState].hasMore) return;
 	try {
-		setLoading(true);
+		setDataLoading(true);
 		const newData: Page<Note> = await retryWithRefresh(fetchNotes, [
 			{
 				page: data[entityType][entityState].pageNumber + 1,
@@ -180,7 +198,7 @@ export const dataFetchHandler = async (
 			duration: 1000,
 		});
 	} finally {
-		setLoading(false);
+		setDataLoading(false);
 	}
 };
 

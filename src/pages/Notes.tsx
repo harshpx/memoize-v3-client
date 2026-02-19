@@ -7,10 +7,12 @@ import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 import { dataFetchHandler } from "@/services/services";
 import { useEffect, useRef } from "react";
 import type { Note } from "@/lib/commonTypes";
+import Loader from "@/components/custom/Loader";
 
 const Notes = () => {
 	const navigate = useNavigate();
 	const activeNotes = useStore((state) => state.data.notes.active.data);
+	const loading = useStore((state) => state.dataLoading);
 
 	const didRun = useRef(false);
 
@@ -19,6 +21,10 @@ const Notes = () => {
 		didRun.current = true;
 		dataFetchHandler("notes", "active");
 	}, []);
+
+	if (loading) {
+		return <Loader />;
+	}
 
 	return (
 		<div className="p-4 grow h-full w-full flex items-center justify-center overflow-scroll">

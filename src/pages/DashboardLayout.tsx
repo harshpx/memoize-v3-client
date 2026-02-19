@@ -1,5 +1,4 @@
 import CustomizableButton from "@/components/custom/CustomizableButton";
-import Loader from "@/components/custom/Loader";
 import ThemeSwitch from "@/components/custom/ThemeSwitch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -31,11 +30,6 @@ const DashboardLayout = () => {
 	const isDesktop = useMediaQuery("(min-width: 768px)");
 	const sidebarRef = usePanelRef();
 	const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-	const loading = useStore((state) => state.loading);
-
-	if (loading) {
-		return <Loader />;
-	}
 
 	return (
 		<div className="h-screen w-full overflow-hidden">

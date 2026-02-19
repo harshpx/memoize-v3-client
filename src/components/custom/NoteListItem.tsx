@@ -33,7 +33,7 @@ const NoteListItem = ({
 			}
 			className={`rounded-lg border-2 
         ${!note ? "border-accent-light dark:border-accent-dark" : ""} 
-        p-4 flex flex-col justify-between gap-2 break-inside-avoid min-h-52 max-h-96 mb-4
+        p-4 flex flex-col justify-between gap-2 break-inside-avoid min-h-52 max-h-96
         hover:border-accent-light hover:dark:border-accent-dark cursor-pointer ${className}
       `}>
 			{note ? (
