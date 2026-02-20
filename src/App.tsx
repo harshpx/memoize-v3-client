@@ -14,7 +14,7 @@ import ProtectedRoute from "./components/wrapper/ProtectedRoute";
 import NotePage from "./pages/NotePage";
 import Events from "./pages/Events";
 import Trash from "./pages/Trash";
-import OAuth2Redirect from "./components/wrapper/OAuth2Redirect";
+import OAuth2Redirect from "./pages/OAuth2Redirect";
 
 const App: FC = () => {
 	return (

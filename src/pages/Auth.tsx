@@ -19,6 +19,7 @@ import Loader from "@/components/custom/Loader";
 import { useStore } from "@/context/store";
 import CustomizableButton from "@/components/custom/CustomizableButton";
 import { FaGoogle } from "react-icons/fa";
+import { BASE_URL } from "@/services/apis";
 
 const tabs = [
 	{
@@ -162,8 +163,7 @@ const Auth: FC = () => {
 										<CustomizableButton
 											type="button"
 											onClick={() =>
-												(window.location.href =
-													"http://localhost:8086/oauth2/authorization/google")
+												(window.location.href = `${BASE_URL}/oauth2/authorization/google`)
 											}
 											className="bg-black dark:bg-white text-white dark:text-black">
 											<FaGoogle className="mr-2" />

@@ -12,7 +12,10 @@ import type {
 } from "@/lib/commonTypes";
 import { AuthError } from "@/lib/errors";
 
-export const BASE_URL = "http://localhost:8086";
+export const BASE_URL =
+	window.__ENV__?.APP_ENV === "PROD"
+		? "https://api.memoize.in"
+		: "http://localhost:8086";
 
 // ------------------ Auth services ------------------ //
 
