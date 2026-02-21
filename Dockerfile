@@ -10,6 +10,7 @@ RUN npm run build
 FROM nginx:alpine
 RUN apk add --no-cache gettext
 RUN rm -rf /usr/share/nginx/html/*
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY public/env.template.js /usr/share/nginx/html/env.template.js
 COPY docker-entrypoint.sh /docker-entrypoint.sh
