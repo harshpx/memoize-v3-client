@@ -1,3 +1,4 @@
+import { NotesLoadingSkeleton } from "@/components/custom/LoadingSkeletons";
 import NoteListItem from "@/components/custom/NoteListItem";
 import { useStore } from "@/context/store";
 import type { Note } from "@/lib/commonTypes";
@@ -8,6 +9,7 @@ import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 const Trash = () => {
 	const deletedNotes = useStore((state) => state.data.notes.deleted.data);
+	const loading = useStore((state) => state.dataLoading);
 
 	const didRun = useRef(false);
 
@@ -17,6 +19,10 @@ const Trash = () => {
 
 		dataFetchHandler("notes", "deleted");
 	}, []);
+
+	if (loading) {
+		return <NotesLoadingSkeleton />;
+	}
 
 	return (
 		<div className="p-4 grow h-full w-full flex items-center justify-center overflow-scroll">

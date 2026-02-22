@@ -7,7 +7,7 @@ import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 import { dataFetchHandler } from "@/services/services";
 import { useEffect, useRef } from "react";
 import type { Note } from "@/lib/commonTypes";
-import Loader from "@/components/custom/Loader";
+import { NotesLoadingSkeleton } from "@/components/custom/LoadingSkeletons";
 
 const Notes = () => {
 	const navigate = useNavigate();
@@ -23,7 +23,7 @@ const Notes = () => {
 	}, []);
 
 	if (loading) {
-		return <Loader />;
+		return <NotesLoadingSkeleton />;
 	}
 
 	return (
@@ -48,7 +48,9 @@ const Notes = () => {
 					<NoteIcon className="size-20 " />
 					<span>No notes are there</span>
 					<CustomizableButton
-						onClick={() => navigate("/dashboard/notes/new")}
+						onClick={() =>
+							navigate("/dashboard/notes/editor", { state: { note: null } })
+						}
 						className="
 					text-sm shadow-2xl bg-accent-light/40 dark:bg-accent-light/30
           hover:border-accent-light dark:hover:border-accent-dark 

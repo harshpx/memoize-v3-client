@@ -1,7 +1,9 @@
-import { NotesLoadingSkeleton } from "@/components/custom/LoadingSkeletons";
-
 const Events = () => {
-	return <NotesLoadingSkeleton />;
+	return (
+		<div className="h-full w-full border flex items-center justify-center">
+			Events are coming soon!
+		</div>
+	);
 };
 
 export default Events;

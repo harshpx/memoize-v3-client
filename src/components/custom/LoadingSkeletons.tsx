@@ -4,7 +4,7 @@ import { Skeleton } from "../ui/skeleton";
 
 const NotesLoadingSkeletonItem = () => {
 	return (
-		<Card className="w-full min-h-48 bg-transparent shadow-none border-none">
+		<Card className="w-full bg-transparent shadow-none border-none flex flex-col justify-between gap-2 break-inside-avoid min-h-56 max-h-96">
 			<CardContent className="grow flex flex-col gap-2">
 				<Skeleton className="h-4 w-full" />
 				<Skeleton className="h-4 w-full" />
@@ -19,9 +19,9 @@ const NotesLoadingSkeleton = () => {
 	return (
 		<ResponsiveMasonry
 			className="w-full h-full"
-			columnsCountBreakPoints={{ 480: 2, 640: 3, 1024: 4, 1280: 5, 1536: 6 }}>
+			columnsCountBreakPoints={{ 640: 2, 1024: 3, 1280: 4, 1536: 5 }}>
 			<Masonry className="w-full">
-				{Array.from({ length: 2 }, (_, i) => i).map((idx) => (
+				{Array.from({ length: 3 }, (_, i) => i).map((idx) => (
 					<NotesLoadingSkeletonItem key={idx} />
 				))}
 			</Masonry>
