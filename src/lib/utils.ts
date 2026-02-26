@@ -112,5 +112,5 @@ export const entityTypeToName = (
 	return value;
 };
 
-
 // comment to trigger build
+// another comment to trigger build
