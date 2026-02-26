@@ -38,7 +38,7 @@ const ThemeSwitch: FC<ThemeSwitchProps> = ({ buttonStyle = "accent" }) => {
 					{theme === "dark" ? <Moon /> : <Sun />}
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent className="border-accent-dark border mr-1">
+			<PopoverContent className="border-accent-dark border mx-1">
 				<PopoverHeader>
 					<PopoverHeader>Accent & Theme</PopoverHeader>
 					<div className="w-full flex flex-col gap-2 mt-2">
