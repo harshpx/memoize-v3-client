@@ -1,3 +1,4 @@
+import BgIcons from "@/components/custom/BgIcons";
 import CustomizableButton from "@/components/custom/CustomizableButton";
 import ThemeSwitch from "@/components/custom/ThemeSwitch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -33,7 +34,7 @@ const DashboardLayout = () => {
 
 	return (
 		<div className="h-screen w-full overflow-hidden">
-			<div className="absolute right-2 top-2">
+			<div className="absolute right-2 top-2 z-50">
 				<ThemeSwitch />
 			</div>
 			<ResizablePanelGroup orientation={isDesktop ? "horizontal" : "vertical"}>
@@ -55,7 +56,13 @@ const DashboardLayout = () => {
 					{isDesktop ? (
 						<SidebarComponents collapsed={sidebarCollapsed} />
 					) : (
-						<Outlet />
+						<div className="relative h-full w-full overflow-hidden">
+							<Outlet />
+							<BgIcons
+								className="top-0 left-0 text-accent-dark"
+								iconOpacity={0.1}
+							/>
+						</div>
 					)}
 				</ResizablePanel>
 				<ResizableHandle className=" invisible w-0" />
@@ -64,7 +71,17 @@ const DashboardLayout = () => {
 					defaultSize={isDesktop ? undefined : "70px"}
 					minSize={isDesktop ? undefined : "70px"}
 					maxSize={isDesktop ? undefined : "70px"}>
-					{isDesktop ? <Outlet /> : <DockComponents />}
+					{isDesktop ? (
+						<div className="relative h-full w-full overflow-hidden">
+							<Outlet />
+							<BgIcons
+								className="top-0 left-0 text-accent-dark"
+								iconOpacity={0.1}
+							/>
+						</div>
+					) : (
+						<DockComponents />
+					)}
 				</ResizablePanel>
 			</ResizablePanelGroup>
 		</div>

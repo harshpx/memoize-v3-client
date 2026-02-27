@@ -34,7 +34,7 @@ const ThemeSwitch: FC<ThemeSwitchProps> = ({ buttonStyle = "accent" }) => {
 		<Popover>
 			<PopoverTrigger asChild>
 				<Button
-					className={`rounded-full p-2 cursor-pointer box-border ${styleMap[buttonStyle]} z-20`}>
+					className={`rounded-full p-2 cursor-pointer box-border ${styleMap[buttonStyle]} z-50`}>
 					{theme === "dark" ? <Moon /> : <Sun />}
 				</Button>
 			</PopoverTrigger>
