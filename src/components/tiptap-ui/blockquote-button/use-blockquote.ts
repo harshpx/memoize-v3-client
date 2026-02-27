@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Editor } from "@tiptap/react";
 import { NodeSelection, TextSelection } from "@tiptap/pm/state";
 
@@ -230,26 +230,30 @@ export function useBlockquote(config?: UseBlockquoteConfig) {
 
 	const { editor } = useTiptapEditor(providedEditor);
 	const [isVisible, setIsVisible] = useState<boolean>(true);
-	const canToggle = canToggleBlockquote(editor);
-	const isActive = editor?.isActive("blockquote") || false;
+	const [canToggle, setCanToggle] = useState<boolean>(true);
+	const [isActive, setIsActive] = useState<boolean>(true);
+
+	const updateState = () => {
+		setIsVisible(shouldShowButton({ editor, hideWhenUnavailable }));
+		setCanToggle(canToggleBlockquote(editor));
+		setIsActive(editor?.isActive("blockquote") || false);
+	};
 
 	useEffect(() => {
 		if (!editor) return;
 
-		const handleSelectionUpdate = () => {
-			setIsVisible(shouldShowButton({ editor, hideWhenUnavailable }));
-		};
+		updateState();
 
-		handleSelectionUpdate();
-
-		editor.on("selectionUpdate", handleSelectionUpdate);
+		editor.on("selectionUpdate", updateState);
+		editor.on("update", updateState);
 
 		return () => {
-			editor.off("selectionUpdate", handleSelectionUpdate);
+			editor.off("selectionUpdate", updateState);
+			editor.off("update", updateState);
 		};
 	}, [editor, hideWhenUnavailable]);
 
-	const handleToggle = useCallback(() => {
+	const handleToggle = () => {
 		if (!editor) return false;
 
 		const success = toggleBlockquote(editor);
@@ -257,7 +261,7 @@ export function useBlockquote(config?: UseBlockquoteConfig) {
 			onToggled?.();
 		}
 		return success;
-	}, [editor, onToggled]);
+	};
 
 	return {
 		isVisible,

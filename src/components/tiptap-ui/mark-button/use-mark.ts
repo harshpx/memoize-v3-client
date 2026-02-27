@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Editor } from "@tiptap/react";
 
 // --- Hooks ---
@@ -176,36 +176,48 @@ export function useMark(config: UseMarkConfig) {
 		onToggled,
 	} = config;
 
-	const { editor } = useTiptapEditor(providedEditor);
 	const [isVisible, setIsVisible] = useState<boolean>(true);
-	const canToggle = canToggleMark(editor, type);
-	const isActive = isMarkActive(editor, type);
+	const [isActive, setIsActive] = useState<boolean>(false);
+	const [canToggle, setCanToggle] = useState<boolean>(false);
+
+	const { editor } = useTiptapEditor(providedEditor);
+
+	const updateState = () => {
+		setIsVisible(shouldShowButton({ editor, type, hideWhenUnavailable }));
+		setCanToggle(canToggleMark(editor, type));
+		setIsActive(isMarkActive(editor, type));
+	};
 
 	useEffect(() => {
 		if (!editor) return;
 
-		const handleSelectionUpdate = () => {
-			setIsVisible(shouldShowButton({ editor, type, hideWhenUnavailable }));
-		};
+		updateState();
 
-		handleSelectionUpdate();
-
-		editor.on("selectionUpdate", handleSelectionUpdate);
+		editor.on("selectionUpdate", updateState);
+		editor.on("update", updateState);
+		editor.on("transaction", updateState);
+		editor.on("focus", updateState);
 
 		return () => {
-			editor.off("selectionUpdate", handleSelectionUpdate);
+			editor.off("selectionUpdate", updateState);
+			editor.off("update", updateState);
+			editor.off("transaction", updateState);
+			editor.off("focus", updateState);
 		};
 	}, [editor, type, hideWhenUnavailable]);
 
-	const handleMark = useCallback(() => {
+	const handleMark = () => {
 		if (!editor) return false;
 
 		const success = toggleMark(editor, type);
+
 		if (success) {
+			setIsActive(isMarkActive(editor, type));
+			setCanToggle(canToggleMark(editor, type));
 			onToggled?.();
 		}
 		return success;
-	}, [editor, type, onToggled]);
+	};
 
 	return {
 		isVisible,

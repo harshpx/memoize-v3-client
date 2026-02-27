@@ -1,4 +1,4 @@
-import { forwardRef, useCallback } from "react";
+import { forwardRef } from "react";
 
 // --- Lib ---
 import { parseShortcutKeys } from "@/lib/tiptap-utils";
@@ -77,14 +77,11 @@ export const MarkButton = forwardRef<HTMLButtonElement, MarkButtonProps>(
 			onToggled,
 		});
 
-		const handleClick = useCallback(
-			(event: React.MouseEvent<HTMLButtonElement>) => {
-				onClick?.(event);
-				if (event.defaultPrevented) return;
-				handleMark();
-			},
-			[handleMark, onClick],
-		);
+		const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+			onClick?.(event);
+			if (event.defaultPrevented) return;
+			handleMark();
+		};
 
 		if (!isVisible) {
 			return null;

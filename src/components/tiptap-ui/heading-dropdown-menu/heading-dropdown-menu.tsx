@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useState } from "react";
+import { forwardRef, useState } from "react";
 
 // --- Icons ---
 import { ChevronDownIcon } from "@/components/tiptap-icons/chevron-down-icon";
@@ -64,14 +64,11 @@ export const HeadingDropdownMenu = forwardRef<
 			hideWhenUnavailable,
 		});
 
-		const handleOpenChange = useCallback(
-			(open: boolean) => {
-				if (!editor || !canToggle) return;
-				setIsOpen(open);
-				onOpenChange?.(open);
-			},
-			[canToggle, editor, onOpenChange],
-		);
+		const handleOpenChange = (open: boolean) => {
+			if (!editor || !canToggle) return;
+			setIsOpen(open);
+			onOpenChange?.(open);
+		};
 
 		if (!isVisible) {
 			return null;

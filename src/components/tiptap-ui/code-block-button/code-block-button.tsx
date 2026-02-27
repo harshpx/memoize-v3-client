@@ -1,4 +1,4 @@
-import { forwardRef, useCallback } from "react";
+import { forwardRef } from "react";
 
 // --- Hooks ---
 import { useTiptapEditor } from "@/hooks/use-tiptap-editor";
@@ -76,14 +76,11 @@ export const CodeBlockButton = forwardRef<
 			onToggled,
 		});
 
-		const handleClick = useCallback(
-			(event: React.MouseEvent<HTMLButtonElement>) => {
-				onClick?.(event);
-				if (event.defaultPrevented) return;
-				handleToggle();
-			},
-			[handleToggle, onClick],
-		);
+		const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+			onClick?.(event);
+			if (event.defaultPrevented) return;
+			handleToggle();
+		};
 
 		if (!isVisible) {
 			return null;

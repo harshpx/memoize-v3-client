@@ -1,4 +1,4 @@
-import { forwardRef, useCallback } from "react";
+import { forwardRef } from "react";
 
 // --- Tiptap UI ---
 import type { UseBlockquoteConfig } from "@/components/tiptap-ui/blockquote-button";
@@ -76,14 +76,11 @@ export const BlockquoteButton = forwardRef<
 			onToggled,
 		});
 
-		const handleClick = useCallback(
-			(event: React.MouseEvent<HTMLButtonElement>) => {
-				onClick?.(event);
-				if (event.defaultPrevented) return;
-				handleToggle();
-			},
-			[handleToggle, onClick],
-		);
+		const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+			onClick?.(event);
+			if (event.defaultPrevented) return;
+			handleToggle();
+		};
 
 		if (!isVisible) {
 			return null;
