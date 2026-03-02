@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useState } from "react";
 import { type Editor } from "@tiptap/react";
 
 // --- Hooks ---
@@ -66,13 +66,10 @@ export function ListDropdownMenu({
 			hideWhenUnavailable,
 		});
 
-	const handleOnOpenChange = useCallback(
-		(open: boolean) => {
-			setIsOpen(open);
-			onOpenChange?.(open);
-		},
-		[onOpenChange],
-	);
+	const handleOnOpenChange = (open: boolean) => {
+		setIsOpen(open);
+		onOpenChange?.(open);
+	};
 
 	if (!isVisible) {
 		return null;

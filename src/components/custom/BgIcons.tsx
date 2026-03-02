@@ -17,7 +17,7 @@ const BgIcons = ({ className = "", iconOpacity }: BgIconsProps) => {
 	const theme = useStore((state) => state.theme);
 	return (
 		<div
-			className={`absolute h-screen min-w-screen p-5 flex gap-10 flex-wrap justify-center -z-50 ${className}`}>
+			className={`absolute h-screen w-screen top-0 left-0 p-5 flex gap-10 flex-wrap justify-center -z-50 ${className}`}>
 			{Array.from({ length: 100 }, (_, i) => i)
 				// .sort(() => Math.random() - 0.5)
 				.map((idx) => {

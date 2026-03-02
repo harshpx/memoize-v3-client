@@ -1,5 +1,6 @@
 import BgIcons from "@/components/custom/BgIcons";
 import CustomizableButton from "@/components/custom/CustomizableButton";
+import Loader from "@/components/custom/Loader";
 import ThemeSwitch from "@/components/custom/ThemeSwitch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -17,20 +18,32 @@ import { useStore } from "@/context/store";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
 import { logoutUser } from "@/services/services";
-import { useState } from "react";
+import { useState, type RefObject } from "react";
 import {
 	LuLayoutDashboard,
 	LuNotebookPen,
 	LuCalendar,
 	LuTrash,
 } from "react-icons/lu";
-import { usePanelRef } from "react-resizable-panels";
+import { RiStickyNoteAddLine } from "react-icons/ri";
+import { IoChevronBack, IoChevronForward } from "react-icons/io5";
+import {
+	usePanelRef,
+	type PanelImperativeHandle,
+} from "react-resizable-panels";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
 const DashboardLayout = () => {
 	const isDesktop = useMediaQuery("(min-width: 768px)");
 	const sidebarRef = usePanelRef();
-	const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+	const { pathname } = useLocation();
+	const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
+
+	const loading = useStore((state) => state.loading);
+
+	if (loading) {
+		return <Loader />;
+	}
 
 	return (
 		<div className="h-screen w-full overflow-hidden">
@@ -54,41 +67,45 @@ const DashboardLayout = () => {
 						}
 					}}>
 					{isDesktop ? (
-						<SidebarComponents collapsed={sidebarCollapsed} />
+						<SidebarComponents ref={sidebarRef} collapsed={sidebarCollapsed} />
 					) : (
 						<div className="relative h-full w-full overflow-hidden">
 							<Outlet />
-							<BgIcons
-								className="top-0 left-0 text-accent-dark"
-								iconOpacity={0.1}
-							/>
+							<BgIcons className="text-accent-dark" iconOpacity={0.1} />
 						</div>
 					)}
 				</ResizablePanel>
-				<ResizableHandle className=" invisible w-0" />
-				<ResizablePanel
-					className={cn("flex", isDesktop ? "p-2 pl-0" : "p-2")}
-					defaultSize={isDesktop ? undefined : "70px"}
-					minSize={isDesktop ? undefined : "70px"}
-					maxSize={isDesktop ? undefined : "70px"}>
-					{isDesktop ? (
-						<div className="relative h-full w-full overflow-hidden">
-							<Outlet />
-							<BgIcons
-								className="top-0 left-0 text-accent-dark"
-								iconOpacity={0.1}
-							/>
-						</div>
-					) : (
-						<DockComponents />
-					)}
-				</ResizablePanel>
+				{!(!isDesktop && pathname === "/dashboard/notes/editor") && (
+					<>
+						<ResizableHandle className=" invisible w-0" />
+						<ResizablePanel
+							className={cn("flex shrink", isDesktop ? "p-2 pl-0" : "p-2")}
+							defaultSize={isDesktop ? undefined : "70px"}
+							minSize={isDesktop ? undefined : "70px"}
+							maxSize={isDesktop ? undefined : "70px"}>
+							{isDesktop ? (
+								<div className="relative h-full w-full overflow-hidden">
+									<Outlet />
+									<BgIcons className="text-accent-dark" iconOpacity={0.1} />
+								</div>
+							) : (
+								<DockComponents />
+							)}
+						</ResizablePanel>
+					</>
+				)}
 			</ResizablePanelGroup>
 		</div>
 	);
 };
 
-const SidebarComponents = ({ collapsed }: { collapsed: boolean }) => {
+const SidebarComponents = ({
+	ref,
+	collapsed,
+}: {
+	ref: RefObject<PanelImperativeHandle | null>;
+	collapsed: boolean;
+}) => {
 	const navigate = useNavigate();
 	const { pathname } = useLocation();
 	return (
@@ -98,6 +115,30 @@ const SidebarComponents = ({ collapsed }: { collapsed: boolean }) => {
 			border bg-neutral-100 dark:bg-neutral-900 shadow-sm
 		">
 			{/* Nav group 1 */}
+			<div className="flex flex-col gap-1 mb-4">
+				<div className={`flex ${collapsed ? "flex-col" : "flex-row"} gap-1`}>
+					<CustomizableButton
+						onClick={() =>
+							navigate("/dashboard/notes/editor", { state: { note: null } })
+						}
+						className={`grow flex-nowrap bg-accent-light/80 dark:bg-accent-dark/70 gap-2 truncate ${collapsed ? "order-2" : "order-1"}`}>
+						<RiStickyNoteAddLine size={16} />
+						{!collapsed && <span className="text-sm">Add Note</span>}
+					</CustomizableButton>
+					<CustomizableButton
+						onClick={() => {
+							if (ref.current?.isCollapsed()) {
+								ref.current?.expand();
+							} else {
+								ref.current?.collapse();
+							}
+						}}
+						className={`p-2 w-[46px] ${collapsed ? "order-1" : "order-2"}`}>
+						{collapsed ? <IoChevronForward /> : <IoChevronBack />}
+					</CustomizableButton>
+				</div>
+			</div>
+			{/* Nav group 2 */}
 			<div className="flex flex-col gap-1 grow">
 				<CustomizableButton
 					onClick={() => navigate("/dashboard")}
@@ -156,6 +197,7 @@ const SidebarComponents = ({ collapsed }: { collapsed: boolean }) => {
 					</div>
 				</CustomizableButton>
 			</div>
+			{/* Nav group 3 */}
 			<div>
 				<UserPopover collapsed={collapsed} />
 			</div>
@@ -166,6 +208,9 @@ const SidebarComponents = ({ collapsed }: { collapsed: boolean }) => {
 const DockComponents = () => {
 	const navigate = useNavigate();
 	const { pathname } = useLocation();
+	if (pathname === "/dashboard/notes/editor") {
+		return null;
+	}
 	return (
 		<div
 			className="

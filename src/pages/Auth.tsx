@@ -20,6 +20,7 @@ import { useStore } from "@/context/store";
 import CustomizableButton from "@/components/custom/CustomizableButton";
 import { FaGoogle } from "react-icons/fa";
 import { BASE_URL } from "@/services/apis";
+import BgIcons from "@/components/custom/BgIcons";
 
 const tabs = [
 	{
@@ -51,15 +52,16 @@ const Auth: FC = () => {
 	return (
 		<div className="relative h-screen w-screen flex flex-col items-center justify-center">
 			{loading && <Loader />}
+			<BgIcons className="text-white dark:text-black bg-accent-dark" />
 			{!isLargeScreen && (
 				<div
-					className={`bg-accent-dark px-4 h-[56px] w-full flex items-center justify-between shrink-0 `}>
+					className={`px-4 h-[56px] w-full flex items-center justify-between shrink-0 `}>
 					<Logo className="dark:text-black" />
 					<ThemeSwitch buttonStyle="themed" />
 				</div>
 			)}
 			<div
-				className={`${isLargeScreen ? "h-full" : "h-[calc(100vh-56px)]"} bg-linear-to-b from-accent-dark to-accent-dark/90 flex justify-center items-stretch w-full p-4 py-5 transition-all duration-400 ease-in`}>
+				className={`${isLargeScreen ? "h-full" : "h-[calc(100vh-56px)]"} flex justify-center items-stretch w-full p-4 py-5 transition-all duration-400 ease-in`}>
 				{isLargeScreen && (
 					<motion.div
 						layout
@@ -75,10 +77,10 @@ const Auth: FC = () => {
 						<div className="text-5xl text-white dark:text-black font-semibold">
 							Memoize
 						</div>
-						<p className="font-extralight text-white dark:text-black w-2/3 text-center">
+						<p className="text-white dark:text-black w-2/3 text-center">
 							{activePage === "login"
 								? "Pick up right where you left off — your notes, tasks, and code are waiting."
-								: "Build your second brain with Memoize: Capture ideas, manage tasks, save code, and keep everything connected."}
+								: "Build your second brain with Memoize, Capture ideas, manage tasks, save code, and keep everything connected."}
 						</p>
 						<div className="mt-10 w-full flex items-center justify-center gap-2 text-[14px] text-white dark:text-black">
 							<p>

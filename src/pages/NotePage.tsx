@@ -39,9 +39,11 @@ import {
 	dataSoftDeleteHandler,
 	dataUpdateHandler,
 } from "@/services/services";
-import { LuTrash } from "react-icons/lu";
+import { LuTrash, LuSave, LuLoaderCircle } from "react-icons/lu";
 import { MdRestore } from "react-icons/md";
+import { FaChevronLeft } from "react-icons/fa6";
 import CustomizableButton from "@/components/custom/CustomizableButton";
+import useMediaQuery from "@/hooks/useMediaQuery";
 
 export interface NoteNavData {
 	note?: Note;
@@ -50,62 +52,80 @@ export interface NoteNavData {
 const NotePage = () => {
 	const location = useLocation();
 	const navigate = useNavigate();
+	const isMobile = useMediaQuery("(max-width: 640px)");
 	const initialNote = (location.state as NoteNavData).note ?? emptyNoteTemplate;
-	const [currentNote, setCurrentNote] = useState<Note>(initialNote);
-	const [dirty, setDirty] = useState<boolean>(
-		initialNote.content !== currentNote.content,
-	);
 
+	const [currentNote, setCurrentNote] = useState<Note>(initialNote);
+	const [dirty, setDirty] = useState<boolean>(false);
 	const currentNoteRef = useRef(currentNote);
 	const dirtyRef = useRef(dirty);
 
+	// trigger save on unload
+	// useEffect(() => {
+	// 	const handleUnload = (e: BeforeUnloadEvent) => {
+	// 		e.preventDefault();
+	// 		noteSaveHelper();
+	// 	};
+	// 	window.addEventListener("beforeunload", handleUnload);
+	// 	return () => {
+	// 		window.removeEventListener("beforeunload", handleUnload);
+	// 	};
+	// }, []);
+
+	// trigger auto-save every 15 seconds
 	useEffect(() => {
-		currentNoteRef.current = currentNote;
-		dirtyRef.current = dirty;
-	}, [currentNote, dirty]);
+		const autosaveInterval = setInterval(async () => {
+			await noteSaveHelper();
+		}, 15000);
+
+		return () => {
+			clearInterval(autosaveInterval);
+		};
+	}, []);
 
 	// trigger save on unmount
 	useEffect(() => {
 		return () => {
-			if (dirtyRef.current && !currentNoteRef.current.isDeleted) {
-				if (currentNoteRef.current.id) {
-					dataUpdateHandler("notes", currentNoteRef.current.id, {
-						content: currentNoteRef.current.content,
-						preview: currentNoteRef.current.preview,
-					});
-				} else {
-					dataCreateHandler("notes", {
-						content: currentNoteRef.current.content,
-						preview: currentNoteRef.current.preview,
-					});
-				}
-			}
+			noteSaveHelper();
 		};
 	}, []);
 
-	// trigger save on unload
-	useEffect(() => {
-		const handleUnload = (e: BeforeUnloadEvent) => {
-			e.preventDefault();
-			if (dirtyRef.current && !currentNoteRef.current.isDeleted) {
-				if (currentNoteRef.current.id) {
-					dataUpdateHandler("notes", currentNoteRef.current.id, {
+	const isSavingRef = useRef(false);
+	const [isSaving, setIsSaving] = useState(false);
+	const updateIsSaving = (saving: boolean) => {
+		isSavingRef.current = saving;
+		setIsSaving(saving);
+	};
+	// manual helper methods
+	const noteSaveHelper = async () => {
+		if (
+			dirtyRef.current &&
+			!currentNoteRef.current.isDeleted &&
+			!isSavingRef.current
+		) {
+			updateIsSaving(true);
+			let updatedNote: Note | undefined;
+			if (currentNoteRef.current.id) {
+				updatedNote = (await dataUpdateHandler(
+					"notes",
+					currentNoteRef.current.id,
+					{
 						content: currentNoteRef.current.content,
 						preview: currentNoteRef.current.preview,
-					});
-				} else {
-					dataCreateHandler("notes", {
-						content: currentNoteRef.current.content,
-						preview: currentNoteRef.current.preview,
-					});
-				}
+					},
+				)) as Note | undefined;
+			} else {
+				updatedNote = (await dataCreateHandler("notes", {
+					content: currentNoteRef.current.content,
+					preview: currentNoteRef.current.preview,
+				})) as Note | undefined;
 			}
-		};
-		window.addEventListener("beforeunload", handleUnload);
-		return () => {
-			window.removeEventListener("beforeunload", handleUnload);
-		};
-	}, []);
+			if (updatedNote) {
+				updateDataAndRef(updatedNote, false);
+			}
+			updateIsSaving(false);
+		}
+	};
 
 	const noteDeleteHelper = () => {
 		dataSoftDeleteHandler("notes", currentNoteRef.current.id);
@@ -122,16 +142,29 @@ const NotePage = () => {
 		navigate("/dashboard/trash", { replace: true });
 	};
 
+	const updateDataAndRef = (updatedNote: Note, dirtyState: boolean) => {
+		currentNoteRef.current = updatedNote;
+		dirtyRef.current = dirtyState;
+		setCurrentNote(updatedNote);
+		setDirty(dirtyState);
+	};
+
+	// editor state and config
 	const editor = useEditor({
 		onUpdate: (state) => {
 			const contentJson = state.editor.getJSON();
 			const contentPreview = state.editor.getHTML();
-			setDirty(JSON.stringify(contentJson) !== initialNote.content);
-			setCurrentNote((prev) => ({
-				...prev,
-				content: JSON.stringify(contentJson),
+
+			const newContent = JSON.stringify(contentJson);
+			const isDirty =
+				newContent !== currentNoteRef.current.content &&
+				newContent !== initialNote.content;
+			const updatedNote = {
+				...currentNoteRef.current,
+				content: newContent,
 				preview: contentPreview,
-			}));
+			};
+			updateDataAndRef(updatedNote, isDirty);
 		},
 		immediatelyRender: false,
 		editorProps: {
@@ -164,7 +197,7 @@ const NotePage = () => {
 			Subscript,
 			Selection,
 		],
-		content: safeParseForEditor(currentNote.content),
+		content: safeParseForEditor(currentNoteRef.current.content),
 		editable: !currentNoteRef.current.isDeleted,
 	});
 
@@ -182,8 +215,8 @@ const NotePage = () => {
 						) : (
 							<>
 								<ToolbarGroup>
-									<UndoRedoButton action="undo" />
-									<UndoRedoButton action="redo" />
+									<UndoRedoButton action="undo" text={isMobile ? "" : "Undo"} />
+									<UndoRedoButton action="redo" text={isMobile ? "" : "Redo"} />
 								</ToolbarGroup>
 								<ToolbarSeparator />
 								<ToolbarGroup>
@@ -191,15 +224,21 @@ const NotePage = () => {
 									<ListDropdownMenu
 										types={["bulletList", "orderedList", "taskList"]}
 									/>
-									<BlockquoteButton />
-									<CodeBlockButton />
 								</ToolbarGroup>
 								<ToolbarSeparator />
 								<ToolbarGroup>
-									<MarkButton type="bold" />
-									<MarkButton type="italic" />
-									<MarkButton type="underline" />
-									<MarkButton type="strike" />
+									<BlockquoteButton text={isMobile ? "" : "Blockquote"} />
+									<CodeBlockButton text={isMobile ? "" : "Codeblock"} />
+								</ToolbarGroup>
+								<ToolbarSeparator />
+								<ToolbarGroup>
+									<MarkButton type="bold" text={isMobile ? "" : "old"} />
+									<MarkButton type="italic" text={isMobile ? "" : "talic"} />
+									<MarkButton
+										type="underline"
+										text={isMobile ? "" : "nderline"}
+									/>
+									<MarkButton type="strike" text={isMobile ? "" : "trike"} />
 								</ToolbarGroup>
 								<ToolbarSeparator />
 								<ToolbarGroup>
@@ -215,42 +254,85 @@ const NotePage = () => {
 								</ToolbarGroup>
 							</>
 						)}
-						{currentNoteRef.current.id && (
-							<>
-								<ToolbarSeparator />
-								<ToolbarGroup>
-									<CustomizableButton
-										onClick={() => {
-											if (currentNoteRef.current.isDeleted) {
-												noteRestoreHelper();
-											} else {
-												noteDeleteHelper();
-											}
-										}}
-										className="
-								text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-200 
-								hover:bg-neutral-200 dark:hover:bg-neutral-700/80 p-2">
-										{currentNoteRef.current.isDeleted ? (
-											<MdRestore />
-										) : (
-											<LuTrash />
-										)}
-									</CustomizableButton>
-									{currentNoteRef.current.isDeleted && (
-										<CustomizableButton
-											onClick={() => notePermanentlyDeleteHelper()}
-											className="text-red-500 hover:bg-neutral-200 dark:hover:bg-neutral-700/80 p-2">
-											<LuTrash />
-										</CustomizableButton>
-									)}
-								</ToolbarGroup>
-							</>
-						)}
 					</div>
 					<EditorContent
 						editor={editor}
 						className="w-full overflow-scroll grow [&_.ProseMirror]:h-full [&_.ProseMirror]:min-h-full [&_.ProseMirror]:outline-none"
 					/>
+					{/* bottom bar */}
+					<div className="flex items-center justify-between w-full border rounded-xl bg-neutral-100 dark:bg-neutral-900 shadow-sm">
+						{/* left section */}
+						<div className="w-1/4 flex items-center justify-start">
+							{/* back button */}
+							<CustomizableButton
+								onClick={() => navigate(-1)}
+								className="p-1.5 size-12 flex-col justify-center text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-200 
+											hover:bg-neutral-200 dark:hover:bg-neutral-700/80">
+								<FaChevronLeft className="size-4" />
+							</CustomizableButton>
+						</div>
+						{/* middle section */}
+						<div className="w-1/2 flex items-center justify-center">
+							{!currentNote.id && !dirty && (
+								<div className="text-[12px] text-neutral-500 dark:text-neutral-400">
+									Type something to save
+								</div>
+							)}
+							{/* save button */}
+							{!(currentNote.isDeleted || (!currentNote.id && !dirty)) && (
+								<CustomizableButton
+									onClick={() => noteSaveHelper()}
+									disabled={!dirty}
+									className="p-1.5 gap-0.5 size-12 flex-col items-center justify-center text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-200 
+											hover:bg-neutral-200 dark:hover:bg-neutral-700/80 disabled:cursor-not-allowed disabled:brightness-75">
+									{isSaving ? (
+										<LuLoaderCircle className="size-4 animate-spin" />
+									) : (
+										<LuSave className="size-4" />
+									)}
+									<span className="px-[2px] text-[10px] font-[500]">
+										{isSaving ? "Saving" : dirty ? "Save" : "Saved"}
+									</span>
+								</CustomizableButton>
+							)}
+							{/* restore button */}
+							{currentNote.id && currentNote.isDeleted && (
+								<CustomizableButton
+									onClick={() => noteRestoreHelper()}
+									className="p-1.5 gap-0.5 size-12 flex-col items-center justify-center text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-200 
+											hover:bg-neutral-200 dark:hover:bg-neutral-700/80">
+									<MdRestore className="size-4" />
+									<span className="px-[2px] text-[10px] font-[500]">
+										Restore
+									</span>
+								</CustomizableButton>
+							)}
+							{/* delete/permanent delete button */}
+							{currentNote.id && (
+								<CustomizableButton
+									onClick={() => {
+										if (currentNote.isDeleted) {
+											notePermanentlyDeleteHelper();
+										} else {
+											noteDeleteHelper();
+										}
+									}}
+									className={`
+											p-1.5 gap-0.5 size-12 flex-col items-center justify-center
+											text-neutral-500 hover:text-neutral-600 dark:text-neutral-400 dark:hover:text-neutral-200 
+											hover:bg-neutral-200 dark:hover:bg-neutral-700/80
+											${currentNote.isDeleted ? "text-red-500 dark:text-red-500 hover:text-red-500 dark:hover:text-red-500" : ""}
+										`}>
+									<LuTrash className="size-4" />
+									<span className="px-[2px] text-[10px] font-[500]">
+										Delete
+									</span>
+								</CustomizableButton>
+							)}
+						</div>
+						{/* right section */}
+						<div className="w-1/4 flex items-center justify-end"></div>
+					</div>
 				</div>
 			</EditorContext.Provider>
 		</div>

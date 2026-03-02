@@ -70,9 +70,12 @@ export const signupAndFetchUserInfo = async (
  * Clears the access token and user from the auth context.
  */
 export const logoutUser = async (): Promise<void> => {
+	const { setLoading } = useStore.getState();
 	try {
+		setLoading(true);
 		await logout();
 	} finally {
+		setLoading(false);
 		useStore.getState().logout();
 	}
 };
@@ -209,7 +212,8 @@ export const dataFetchHandler = async (
 export const dataCreateHandler = async (
 	entityType: keyof Entity,
 	createContent: NoteModifyRequest | EventModifyRequest,
-): Promise<void> => {
+	notify = false,
+): Promise<Entity[keyof Entity] | undefined> => {
 	try {
 		const newData = await retryWithRefresh(createNote, [
 			createContent as NoteModifyRequest,
@@ -226,10 +230,13 @@ export const dataCreateHandler = async (
 				},
 			},
 		}));
-		toast.success(
-			`${entityTypeToName(entityType, true, false)} saved successfully!`,
-			{ duration: 1000 },
-		);
+		if (notify) {
+			toast.success(
+				`${entityTypeToName(entityType, true, false)} saved successfully!`,
+				{ duration: 1000 },
+			);
+		}
+		return newData;
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
 		toast.error(
@@ -243,7 +250,8 @@ export const dataUpdateHandler = async (
 	entityType: keyof Entity,
 	entityId: string,
 	updateContent: NoteModifyRequest | EventModifyRequest,
-): Promise<void> => {
+	notify = false,
+): Promise<Entity[keyof Entity] | undefined> => {
 	try {
 		const updatedData = await retryWithRefresh(updateNote, [
 			entityId,
@@ -266,10 +274,13 @@ export const dataUpdateHandler = async (
 				},
 			},
 		}));
-		toast.success(
-			`${entityTypeToName(entityType, true, false)} updated successfully!`,
-			{ duration: 1000 },
-		);
+		if (notify) {
+			toast.success(
+				`${entityTypeToName(entityType, true, false)} updated successfully!`,
+				{ duration: 1000 },
+			);
+		}
+		return updatedData;
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
 		toast.error(
@@ -282,6 +293,7 @@ export const dataUpdateHandler = async (
 export const dataSoftDeleteHandler = async (
 	entityType: keyof Entity,
 	entityId: string,
+	notify = false,
 ) => {
 	try {
 		const updatedData = await retryWithRefresh(softDeleteNote, [entityId]);
@@ -305,10 +317,12 @@ export const dataSoftDeleteHandler = async (
 				},
 			},
 		}));
-		toast.success(
-			`${entityTypeToName(entityType, true, false)} deleted successfully!`,
-			{ duration: 1000 },
-		);
+		if (notify) {
+			toast.success(
+				`${entityTypeToName(entityType, true, false)} deleted successfully!`,
+				{ duration: 1000 },
+			);
+		}
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
 		toast.error(

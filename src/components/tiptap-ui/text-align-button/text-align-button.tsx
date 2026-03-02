@@ -1,4 +1,4 @@
-import { forwardRef, useCallback } from "react";
+import { forwardRef } from "react";
 
 // --- Lib ---
 import { parseShortcutKeys } from "@/lib/tiptap-utils";
@@ -91,14 +91,11 @@ export const TextAlignButton = forwardRef<
 			onAligned,
 		});
 
-		const handleClick = useCallback(
-			(event: React.MouseEvent<HTMLButtonElement>) => {
-				onClick?.(event);
-				if (event.defaultPrevented) return;
-				handleTextAlign();
-			},
-			[handleTextAlign, onClick],
-		);
+		const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+			onClick?.(event);
+			if (event.defaultPrevented) return;
+			handleTextAlign();
+		};
 
 		if (!isVisible) {
 			return null;

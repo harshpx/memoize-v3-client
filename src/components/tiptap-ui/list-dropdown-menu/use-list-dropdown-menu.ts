@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import type { Editor } from "@tiptap/react";
 
 // --- Hooks ---
@@ -172,38 +172,44 @@ export function useListDropdownMenu(config?: UseListDropdownMenuConfig) {
 	} = config || {};
 
 	const { editor } = useTiptapEditor(providedEditor);
-	const [isVisible, setIsVisible] = useState(true);
+	const [isVisible, setIsVisible] = useState<boolean>(true);
+	const [listInSchema, setListInSchema] = useState<boolean>(false);
+	const [filteredLists, setFilteredLists] = useState<typeof listOptions>([]);
+	const [canToggleAny, setCanToggleAny] = useState<boolean>(false);
+	const [isAnyActive, setIsAnyActive] = useState<boolean>(false);
+	const [activeType, setActiveType] = useState<ListType | undefined>(undefined);
+	const [activeList, setActiveList] = useState<ListOption | undefined>(
+		undefined,
+	);
 
-	const listInSchema = types.some((type) => isNodeInSchema(type, editor));
-
-	const filteredLists = useMemo(() => getFilteredListOptions(types), [types]);
-
-	const canToggleAny = canToggleAnyList(editor, types);
-	const isAnyActive = isAnyListActive(editor, types);
-	const activeType = getActiveListType(editor, types);
-	const activeList = filteredLists.find((option) => option.type === activeType);
+	const updateState = () => {
+		setListInSchema(types.some((type) => isNodeInSchema(type, editor)));
+		setIsVisible(
+			shouldShowListDropdown({
+				editor,
+				listTypes: types,
+				hideWhenUnavailable,
+				listInSchema,
+				canToggleAny,
+			}),
+		);
+		setFilteredLists(getFilteredListOptions(types));
+		setCanToggleAny(canToggleAnyList(editor, types));
+		setIsAnyActive(isAnyListActive(editor, types));
+		setActiveType(getActiveListType(editor, types));
+		setActiveList(filteredLists.find((option) => option.type === activeType));
+	};
 
 	useEffect(() => {
 		if (!editor) return;
 
-		const handleSelectionUpdate = () => {
-			setIsVisible(
-				shouldShowListDropdown({
-					editor,
-					listTypes: types,
-					hideWhenUnavailable,
-					listInSchema,
-					canToggleAny,
-				}),
-			);
-		};
+		updateState();
 
-		handleSelectionUpdate();
-
-		editor.on("selectionUpdate", handleSelectionUpdate);
-
+		editor.on("selectionUpdate", updateState);
+		editor.on("update", updateState);
 		return () => {
-			editor.off("selectionUpdate", handleSelectionUpdate);
+			editor.off("selectionUpdate", updateState);
+			editor.off("update", updateState);
 		};
 	}, [canToggleAny, editor, hideWhenUnavailable, listInSchema, types]);
 

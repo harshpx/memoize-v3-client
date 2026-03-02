@@ -22,7 +22,7 @@ const Home: FC = () => {
 			</div>
 			<CustomizableButton
 				className="
-          border border-white dark:border-black
+          border-2 border-white dark:border-black
 					text-white dark:text-black
 					shadow-2xl bg-accent-light/40 dark:bg-accent-light/30
 					hover:brightness-150
@@ -30,7 +30,7 @@ const Home: FC = () => {
         "
 				onClick={() => navigate("/auth")}>
 				<div className="flex items-center gap-2">
-					<span className="text-sm">Get Started</span>
+					<span className="text-base font-medium">Get Started</span>
 					<ArrowRight size={14} className="" />
 				</div>
 			</CustomizableButton>
