@@ -8,11 +8,14 @@ import { dataFetchHandler } from "@/services/services";
 import { useEffect, useRef } from "react";
 import type { Note } from "@/lib/commonTypes";
 import { NotesLoadingSkeleton } from "@/components/custom/LoadingSkeletons";
+import useMediaQuery from "@/hooks/useMediaQuery";
+import { cn } from "@/lib/utils";
 
 const Notes = () => {
 	const navigate = useNavigate();
 	const activeNotes = useStore((state) => state.data.notes.active.data);
 	const loading = useStore((state) => state.dataLoading);
+	const isDesktop = useMediaQuery("(min-width: 1280px)");
 
 	const didRun = useRef(false);
 
@@ -27,7 +30,11 @@ const Notes = () => {
 	}
 
 	return (
-		<div className="p-4 grow h-full w-full flex items-center justify-center overflow-scroll">
+		<div
+			className={cn(
+				"p-1 grow h-full w-full flex items-center justify-center overflow-scroll",
+				isDesktop ? "p-4" : "p-1",
+			)}>
 			{activeNotes.length > 0 ? (
 				<ResponsiveMasonry
 					className="w-full h-full"
@@ -49,7 +56,7 @@ const Notes = () => {
 					<span>No notes are there</span>
 					<CustomizableButton
 						onClick={() =>
-							navigate("/dashboard/notes/editor", { state: { note: null } })
+							navigate("/home/notes/editor", { state: { note: null } })
 						}
 						className="
 					text-sm shadow-2xl bg-accent-light/40 dark:bg-accent-light/30

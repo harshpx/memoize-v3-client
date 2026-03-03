@@ -112,5 +112,16 @@ export const entityTypeToName = (
 	return value;
 };
 
+export const getTimeOfDayGreeting = () => {
+	const currentHour = new Date().getHours();
+	if (currentHour < 12) {
+		return "Good morning";
+	} else if (currentHour < 18) {
+		return "Good afternoon";
+	} else {
+		return "Good evening";
+	}
+};
+
 // comment to trigger build
 // another comment to trigger build

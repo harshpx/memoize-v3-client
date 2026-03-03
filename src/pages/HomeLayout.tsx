@@ -19,12 +19,7 @@ import useMediaQuery from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
 import { logoutUser } from "@/services/services";
 import { useState, type RefObject } from "react";
-import {
-	LuLayoutDashboard,
-	LuNotebookPen,
-	LuCalendar,
-	LuTrash,
-} from "react-icons/lu";
+import { LuNotebookPen, LuCalendar, LuTrash, LuHouse } from "react-icons/lu";
 import { RiStickyNoteAddLine } from "react-icons/ri";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import {
@@ -33,7 +28,7 @@ import {
 } from "react-resizable-panels";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
 
-const DashboardLayout = () => {
+const HomeLayout = () => {
 	const isDesktop = useMediaQuery("(min-width: 768px)");
 	const sidebarRef = usePanelRef();
 	const { pathname } = useLocation();
@@ -75,7 +70,7 @@ const DashboardLayout = () => {
 						</div>
 					)}
 				</ResizablePanel>
-				{!(!isDesktop && pathname === "/dashboard/notes/editor") && (
+				{!(!isDesktop && pathname === "/home/notes/editor") && (
 					<>
 						<ResizableHandle className=" invisible w-0" />
 						<ResizablePanel
@@ -119,7 +114,7 @@ const SidebarComponents = ({
 				<div className={`flex ${collapsed ? "flex-col" : "flex-row"} gap-1`}>
 					<CustomizableButton
 						onClick={() =>
-							navigate("/dashboard/notes/editor", { state: { note: null } })
+							navigate("/home/notes/editor", { state: { note: null } })
 						}
 						className={`grow flex-nowrap bg-accent-light/80 dark:bg-accent-dark/70 gap-2 truncate ${collapsed ? "order-2" : "order-1"}`}>
 						<RiStickyNoteAddLine size={16} />
@@ -133,7 +128,7 @@ const SidebarComponents = ({
 								ref.current?.collapse();
 							}
 						}}
-						className={`p-2 w-[46px] ${collapsed ? "order-1" : "order-2"}`}>
+						className={`p-2 border ${collapsed ? "order-1 w-full" : "order-2 w-[32px]"}`}>
 						{collapsed ? <IoChevronForward /> : <IoChevronBack />}
 					</CustomizableButton>
 				</div>
@@ -141,21 +136,27 @@ const SidebarComponents = ({
 			{/* Nav group 2 */}
 			<div className="flex flex-col gap-1 grow">
 				<CustomizableButton
-					onClick={() => navigate("/dashboard")}
+					onClick={() => navigate("/home")}
 					className={cn(
 						"w-full hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
-						pathname === "/dashboard"
+						pathname === "/home"
 							? "bg-accent-light/40 dark:bg-accent-light/30"
 							: "",
 						collapsed ? "justify-center" : "justify-start",
 					)}>
-					<div className="flex items-center gap-1">
-						<LuLayoutDashboard />
-						<span className="text-sm">{collapsed ? "" : "Dashboard"}</span>
+					<div
+						className={cn(
+							"flex items-center gap-1",
+							collapsed && "flex-col gap-0.5",
+						)}>
+						<LuHouse />
+						<span className={cn(collapsed ? "text-[10px]" : "text-[14px]")}>
+							Home
+						</span>
 					</div>
 				</CustomizableButton>
 				<CustomizableButton
-					onClick={() => navigate("/dashboard/notes")}
+					onClick={() => navigate("/home/notes")}
 					className={cn(
 						"w-full hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
 						pathname.split("/").includes("notes")
@@ -163,13 +164,19 @@ const SidebarComponents = ({
 							: "",
 						collapsed ? "justify-center" : "justify-start",
 					)}>
-					<div className="flex items-center gap-1">
+					<div
+						className={cn(
+							"flex items-center gap-1",
+							collapsed && "flex-col gap-0.5",
+						)}>
 						<LuNotebookPen />
-						<span className="text-sm">{collapsed ? "" : "Notes"}</span>
+						<span className={cn(collapsed ? "text-[10px]" : "text-[14px]")}>
+							Notes
+						</span>
 					</div>
 				</CustomizableButton>
 				<CustomizableButton
-					onClick={() => navigate("/dashboard/events")}
+					onClick={() => navigate("/home/events")}
 					className={cn(
 						"w-full hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
 						pathname.split("/").includes("events")
@@ -177,13 +184,19 @@ const SidebarComponents = ({
 							: "",
 						collapsed ? "justify-center" : "justify-start",
 					)}>
-					<div className="flex items-center gap-1">
+					<div
+						className={cn(
+							"flex items-center gap-1",
+							collapsed && "flex-col gap-0.5",
+						)}>
 						<LuCalendar />
-						<span className="text-sm">{collapsed ? "" : "Events"}</span>
+						<span className={cn(collapsed ? "text-[10px]" : "text-[14px]")}>
+							Events
+						</span>
 					</div>
 				</CustomizableButton>
 				<CustomizableButton
-					onClick={() => navigate("/dashboard/trash")}
+					onClick={() => navigate("/home/trash")}
 					className={cn(
 						"w-full hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
 						pathname.split("/").includes("trash")
@@ -191,9 +204,15 @@ const SidebarComponents = ({
 							: "",
 						collapsed ? "justify-center" : "justify-start",
 					)}>
-					<div className="flex items-center gap-1">
+					<div
+						className={cn(
+							"flex items-center gap-1",
+							collapsed && "flex-col gap-0.5",
+						)}>
 						<LuTrash />
-						<span className="text-sm">{collapsed ? "" : "Trash"}</span>
+						<span className={cn(collapsed ? "text-[10px]" : "text-[14px]")}>
+							Trash
+						</span>
 					</div>
 				</CustomizableButton>
 			</div>
@@ -208,63 +227,67 @@ const SidebarComponents = ({
 const DockComponents = () => {
 	const navigate = useNavigate();
 	const { pathname } = useLocation();
-	if (pathname === "/dashboard/notes/editor") {
+	if (pathname === "/home/notes/editor") {
 		return null;
 	}
 	return (
 		<div
 			className="
-			w-full flex grow gap-1 px-2 py-2 rounded-xl 
+			w-full flex grow gap-1 px-2 py-1 rounded-xl items-center
 			border bg-neutral-100 dark:bg-neutral-900 shadow-sm
 		">
 			{/* Nav group 1 */}
 			<div className="flex gap-1 grow">
 				<CustomizableButton
-					onClick={() => navigate("/dashboard")}
+					onClick={() => navigate("/home")}
 					className={cn(
 						"hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
-						pathname === "/dashboard"
+						pathname.split("/").reverse()?.[0] === "home"
 							? "bg-accent-light/40 dark:bg-accent-light/30"
 							: "",
 					)}>
-					<div className="flex flex-col items-center justify-center gap-1">
-						<LuLayoutDashboard className="size-5" />
+					<div className="flex flex-col items-center justify-center">
+						<LuHouse className="size-4" />
+						<span className="text-[10px]">Home</span>
 					</div>
 				</CustomizableButton>
 				<CustomizableButton
-					onClick={() => navigate("/dashboard/notes")}
+					onClick={() => navigate("/home/notes")}
 					className={cn(
 						"hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
-						pathname.split("/").includes("notes")
+						pathname.split("/").reverse()?.[0] === "notes"
 							? "bg-accent-light/40 dark:bg-accent-light/30"
 							: "",
 					)}>
-					<div className="flex flex-col items-center justify-center gap-1">
-						<LuNotebookPen className="size-5" />
+					<div className="flex flex-col items-center justify-center">
+						<LuNotebookPen className="size-4" />
+						<span className="text-[10px]">Notes</span>
 					</div>
 				</CustomizableButton>
 				<CustomizableButton
-					onClick={() => navigate("/dashboard/events")}
+					onClick={() => navigate("/home/events")}
 					className={cn(
 						"hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
-						pathname.split("/").includes("events")
+						pathname.split("/").reverse()?.[0] === "events"
 							? "bg-accent-light/40 dark:bg-accent-light/30"
 							: "",
 					)}>
-					<div className="flex flex-col items-center justify-center gap-1">
-						<LuCalendar className="size-5" />
+					<div className="flex flex-col items-center justify-center">
+						<LuCalendar className="size-4" />
+						<span className="text-[10px]">Events</span>
 					</div>
 				</CustomizableButton>
 				<CustomizableButton
-					onClick={() => navigate("/dashboard/trash")}
+					onClick={() => navigate("/home/trash")}
 					className={cn(
 						"hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
-						pathname.split("/").includes("trash")
+						pathname.split("/").reverse()?.[0] === "trash"
 							? "bg-accent-light/40 dark:bg-accent-light/30"
 							: "",
 					)}>
-					<div className="flex flex-col items-center justify-center gap-1">
-						<LuTrash className="size-5" />
+					<div className="flex flex-col items-center justify-center">
+						<LuTrash className="size-4" />
+						<span className="text-[10px]">Trash</span>
 					</div>
 				</CustomizableButton>
 			</div>
@@ -352,4 +375,4 @@ const UserPopover = ({ collapsed = true }: { collapsed?: boolean }) => {
 	);
 };
 
-export default DashboardLayout;
+export default HomeLayout;

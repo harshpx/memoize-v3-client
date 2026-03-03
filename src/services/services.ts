@@ -41,8 +41,7 @@ export const loginAndFetchUserInfo = async (
 	loginRequest: LoginRequest,
 ): Promise<void> => {
 	const { accessToken } = await login(loginRequest);
-	updateAuthState(accessToken, null);
-	const user: User = await getUserInfo();
+	const user: User = await getUserInfo(accessToken);
 	updateAuthState(accessToken, user);
 };
 
@@ -58,8 +57,7 @@ export const signupAndFetchUserInfo = async (
 	signupRequest: SignupRequest,
 ): Promise<void> => {
 	const { accessToken } = await signup(signupRequest);
-	updateAuthState(accessToken, null);
-	const user: User = await getUserInfo();
+	const user: User = await getUserInfo(accessToken);
 	updateAuthState(accessToken, user);
 };
 
@@ -107,8 +105,7 @@ export const retryWithRefresh = async <T, A extends any[]>(
 		try {
 			// attempt to refresh the token
 			const { accessToken } = await refresh();
-			updateAuthState(accessToken, null);
-			const user: User = await getUserInfo();
+			const user: User = await getUserInfo(accessToken);
 			updateAuthState(accessToken, user);
 			// retry the original API call
 			return await apiCall(...args);
@@ -335,6 +332,7 @@ export const dataSoftDeleteHandler = async (
 export const dataRestoreHandler = async (
 	entityType: keyof Entity,
 	entityId: string,
+	notify = false,
 ) => {
 	try {
 		const updatedData = await retryWithRefresh(restoreNote, [entityId]);
@@ -358,10 +356,12 @@ export const dataRestoreHandler = async (
 				},
 			},
 		}));
-		toast.success(
-			`${entityTypeToName(entityType, true, false)} restored successfully!`,
-			{ duration: 1000 },
-		);
+		if (notify) {
+			toast.success(
+				`${entityTypeToName(entityType, true, false)} restored successfully!`,
+				{ duration: 1000 },
+			);
+		}
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
 		toast.error(
@@ -374,6 +374,7 @@ export const dataRestoreHandler = async (
 export const dataPermanentDeleteHandler = async (
 	entityType: keyof Entity,
 	entityId: string,
+	notify = false,
 ) => {
 	try {
 		await retryWithRefresh(permanentlyDeleteNote, [entityId]);
@@ -401,10 +402,12 @@ export const dataPermanentDeleteHandler = async (
 				},
 			},
 		}));
-		toast.success(
-			`${entityTypeToName(entityType, true, false)} deleted permanently!`,
-			{ duration: 1000 },
-		);
+		if (notify) {
+			toast.success(
+				`${entityTypeToName(entityType, true, false)} deleted permanently!`,
+				{ duration: 1000 },
+			);
+		}
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
 		toast.error(

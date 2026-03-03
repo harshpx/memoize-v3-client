@@ -1,7 +1,9 @@
 import { NotesLoadingSkeleton } from "@/components/custom/LoadingSkeletons";
 import NoteListItem from "@/components/custom/NoteListItem";
 import { useStore } from "@/context/store";
+import useMediaQuery from "@/hooks/useMediaQuery";
 import type { Note } from "@/lib/commonTypes";
+import { cn } from "@/lib/utils";
 import { dataFetchHandler } from "@/services/services";
 import { useEffect, useRef } from "react";
 import { LuTrash } from "react-icons/lu";
@@ -10,7 +12,7 @@ import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 const Trash = () => {
 	const deletedNotes = useStore((state) => state.data.notes.deleted.data);
 	const loading = useStore((state) => state.dataLoading);
-
+	const isDesktop = useMediaQuery("(min-width: 1280px)");
 	const didRun = useRef(false);
 
 	useEffect(() => {
@@ -25,14 +27,22 @@ const Trash = () => {
 	}
 
 	return (
-		<div className="p-4 grow h-full w-full flex items-center justify-center overflow-scroll">
+		<div
+			className={cn(
+				"grow h-full w-full flex items-center justify-center overflow-scroll",
+				isDesktop ? "p-4" : "p-1",
+			)}>
 			{deletedNotes.length > 0 ? (
 				<ResponsiveMasonry
 					className="w-full h-full"
 					columnsCountBreakPoints={{ 640: 2, 1024: 3, 1280: 4, 1536: 5 }}>
 					<Masonry className="w-full">
 						{deletedNotes.map((note) => (
-							<NoteListItem key={note.id} note={note as Note} />
+							<NoteListItem
+								key={note.id}
+								note={note as Note}
+								className="w-full"
+							/>
 						))}
 					</Masonry>
 				</ResponsiveMasonry>

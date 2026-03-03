@@ -128,18 +128,18 @@ const NotePage = () => {
 	};
 
 	const noteDeleteHelper = () => {
-		dataSoftDeleteHandler("notes", currentNoteRef.current.id);
-		navigate("/dashboard/notes", { replace: true });
+		dataSoftDeleteHandler("notes", currentNoteRef.current.id, true);
+		navigate("/home/notes", { replace: true });
 	};
 
 	const noteRestoreHelper = () => {
-		dataRestoreHandler("notes", currentNoteRef.current.id);
-		navigate("/dashboard/trash", { replace: true });
+		dataRestoreHandler("notes", currentNoteRef.current.id, true);
+		navigate("/home/trash", { replace: true });
 	};
 
 	const notePermanentlyDeleteHelper = () => {
-		dataPermanentDeleteHandler("notes", currentNoteRef.current.id);
-		navigate("/dashboard/trash", { replace: true });
+		dataPermanentDeleteHandler("notes", currentNoteRef.current.id, true);
+		navigate("/home/trash", { replace: true });
 	};
 
 	const updateDataAndRef = (updatedNote: Note, dirtyState: boolean) => {

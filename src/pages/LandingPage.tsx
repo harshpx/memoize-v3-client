@@ -5,7 +5,7 @@ import { type FC } from "react";
 import { FaArrowRight as ArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
-const Home: FC = () => {
+const LandingPage: FC = () => {
 	const navigate = useNavigate();
 	return (
 		<div className="h-screen w-full flex flex-col gap-4 items-center justify-center overflow-hidden relative">
@@ -39,4 +39,4 @@ const Home: FC = () => {
 	);
 };
 
-export default Home;
+export default LandingPage;

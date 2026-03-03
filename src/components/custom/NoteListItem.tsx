@@ -27,7 +27,7 @@ const NoteListItem = ({
 	return (
 		<div
 			onClick={() =>
-				navigate(`/dashboard/notes/editor`, {
+				navigate(`/home/notes/editor`, {
 					state: { note: note },
 				})
 			}

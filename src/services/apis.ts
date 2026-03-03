@@ -237,17 +237,23 @@ export const checkEmailAvailability = async (
  * @description This function sends a GET request to the /user/me endpoint with the provided access token in the Authorization header.
  * It retrieves the user's information.
  */
-export const getUserInfo = async (): Promise<User> => {
-	const { accessToken } = useStore.getState();
-	if (!accessToken) {
-		throw new AuthError("No access token present");
+export const getUserInfo = async (
+	passedAccessToken: string | null = null,
+): Promise<User> => {
+	if (!passedAccessToken) {
+		const { accessToken } = useStore.getState();
+		if (!accessToken) {
+			throw new AuthError("No access token present");
+		} else {
+			passedAccessToken = accessToken;
+		}
 	}
 	const url = `${BASE_URL}/user/me`;
 	const options: RequestInit = {
 		method: "GET",
 		headers: {
 			"Content-Type": "application/json",
-			Authorization: `Bearer ${accessToken}`,
+			Authorization: `Bearer ${passedAccessToken}`,
 		},
 		credentials: "include",
 	};

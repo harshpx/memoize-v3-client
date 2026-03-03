@@ -1,11 +1,11 @@
 import { type FC } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import Home from "@/pages/Home";
+import LandingPage from "@/pages/LandingPage";
 import Auth from "@/pages/Auth";
 import NotFound from "@/pages/NotFound";
 import Notes from "./pages/Notes";
-import Dashboard from "./pages/Dashboard";
-import DashboardLayout from "./pages/DashboardLayout";
+import HomePage from "./pages/HomePage";
+import HomeLayout from "./pages/HomeLayout";
 import { Toaster } from "./components/ui/sonner";
 import ThemeInit from "./components/wrapper/ThemeInit";
 import AuthInit from "./components/wrapper/AuthInit";
@@ -23,13 +23,13 @@ const App: FC = () => {
 				<BrowserRouter>
 					<Routes>
 						<Route element={<PublicRoute />}>
-							<Route path="/" element={<Home />} />
+							<Route path="/" element={<LandingPage />} />
 							<Route path="/auth" element={<Auth />} />
 							<Route path="/oauth2redirect" element={<OAuth2Redirect />} />
 						</Route>
 						<Route element={<ProtectedRoute />}>
-							<Route path="/dashboard" element={<DashboardLayout />}>
-								<Route index element={<Dashboard />} />
+							<Route path="/home" element={<HomeLayout />}>
+								<Route index element={<HomePage />} />
 								<Route path="notes" element={<Notes />} />
 								<Route path="notes/editor" element={<NotePage />} />
 								<Route path="events" element={<Events />} />
