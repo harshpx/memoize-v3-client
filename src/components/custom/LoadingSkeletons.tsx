@@ -29,4 +29,22 @@ const NotesLoadingSkeleton = () => {
 	);
 };
 
-export { NotesLoadingSkeleton };
+const EventsLoadingSkeletonItem = () => {
+	return (
+		<Card className="w-full bg-transparent shadow-none border-none flex flex-col justify-between gap-2 break-inside-avoid">
+			<CardContent className="flex items-center gap-2 w-full">
+				<Skeleton className="size-12 rounded-full" />
+				<div className="flex flex-col gap-2 w-full">
+					<Skeleton className="h-8 w-full" />
+					<Skeleton className="h-4 w-full" />
+				</div>
+			</CardContent>
+		</Card>
+	);
+};
+
+export {
+	NotesLoadingSkeleton,
+	NotesLoadingSkeletonItem,
+	EventsLoadingSkeletonItem,
+};

@@ -1,5 +1,8 @@
 import CustomizableButton from "@/components/custom/CustomizableButton";
-import { NotesLoadingSkeleton } from "@/components/custom/LoadingSkeletons";
+import {
+	EventsLoadingSkeletonItem,
+	NotesLoadingSkeletonItem,
+} from "@/components/custom/LoadingSkeletons";
 import NoteListItem from "@/components/custom/NoteListItem";
 import {
 	Collapsible,
@@ -34,10 +37,6 @@ const HomePage = () => {
 		didRun.current = true;
 		dashboardPreviewFetchHandler("notes");
 	}, []);
-
-	if (loading) {
-		return <NotesLoadingSkeleton />;
-	}
 
 	return (
 		<div
@@ -87,28 +86,35 @@ const HomePage = () => {
 						<span className="font-medium">Recent Notes</span>
 						{recentNotesSectionOpen ? <FaAngleUp /> : <FaAngleDown />}
 					</CollapsibleTrigger>
-					<CollapsibleContent className="flex gap-2 ">
-						{activeNotes.length > 0 ? (
-							activeNotes
-								.slice(0, 2)
-								.map((note) => (
-									<NoteListItem
-										key={note.id}
-										note={note as Note}
-										className="h-60 w-1/2"
-										previewClassName="text-sm"
-									/>
-								))
-						) : (
-							<div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 p-2">
-								<LuNotebookPen className="size-14" />
-								<div className="flex flex-col items-start text-[12px]">
-									<span>No notes,</span>
-									<span>add one</span>
+					{loading ? (
+						<div className="flex gap-1">
+							<NotesLoadingSkeletonItem />
+							<NotesLoadingSkeletonItem />
+						</div>
+					) : (
+						<CollapsibleContent className="flex gap-2 ">
+							{activeNotes.length > 0 ? (
+								activeNotes
+									.slice(0, 2)
+									.map((note) => (
+										<NoteListItem
+											key={note.id}
+											note={note as Note}
+											className="h-60 w-1/2"
+											previewClassName="text-sm"
+										/>
+									))
+							) : (
+								<div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 p-2">
+									<LuNotebookPen className="size-14" />
+									<div className="flex flex-col items-start text-[12px]">
+										<span>No notes,</span>
+										<span>add one</span>
+									</div>
 								</div>
-							</div>
-						)}
-					</CollapsibleContent>
+							)}
+						</CollapsibleContent>
+					)}
 				</Collapsible>
 				<Collapsible
 					open={upcomingEventsSectionOpen}
@@ -118,15 +124,22 @@ const HomePage = () => {
 						<span className="font-medium">Upcoming Events</span>
 						{upcomingEventsSectionOpen ? <FaAngleUp /> : <FaAngleDown />}
 					</CollapsibleTrigger>
-					<CollapsibleContent className="flex gap-2 ">
-						<div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 p-2">
-							<LuCalendarPlus className="size-14" />
-							<div className="flex flex-col items-start text-[12px]">
-								<span>No events,</span>
-								<span>Events are coming soon!</span>
-							</div>
+					{loading ? (
+						<div className="flex gap-1">
+							<EventsLoadingSkeletonItem />
+							<EventsLoadingSkeletonItem />
 						</div>
-					</CollapsibleContent>
+					) : (
+						<CollapsibleContent className="flex gap-2 ">
+							<div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 p-2">
+								<LuCalendarPlus className="size-14" />
+								<div className="flex flex-col items-start text-[12px]">
+									<span>No events,</span>
+									<span>Events are coming soon!</span>
+								</div>
+							</div>
+						</CollapsibleContent>
+					)}
 				</Collapsible>
 			</div>
 		</div>
