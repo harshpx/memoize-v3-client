@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 const LandingPage: FC = () => {
 	const navigate = useNavigate();
 	return (
-		<div className="h-screen w-full flex flex-col gap-4 items-center justify-center overflow-hidden relative">
+		<div className="h-dvh w-full flex flex-col gap-4 items-center justify-center overflow-hidden relative">
 			<div className="absolute right-2 top-2">
 				<ThemeSwitch buttonStyle="themed" />
 			</div>

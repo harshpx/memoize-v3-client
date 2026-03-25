@@ -41,7 +41,7 @@ const HomeLayout = () => {
 	}
 
 	return (
-		<div className="h-screen w-full overflow-hidden">
+		<div className="h-dvh w-full overflow-hidden">
 			<div className="absolute right-2 top-2 z-50">
 				<ThemeSwitch />
 			</div>
