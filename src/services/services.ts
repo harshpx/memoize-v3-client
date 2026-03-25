@@ -107,6 +107,10 @@ export const retryWithRefresh = async <T, A extends any[]>(
 			const { accessToken } = await refresh();
 			const user: User = await getUserInfo(accessToken);
 			updateAuthState(accessToken, user);
+			if ((apiCall as unknown) === getUserInfo) {
+				// if the original call was getUserInfo, we don't want to retry it after refresh
+				return user as unknown as T;
+			}
 			// retry the original API call
 			return await apiCall(...args);
 		} catch (refreshError) {

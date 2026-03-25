@@ -12,13 +12,14 @@ import type {
 } from "@/lib/commonTypes";
 import { AuthError } from "@/lib/errors";
 
-export const BASE_URL =
-	window.__ENV__?.APP_ENV === "PROD"
-		? "https://api.memoize.in"
-		: "http://localhost:8086";
+export let BASE_URL = "http://localhost:8086";
+if (window.__ENV__?.APP_ENV === "PROD") {
+	BASE_URL = "https://api.memoize.in"
+} else if (import.meta.env.VITE_ENV === "PROD") {
+	BASE_URL = "https://api-ts.memoize.in"
+}
 
 // ------------------ Auth services ------------------ //
-
 /**
  * @access public
  * @param {LoginRequest} params - login request param
