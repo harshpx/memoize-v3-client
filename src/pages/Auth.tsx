@@ -50,7 +50,7 @@ const Auth: FC = () => {
 	const { loading } = useStore();
 	const [activePage, setActivePage] = useState("login");
 	return (
-		<div className="relative h-dvh w-screen flex flex-col items-center justify-center">
+		<div className="h-dvh w-full flex flex-col items-center justify-center relative overflow-hidden">
 			{loading && <Loader />}
 			<BgIcons className="text-white dark:text-black bg-accent-dark" />
 			{!isLargeScreen && (
