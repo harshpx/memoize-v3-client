@@ -49,9 +49,9 @@ const HomeLayout = () => {
 				<ResizablePanel
 					className={cn("flex", isDesktop ? "p-2" : "p-2 pb-0")}
 					collapsible={isDesktop}
-					defaultSize={isDesktop ? "250px" : undefined}
+					defaultSize={isDesktop ? "200px" : undefined}
 					minSize={isDesktop ? "180px" : undefined}
-					maxSize={isDesktop ? "300px" : undefined}
+					maxSize={isDesktop ? "240px" : undefined}
 					collapsedSize={isDesktop ? "80px" : undefined}
 					panelRef={sidebarRef}
 					onResize={() => {
@@ -70,7 +70,7 @@ const HomeLayout = () => {
 						</div>
 					)}
 				</ResizablePanel>
-				{!(!isDesktop && pathname === "/home/notes/editor") && (
+				{(isDesktop || pathname !== "/home/notes/editor") && (
 					<>
 						<ResizableHandle className=" invisible w-0" />
 						<ResizablePanel
@@ -128,7 +128,7 @@ const SidebarComponents = ({
 								ref.current?.collapse();
 							}
 						}}
-						className={`p-2 border ${collapsed ? "order-1 w-full" : "order-2 w-[32px]"}`}>
+						className={`p-2 border ${collapsed ? "order-1 w-full" : "order-2 w-[40px]"}`}>
 						{collapsed ? <IoChevronForward /> : <IoChevronBack />}
 					</CustomizableButton>
 				</div>

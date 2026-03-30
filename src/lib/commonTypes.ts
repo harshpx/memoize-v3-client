@@ -63,21 +63,20 @@ export interface Event {
 	title: string;
 	start: string;
 	end: string;
-	eventType: string;
+	eventType: "EVENT" | "TASK" | "BIRTHDAY" | "MEETING" | "OTHER";
+	eventRepeat: "NONE" | "WEEKLY" | "MONTHLY" | "YEARLY";
 	description?: string;
 	location?: string;
-	isArchived: boolean;
-	isDeleted: boolean;
 	createdAt: string;
 	updatedAt: string;
-	deletedAt?: string;
 }
 
 export interface EventModifyRequest {
 	title: string;
 	start: string;
 	end: string;
-	eventType: string;
+	eventType: "EVENT" | "TASK" | "BIRTHDAY" | "MEETING" | "OTHER";
+	eventRepeat: "NONE" | "WEEKLY" | "MONTHLY" | "YEARLY";
 	description?: string;
 	location?: string;
 }
@@ -99,4 +98,9 @@ export interface Page<T> {
 	size: number; // max size per page
 	totalElements: number; // total number of elements
 	totalPages: number; // total number of pages
+}
+
+export interface CalendarMonth {
+	month: number;
+	year: number;
 }

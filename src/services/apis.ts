@@ -14,9 +14,9 @@ import { AuthError } from "@/lib/errors";
 
 export let BASE_URL = "http://localhost:8086";
 if (window.__ENV__?.APP_ENV === "PROD") {
-	BASE_URL = "https://api.memoize.in"
+	BASE_URL = "https://api.memoize.in";
 } else if (import.meta.env.VITE_ENV === "PROD") {
-	BASE_URL = "https://api-ts.memoize.in"
+	BASE_URL = "https://api-ts.memoize.in";
 }
 
 // ------------------ Auth services ------------------ //
