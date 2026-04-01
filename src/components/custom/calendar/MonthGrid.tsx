@@ -15,7 +15,11 @@ interface MonthGridProps {
 	eventMap: Record<string, Event[]>;
 }
 
-const RenderEventIcon = ({ eventType }: { eventType: Event["eventType"] }) => {
+export const RenderEventIcon = ({
+	eventType,
+}: {
+	eventType: Event["eventType"];
+}) => {
 	if (eventType === "BIRTHDAY") return <FaBirthdayCake />;
 	else if (eventType === "EVENT") return <MdEvent />;
 	else if (eventType === "MEETING") return <MdMeetingRoom />;
@@ -51,7 +55,7 @@ const MonthGrid = ({ calendarMonth, dayList, eventMap }: MonthGridProps) => {
 	}, [calendarMonth]);
 
 	return (
-		<div className="flex flex-col gap-2 h-full w-full min-h-0 overflow-hidden">
+		<div className="flex flex-col gap-2 h-full w-full overflow-hidden">
 			{/* Weekdays ribbon */}
 			<div className="w-full h-[40px] border border-black dark:border-white rounded-xl flex shrink-0 gap-1 items-stretch">
 				{WEEKS.map((week) => (

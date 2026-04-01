@@ -10,8 +10,10 @@ import {
 } from "@/lib/utils";
 import MonthGrid from "./MonthGrid";
 import { events } from "@/lib/dummyData";
+import MonthList from "./MonthList";
 
 const Calendar = () => {
+	const [calendarView, setCalendarView] = useState<"GRID" | "LIST">("LIST");
 	const [currCalendarMonth, setCurrCalendarMonth] = useState<CalendarMonth>({
 		month: dayjs().month(),
 		year: dayjs().year(),
@@ -48,25 +50,42 @@ const Calendar = () => {
 
 	return (
 		<div className="w-full h-full flex flex-col gap-1">
-			<div className="w-full shrink-0 h-[40px] border border-black dark:border-white rounded-xl flex items-center px-4 gap-4">
+			<div className="w-full shrink-0 h-[40px] border border-black dark:border-white rounded-xl flex items-center justify-between px-4 gap-4">
 				<div className="flex items-center gap-2">
-					<CustomizableButton onClick={prevMonth}>
-						<LuChevronLeft />
-					</CustomizableButton>
-					<CustomizableButton onClick={nextMonth}>
-						<LuChevronRight />
-					</CustomizableButton>
+					<div className="flex items-center gap-2">
+						<CustomizableButton onClick={prevMonth}>
+							<LuChevronLeft />
+						</CustomizableButton>
+						<CustomizableButton onClick={nextMonth}>
+							<LuChevronRight />
+						</CustomizableButton>
+					</div>
+					<div>
+						{MONTHS[currCalendarMonth.month]}, {currCalendarMonth.year}
+					</div>
 				</div>
-				<div>
-					{MONTHS[currCalendarMonth.month]}, {currCalendarMonth.year}
+				<div className="flex items-stretch">
+					<CustomizableButton onClick={() => setCalendarView("GRID")}>
+						Grid
+					</CustomizableButton>
+					<CustomizableButton onClick={() => setCalendarView("LIST")}>
+						List
+					</CustomizableButton>
 				</div>
 			</div>
 			<div className="w-full h-[calc(100%_-_40px)]">
-				<MonthGrid
-					calendarMonth={currCalendarMonth}
-					dayList={calendarDays}
-					eventMap={eventsForMonth}
-				/>
+				{calendarView === "GRID" ? (
+					<MonthGrid
+						calendarMonth={currCalendarMonth}
+						dayList={calendarDays}
+						eventMap={eventsForMonth}
+					/>
+				) : (
+					<MonthList
+						calendarMonth={currCalendarMonth}
+						eventMap={eventsForMonth}
+					/>
+				)}
 			</div>
 		</div>
 	);
