@@ -28,17 +28,15 @@ export interface PaginatedData<T> {
 	hasMore: boolean;
 }
 
-export interface Entity {
-	notes: Note;
-	events: Event;
-}
-export type EntityState = "active" | "deleted";
-export type EntityData<T> = Record<EntityState, PaginatedData<T>>;
+export type EntityState = "active" | "deleted" | "preview";
 
 interface DataState {
-	data: Record<keyof Entity, EntityData<Entity[keyof Entity]>>;
-	dataLoading: boolean;
-	setDataLoading: (flag: boolean) => void;
+	notes: Record<EntityState, PaginatedData<Note>>;
+	notesLoading: boolean;
+	setNotesLoading: (flag: boolean) => void;
+	events: Record<EntityState, Event[]>;
+	eventsLoading: boolean;
+	setEventsLoading: (flag: boolean) => void;
 }
 
 interface AppState extends AuthState, ThemeState, DataState {
@@ -59,16 +57,30 @@ export const useStore = create<AppState>((set) => ({
 			accessToken: null,
 			user: null,
 			// reset data state
-			data: {
-				notes: {
-					active: { data: [], pageNumber: -1, hasMore: true },
-					deleted: { data: [], pageNumber: -1, hasMore: true },
+			notes: {
+				preview: {
+					data: [],
+					pageNumber: -1,
+					hasMore: true,
 				},
-				events: {
-					active: { data: [], pageNumber: -1, hasMore: true },
-					deleted: { data: [], pageNumber: -1, hasMore: true },
+				active: {
+					data: [],
+					pageNumber: -1,
+					hasMore: true,
+				},
+				deleted: {
+					data: [],
+					pageNumber: -1,
+					hasMore: true,
 				},
 			},
+			events: {
+				active: [],
+				preview: [],
+				deleted: [],
+			},
+			notesLoading: false,
+			eventsLoading: false,
 		}),
 	// theme
 	theme: (localStorage.getItem("theme") as Theme) || "dark",
@@ -85,18 +97,32 @@ export const useStore = create<AppState>((set) => ({
 		set({ accent });
 	},
 	// data state
-	data: {
-		notes: {
-			active: { data: [], pageNumber: -1, hasMore: true },
-			deleted: { data: [], pageNumber: -1, hasMore: true },
+	notes: {
+		preview: {
+			data: [],
+			pageNumber: -1,
+			hasMore: true,
 		},
-		events: {
-			active: { data: [], pageNumber: -1, hasMore: true },
-			deleted: { data: [], pageNumber: -1, hasMore: true },
+		active: {
+			data: [],
+			pageNumber: -1,
+			hasMore: true,
+		},
+		deleted: {
+			data: [],
+			pageNumber: -1,
+			hasMore: true,
 		},
 	},
-	dataLoading: false,
-	setDataLoading: (flag: boolean) => set({ dataLoading: flag }),
+	notesLoading: false,
+	setNotesLoading: (notesLoading: boolean) => set({ notesLoading }),
+	events: {
+		preview: [],
+		active: [],
+		deleted: [],
+	},
+	eventsLoading: false,
+	setEventsLoading: (eventsLoading: boolean) => set({ eventsLoading }),
 	// ui state
 	loading: false,
 	setLoading: (loading) => set({ loading }),

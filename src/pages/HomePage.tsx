@@ -13,7 +13,7 @@ import { useStore } from "@/context/store";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import type { Note } from "@/lib/commonTypes";
 import { cn, getTimeOfDayGreeting } from "@/lib/utils";
-import { dashboardPreviewFetchHandler } from "@/services/services";
+import { notesFetchHandler } from "@/services/services";
 import { useEffect, useRef, useState } from "react";
 import { FaAngleDown, FaAngleUp } from "react-icons/fa6";
 import { LuCalendarPlus, LuNotebookPen } from "react-icons/lu";
@@ -21,9 +21,9 @@ import { RiStickyNoteAddLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
-	const activeNotes = useStore((state) => state.data.notes.active.data);
+	const activeNotes = useStore((state) => state.notes.preview.data);
 	const user = useStore((state) => state.user);
-	const loading = useStore((state) => state.dataLoading);
+	const notesLoading = useStore((state) => state.notesLoading);
 	const navigate = useNavigate();
 	const isDesktop = useMediaQuery("(min-width: 1280px)");
 	const didRun = useRef(false);
@@ -35,7 +35,7 @@ const HomePage = () => {
 	useEffect(() => {
 		if (didRun.current) return;
 		didRun.current = true;
-		dashboardPreviewFetchHandler("notes");
+		notesFetchHandler("preview");
 	}, []);
 
 	return (
@@ -86,7 +86,7 @@ const HomePage = () => {
 						<span className="font-medium">Recent Notes</span>
 						{recentNotesSectionOpen ? <FaAngleUp /> : <FaAngleDown />}
 					</CollapsibleTrigger>
-					{loading ? (
+					{notesLoading ? (
 						<div className="flex gap-1">
 							<NotesLoadingSkeletonItem />
 							<NotesLoadingSkeletonItem />
@@ -124,7 +124,7 @@ const HomePage = () => {
 						<span className="font-medium">Upcoming Events</span>
 						{upcomingEventsSectionOpen ? <FaAngleUp /> : <FaAngleDown />}
 					</CollapsibleTrigger>
-					{loading ? (
+					{notesLoading ? (
 						<div className="flex gap-1">
 							<EventsLoadingSkeletonItem />
 							<EventsLoadingSkeletonItem />

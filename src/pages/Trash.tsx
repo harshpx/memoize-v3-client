@@ -4,25 +4,24 @@ import { useStore } from "@/context/store";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import type { Note } from "@/lib/commonTypes";
 import { cn } from "@/lib/utils";
-import { dataFetchHandler } from "@/services/services";
+import { notesFetchHandler } from "@/services/services";
 import { useEffect, useRef } from "react";
 import { LuTrash } from "react-icons/lu";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 const Trash = () => {
-	const deletedNotes = useStore((state) => state.data.notes.deleted.data);
-	const loading = useStore((state) => state.dataLoading);
+	const deletedNotes = useStore((state) => state.notes.deleted.data);
+	const notesLoading = useStore((state) => state.notesLoading);
 	const isDesktop = useMediaQuery("(min-width: 1280px)");
 	const didRun = useRef(false);
 
 	useEffect(() => {
 		if (didRun.current) return;
 		didRun.current = true;
-
-		dataFetchHandler("notes", "deleted");
+		notesFetchHandler("deleted");
 	}, []);
 
-	if (loading) {
+	if (notesLoading) {
 		return <NotesLoadingSkeleton />;
 	}
 

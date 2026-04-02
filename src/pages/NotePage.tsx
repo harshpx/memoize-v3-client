@@ -33,11 +33,11 @@ import { CodeBlockButton } from "@/components/tiptap-ui/code-block-button";
 import { MarkButton } from "@/components/tiptap-ui/mark-button";
 import { TextAlignButton } from "@/components/tiptap-ui/text-align-button";
 import {
-	dataCreateHandler,
-	dataPermanentDeleteHandler,
-	dataRestoreHandler,
-	dataSoftDeleteHandler,
-	dataUpdateHandler,
+	noteCreateHandler,
+	notePermanentDeleteHandler,
+	noteRestoreHandler,
+	noteSoftDeleteHandler,
+	noteUpdateHandler,
 } from "@/services/services";
 import { LuTrash, LuSave, LuLoaderCircle } from "react-icons/lu";
 import { MdRestore } from "react-icons/md";
@@ -106,19 +106,15 @@ const NotePage = () => {
 			updateIsSaving(true);
 			let updatedNote: Note | undefined;
 			if (currentNoteRef.current.id) {
-				updatedNote = (await dataUpdateHandler(
-					"notes",
-					currentNoteRef.current.id,
-					{
-						content: currentNoteRef.current.content,
-						preview: currentNoteRef.current.preview,
-					},
-				)) as Note | undefined;
-			} else {
-				updatedNote = (await dataCreateHandler("notes", {
+				updatedNote = await noteUpdateHandler(currentNoteRef.current.id, {
 					content: currentNoteRef.current.content,
 					preview: currentNoteRef.current.preview,
-				})) as Note | undefined;
+				});
+			} else {
+				updatedNote = await noteCreateHandler({
+					content: currentNoteRef.current.content,
+					preview: currentNoteRef.current.preview,
+				});
 			}
 			if (updatedNote) {
 				updateDataAndRef(updatedNote, false);
@@ -128,17 +124,17 @@ const NotePage = () => {
 	};
 
 	const noteDeleteHelper = () => {
-		dataSoftDeleteHandler("notes", currentNoteRef.current.id, true);
+		noteSoftDeleteHandler(currentNoteRef.current.id, true);
 		navigate("/home/notes", { replace: true });
 	};
 
 	const noteRestoreHelper = () => {
-		dataRestoreHandler("notes", currentNoteRef.current.id, true);
+		noteRestoreHandler(currentNoteRef.current.id, true);
 		navigate("/home/trash", { replace: true });
 	};
 
 	const notePermanentlyDeleteHelper = () => {
-		dataPermanentDeleteHandler("notes", currentNoteRef.current.id, true);
+		notePermanentDeleteHandler(currentNoteRef.current.id, true);
 		navigate("/home/trash", { replace: true });
 	};
 

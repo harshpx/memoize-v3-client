@@ -4,7 +4,7 @@ import { useStore } from "@/context/store";
 import { LuNotebookPen as NoteIcon } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
-import { dataFetchHandler } from "@/services/services";
+import { notesFetchHandler } from "@/services/services";
 import { useEffect, useRef } from "react";
 import type { Note } from "@/lib/commonTypes";
 import { NotesLoadingSkeleton } from "@/components/custom/LoadingSkeletons";
@@ -13,8 +13,8 @@ import { cn } from "@/lib/utils";
 
 const Notes = () => {
 	const navigate = useNavigate();
-	const activeNotes = useStore((state) => state.data.notes.active.data);
-	const loading = useStore((state) => state.dataLoading);
+	const activeNotes = useStore((state) => state.notes.active.data);
+	const notesLoading = useStore((state) => state.notesLoading);
 	const isDesktop = useMediaQuery("(min-width: 1280px)");
 
 	const didRun = useRef(false);
@@ -22,10 +22,10 @@ const Notes = () => {
 	useEffect(() => {
 		if (didRun.current) return;
 		didRun.current = true;
-		dataFetchHandler("notes", "active");
+		notesFetchHandler("active");
 	}, []);
 
-	if (loading) {
+	if (notesLoading) {
 		return <NotesLoadingSkeleton />;
 	}
 
