@@ -28,15 +28,14 @@ export interface PaginatedData<T> {
 	hasMore: boolean;
 }
 
-export type EntityState = "active" | "deleted" | "preview";
+export type NotesEntityState = "active" | "deleted";
 
 interface DataState {
-	notes: Record<EntityState, PaginatedData<Note>>;
+	notes: Record<NotesEntityState, PaginatedData<Note>>;
 	notesLoading: boolean;
-	setNotesLoading: (flag: boolean) => void;
-	events: Record<EntityState, Event[]>;
+	events: Event[];
+	eventsFetched: boolean;
 	eventsLoading: boolean;
-	setEventsLoading: (flag: boolean) => void;
 }
 
 interface AppState extends AuthState, ThemeState, DataState {
@@ -58,11 +57,6 @@ export const useStore = create<AppState>((set) => ({
 			user: null,
 			// reset data state
 			notes: {
-				preview: {
-					data: [],
-					pageNumber: -1,
-					hasMore: true,
-				},
 				active: {
 					data: [],
 					pageNumber: -1,
@@ -74,12 +68,9 @@ export const useStore = create<AppState>((set) => ({
 					hasMore: true,
 				},
 			},
-			events: {
-				active: [],
-				preview: [],
-				deleted: [],
-			},
 			notesLoading: false,
+			events: [],
+			eventsFetched: false,
 			eventsLoading: false,
 		}),
 	// theme
@@ -98,11 +89,6 @@ export const useStore = create<AppState>((set) => ({
 	},
 	// data state
 	notes: {
-		preview: {
-			data: [],
-			pageNumber: -1,
-			hasMore: true,
-		},
 		active: {
 			data: [],
 			pageNumber: -1,
@@ -115,14 +101,9 @@ export const useStore = create<AppState>((set) => ({
 		},
 	},
 	notesLoading: false,
-	setNotesLoading: (notesLoading: boolean) => set({ notesLoading }),
-	events: {
-		preview: [],
-		active: [],
-		deleted: [],
-	},
+	events: [],
+	eventsFetched: false,
 	eventsLoading: false,
-	setEventsLoading: (eventsLoading: boolean) => set({ eventsLoading }),
 	// ui state
 	loading: false,
 	setLoading: (loading) => set({ loading }),

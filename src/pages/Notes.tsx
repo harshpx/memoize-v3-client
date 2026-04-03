@@ -13,7 +13,7 @@ import { cn } from "@/lib/utils";
 
 const Notes = () => {
 	const navigate = useNavigate();
-	const activeNotes = useStore((state) => state.notes.active.data);
+	const activeNotes = useStore((state) => state.notes.active);
 	const notesLoading = useStore((state) => state.notesLoading);
 	const isDesktop = useMediaQuery("(min-width: 1280px)");
 
@@ -22,7 +22,9 @@ const Notes = () => {
 	useEffect(() => {
 		if (didRun.current) return;
 		didRun.current = true;
-		notesFetchHandler("active");
+		if (activeNotes.pageNumber === -1) {
+			notesFetchHandler("active");
+		}
 	}, []);
 
 	if (notesLoading) {
@@ -35,13 +37,13 @@ const Notes = () => {
 				"p-1 grow h-full w-full flex items-center justify-center overflow-scroll",
 				isDesktop ? "p-4" : "p-1",
 			)}>
-			{activeNotes.length > 0 ? (
+			{activeNotes.data.length > 0 ? (
 				<ResponsiveMasonry
 					className="w-full h-full"
 					columnsCountBreakPoints={{ 640: 2, 1024: 3, 1280: 4, 1536: 5 }}>
 					<Masonry className="w-full">
 						<NoteListItem className="w-full" />
-						{activeNotes.map((note) => (
+						{activeNotes.data.map((note) => (
 							<NoteListItem
 								key={note.id}
 								note={note as Note}

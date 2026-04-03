@@ -2,6 +2,7 @@ import { useStore } from "@/context/store";
 import type {
 	AccessTokenResponse,
 	ApiResponse,
+	Event,
 	LoginRequest,
 	Note,
 	NoteModifyRequest,
@@ -19,7 +20,7 @@ if (window.__ENV__?.APP_ENV === "PROD") {
 	BASE_URL = "https://api-ts.memoize.in";
 }
 
-// ------------------ Auth services ------------------ //
+// ------------------ Auth APIs ------------------ //
 /**
  * @access public
  * @param {LoginRequest} params - login request param
@@ -229,7 +230,7 @@ export const checkEmailAvailability = async (
 	return result.data as boolean;
 };
 
-// ------------------ User services ------------------ //
+// ------------------ User APIs ------------------ //
 
 /**
  * @access private
@@ -269,7 +270,7 @@ export const getUserInfo = async (
 	return result.data as User;
 };
 
-// ------------------ Note services ------------------ //
+// ------------------ Note APIs ------------------ //
 
 /**
  * @access private
@@ -471,4 +472,32 @@ export const permanentlyDeleteNote = async (
 		throw new Error(String(result?.data) || "Failed to delete note");
 	}
 	return result.data as number;
+};
+
+// ------------------ Note APIs ------------------ //
+
+export const fetchEvents = async (): Promise<Event[]> => {
+	const { accessToken } = useStore.getState();
+	if (!accessToken) {
+		throw new AuthError("No access token present");
+	}
+
+	const url = `${BASE_URL}/events/all`;
+	const options: RequestInit = {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+		credentials: "include",
+	};
+	const response = await fetch(url, options);
+	const result: ApiResponse<Event[]> = await response.json();
+	if (!response.ok) {
+		if (response.status === 401) {
+			throw new AuthError("Unauthorized. Please log in again.");
+		}
+		throw new Error(String(result?.data) || "Failed to fetch events");
+	}
+	return result.data as Event[];
 };

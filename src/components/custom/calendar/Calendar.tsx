@@ -1,35 +1,32 @@
 import type { CalendarMonth, Event } from "@/lib/commonTypes";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import { useEffect, useState } from "react";
 import CustomizableButton from "../CustomizableButton";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import {
-	getCalendarDaysForMonth,
+	getCalendarMonthRange,
 	MONTHS,
-	populateEventMapForCalendar,
+	populateEventsInRange,
 } from "@/lib/utils";
 import MonthGrid from "./MonthGrid";
-import { events } from "@/lib/dummyData";
 import MonthList from "./MonthList";
+import { useStore } from "@/context/store";
 
 const Calendar = () => {
-	const [calendarView, setCalendarView] = useState<"GRID" | "LIST">("LIST");
+	const events = useStore((state) => state.events);
+	const [calendarView, setCalendarView] = useState<"GRID" | "LIST">("GRID");
 	const [currCalendarMonth, setCurrCalendarMonth] = useState<CalendarMonth>({
 		month: dayjs().month(),
 		year: dayjs().year(),
 	});
-	const [calendarDays, setCalendarDays] = useState<Dayjs[]>([]);
-	const [eventsForMonth, setEventsForMonth] = useState<Record<string, Event[]>>(
-		{},
-	);
+	const [dateEventMap, setDateEventMap] = useState<Record<string, Event[]>>({});
 
 	useEffect(() => {
-		const days = getCalendarDaysForMonth(
+		const days = getCalendarMonthRange(
 			currCalendarMonth.month,
 			currCalendarMonth.year,
 		);
-		setCalendarDays(days);
-		setEventsForMonth(populateEventMapForCalendar(events, days));
+		setDateEventMap(populateEventsInRange(events, days));
 	}, [currCalendarMonth]);
 
 	const nextMonth = () => {
@@ -77,13 +74,12 @@ const Calendar = () => {
 				{calendarView === "GRID" ? (
 					<MonthGrid
 						calendarMonth={currCalendarMonth}
-						dayList={calendarDays}
-						eventMap={eventsForMonth}
+						eventMap={dateEventMap}
 					/>
 				) : (
 					<MonthList
 						calendarMonth={currCalendarMonth}
-						eventMap={eventsForMonth}
+						eventMap={dateEventMap}
 					/>
 				)}
 			</div>

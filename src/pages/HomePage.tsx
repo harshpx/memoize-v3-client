@@ -1,3 +1,4 @@
+import EventCard from "@/components/custom/calendar/EventCard";
 import CustomizableButton from "@/components/custom/CustomizableButton";
 import {
 	EventsLoadingSkeletonItem,
@@ -11,9 +12,10 @@ import {
 } from "@/components/ui/collapsible";
 import { useStore } from "@/context/store";
 import useMediaQuery from "@/hooks/useMediaQuery";
-import type { Note } from "@/lib/commonTypes";
-import { cn, getTimeOfDayGreeting } from "@/lib/utils";
-import { notesFetchHandler } from "@/services/services";
+import type { Event, Note } from "@/lib/commonTypes";
+import { cn, getTimeOfDayGreeting, populateEventsInRange } from "@/lib/utils";
+import { eventsFetchHandler, notesFetchHandler } from "@/services/services";
+import dayjs from "dayjs";
 import { useEffect, useRef, useState } from "react";
 import { FaAngleDown, FaAngleUp } from "react-icons/fa6";
 import { LuCalendarPlus, LuNotebookPen } from "react-icons/lu";
@@ -21,11 +23,20 @@ import { RiStickyNoteAddLine } from "react-icons/ri";
 import { useNavigate } from "react-router-dom";
 
 const HomePage = () => {
-	const activeNotes = useStore((state) => state.notes.preview.data);
 	const user = useStore((state) => state.user);
+
+	const activeNotes = useStore((state) => state.notes.active);
 	const notesLoading = useStore((state) => state.notesLoading);
+
+	const events = useStore((state) => state.events);
+	const eventsLoading = useStore((state) => state.eventsLoading);
+	const [upcomingEvents, setUpcomingEvents] = useState<Record<string, Event[]>>(
+		{},
+	);
+
 	const navigate = useNavigate();
 	const isDesktop = useMediaQuery("(min-width: 1280px)");
+
 	const didRun = useRef(false);
 
 	const [recentNotesSectionOpen, setRecentNotesSectionOpen] = useState(true);
@@ -35,8 +46,20 @@ const HomePage = () => {
 	useEffect(() => {
 		if (didRun.current) return;
 		didRun.current = true;
-		notesFetchHandler("preview");
+		if (activeNotes.pageNumber === -1) {
+			notesFetchHandler("active");
+		}
+		if (events.length === 0) {
+			eventsFetchHandler();
+		}
 	}, []);
+
+	useEffect(() => {
+		const start = dayjs().utc().startOf("day");
+		const end = start.add(7, "day").endOf("day");
+		const eventMap = populateEventsInRange(events, { start, end });
+		setUpcomingEvents(eventMap);
+	}, [events]);
 
 	return (
 		<div
@@ -77,11 +100,12 @@ const HomePage = () => {
 					</CustomizableButton>
 				</div>
 			</div>
-			<div className="flex flex-wrap gap-2">
+			<div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+				{/* recent notes */}
 				<Collapsible
 					open={recentNotesSectionOpen}
 					onOpenChange={setRecentNotesSectionOpen}
-					className="w-full lg:max-w-1/2 xl:max-w-2/5 2xl:max-w-1/3">
+					className="w-full">
 					<CollapsibleTrigger className="rounded-xl w-full p-2 flex justify-between items-center">
 						<span className="font-medium">Recent Notes</span>
 						{recentNotesSectionOpen ? <FaAngleUp /> : <FaAngleDown />}
@@ -93,8 +117,8 @@ const HomePage = () => {
 						</div>
 					) : (
 						<CollapsibleContent className="flex gap-2 ">
-							{activeNotes.length > 0 ? (
-								activeNotes
+							{activeNotes.data.length > 0 ? (
+								activeNotes.data
 									.slice(0, 2)
 									.map((note) => (
 										<NoteListItem
@@ -116,28 +140,56 @@ const HomePage = () => {
 						</CollapsibleContent>
 					)}
 				</Collapsible>
+				{/* upcoming events */}
 				<Collapsible
 					open={upcomingEventsSectionOpen}
 					onOpenChange={setUpcomingEventsSectionOpen}
-					className="w-full lg:w-fit lg:grow">
+					className="w-full">
 					<CollapsibleTrigger className="rounded-xl w-full p-2 flex justify-between items-center">
 						<span className="font-medium">Upcoming Events</span>
 						{upcomingEventsSectionOpen ? <FaAngleUp /> : <FaAngleDown />}
 					</CollapsibleTrigger>
-					{notesLoading ? (
+					{eventsLoading ? (
 						<div className="flex gap-1">
 							<EventsLoadingSkeletonItem />
 							<EventsLoadingSkeletonItem />
 						</div>
 					) : (
-						<CollapsibleContent className="flex gap-2 ">
-							<div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 p-2">
-								<LuCalendarPlus className="size-14" />
-								<div className="flex flex-col items-start text-[12px]">
-									<span>No events,</span>
-									<span>Events are coming soon!</span>
+						<CollapsibleContent className="flex gap-2 flex-wrap">
+							{Object.values(upcomingEvents).reduce(
+								(acc, eventList) => acc + eventList.length,
+								0,
+							) === 0 ? (
+								<div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 p-2">
+									<LuCalendarPlus className="size-14" />
+									<div className="flex flex-col items-start text-[12px]">
+										<span>No upcoming events for next 7 days!</span>
+									</div>
 								</div>
-							</div>
+							) : (
+								Object.keys(upcomingEvents)
+									.sort((a, b) => dayjs.utc(a).diff(dayjs.utc(b)))
+									.filter(
+										(dayString) =>
+											Array.isArray(upcomingEvents[dayString]) &&
+											upcomingEvents[dayString].length > 0,
+									)
+									.map((dayString) => {
+										const dayEvents = upcomingEvents[dayString];
+										return (
+											<div
+												key={dayString}
+												className="flex flex-col gap-1 p-2 rounded-xl bg-accent-light/50 dark:bg-accent-dark/50 w-[100%] sm:w-[47%]">
+												<div className="text-sm font-medium">
+													{dayjs.utc(dayString).format("ddd, DD MMM")}
+												</div>
+												{dayEvents.map((event, idx) => (
+													<EventCard key={event.id + idx} event={event} />
+												))}
+											</div>
+										);
+									})
+							)}
 						</CollapsibleContent>
 					)}
 				</Collapsible>

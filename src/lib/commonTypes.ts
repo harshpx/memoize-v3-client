@@ -1,3 +1,5 @@
+import type { Dayjs } from "dayjs";
+
 export interface ApiSuccess<T> {
 	success: true;
 	data: T;
@@ -103,4 +105,14 @@ export interface Page<T> {
 export interface CalendarMonth {
 	month: number;
 	year: number;
+}
+
+export interface DateRange {
+	start: Dayjs;
+	end: Dayjs;
+}
+
+export interface EventsByDate {
+	date: string;
+	events: Event[];
 }

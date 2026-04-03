@@ -1,8 +1,8 @@
-import type { Accent, Entity, Theme } from "@/context/store";
+import type { Accent, Theme } from "@/context/store";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-import type { Event, Note } from "./commonTypes";
-import dayjs, { type Dayjs } from "dayjs";
+import type { DateRange, Event, Note } from "./commonTypes";
+import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(utc);
@@ -105,18 +105,6 @@ export const deepCompareObjects = (obj1: any, obj2: any): boolean => {
 	return false;
 };
 
-export const entityTypeToName = (
-	entityType: keyof Entity,
-	firstCaps = false,
-	plural = true,
-) => {
-	let value = entityType.toString().toLowerCase();
-	if (value.charAt(value.length - 1) === "s") value = value.slice(0, -1);
-	if (firstCaps) value = value.slice(0, 1).toUpperCase() + value.slice(1);
-	if (plural) value += "s";
-	return value;
-};
-
 export const getTimeOfDayGreeting = () => {
 	const currentHour = new Date().getHours();
 	if (currentHour < 12) {
@@ -153,7 +141,10 @@ export const WEEKS = [
 	"Saturday",
 ];
 
-export const getCalendarDaysForMonth = (month: number, year: number) => {
+export const getCalendarMonthRange = (
+	month: number,
+	year: number,
+): DateRange => {
 	const curr = dayjs.utc().month(month).year(year).startOf("day");
 	const startOfMonth = curr.startOf("month");
 	const endOfMonth = curr.endOf("month");
@@ -161,39 +152,41 @@ export const getCalendarDaysForMonth = (month: number, year: number) => {
 	const start = startOfMonth.subtract(startOfMonth.day(), "day");
 	const end = endOfMonth.add(6 - endOfMonth.day(), "day");
 
-	const arr: Dayjs[] = [];
-	let current = start;
-
-	while (!current.isAfter(end)) {
-		arr.push(current);
-		current = current.add(1, "day");
-	}
-	return arr;
+	return { start, end };
 };
 
-export const populateEventMapForCalendar = (
-	events: Event[],
-	calendarDays: Dayjs[],
+const pushToDays = (
+	interval: DateRange,
+	range: DateRange,
+	event: Event,
+	eventMap: Record<string, Event[]>,
 ) => {
-	const eventMap: Record<string, Event[]> = {};
-	calendarDays.forEach(
-		(day) => (eventMap[day.utc().startOf("day").toISOString()] = []),
-	);
-	const rangeStart = calendarDays[0].utc().startOf("day");
-	const rangeEnd = calendarDays[calendarDays.length - 1].utc().endOf("day");
+	const clampedStart = interval.start.isBefore(range.start)
+		? range.start
+		: interval.start;
+	const clampedEnd = interval.end.isAfter(range.end) ? range.end : interval.end;
+	let curr = clampedStart.startOf("day");
+	while (!curr.isAfter(clampedEnd)) {
+		const key = curr.toISOString();
+		eventMap[key]?.push(event);
+		curr = curr.add(1, "day");
+	}
+};
 
-	const pushToDays = (start: Dayjs, end: Dayjs, event: Event) => {
-		const startUTC = start.utc();
-		const endUTC = end.utc();
-		const clampedStart = startUTC.isBefore(rangeStart) ? rangeStart : startUTC;
-		const clampedEnd = endUTC.isAfter(rangeEnd) ? rangeEnd : endUTC;
-		let curr = clampedStart.startOf("day");
-		while (!curr.isAfter(clampedEnd)) {
-			const key = curr.toISOString();
-			eventMap[key]?.push(event);
-			curr = curr.add(1, "day");
-		}
-	};
+export const populateEventsInRange = (
+	events: Event[],
+	range: DateRange,
+): Record<string, Event[]> => {
+	const eventMap: Record<string, Event[]> = {};
+
+	const rangeStart = range.start.utc().startOf("day");
+	const rangeEnd = range.end.utc().endOf("day");
+
+	let curr = dayjs(rangeStart);
+	while (!curr.isAfter(rangeEnd)) {
+		eventMap[curr.toISOString()] = [];
+		curr = curr.add(1, "day");
+	}
 
 	for (const event of events) {
 		const eventStart = dayjs.utc(event.start);
@@ -205,7 +198,7 @@ export const populateEventMapForCalendar = (
 				const start = eventStart.year(year);
 				const end = start.add(eventDurationMs, "millisecond");
 				if (!start.isAfter(rangeEnd) && !end.isBefore(rangeStart)) {
-					pushToDays(start, end, event);
+					pushToDays({ start, end }, range, event, eventMap);
 				}
 			}
 		} else if (event.eventRepeat === "MONTHLY") {
@@ -218,7 +211,7 @@ export const populateEventMapForCalendar = (
 					.date(Math.min(eventStart.date(), daysInMonth));
 				const end = start.add(eventDurationMs, "millisecond");
 				if (!start.isAfter(rangeEnd) && !end.isBefore(rangeStart)) {
-					pushToDays(start, end, event);
+					pushToDays({ start, end }, range, event, eventMap);
 				}
 				curr = curr.add(1, "month");
 			}
@@ -234,17 +227,30 @@ export const populateEventMapForCalendar = (
 				const end = start.add(eventDurationMs, "millisecond");
 
 				if (!start.isAfter(rangeEnd) && !end.isBefore(rangeStart)) {
-					pushToDays(start, end, event);
+					pushToDays({ start, end }, range, event, eventMap);
 				}
 				curr = curr.add(1, "week");
 			}
 		} else {
 			if (!eventStart.isAfter(rangeEnd) && !eventEnd.isBefore(rangeStart)) {
-				pushToDays(eventStart, eventEnd, event);
+				pushToDays(
+					{ start: eventStart, end: eventEnd },
+					range,
+					event,
+					eventMap,
+				);
 			}
 		}
 	}
 	return eventMap;
+};
+
+export const sortDateStringList = (dateList: string[]): void => {
+	try {
+		dateList.sort((a, b) => dayjs.utc(a).diff(dayjs.utc(b)));
+	} catch (error) {
+		console.error("Error sorting date string list:", error);
+	}
 };
 
 // comment to trigger build

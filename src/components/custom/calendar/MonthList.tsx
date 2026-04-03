@@ -1,8 +1,6 @@
 import type { CalendarMonth, Event } from "@/lib/commonTypes";
-import { cn, WEEKS } from "@/lib/utils";
 import dayjs, { Dayjs } from "dayjs";
-import { RenderEventIcon } from "./MonthGrid";
-import { LuCalendar, LuClock } from "react-icons/lu";
+import EventCard from "./EventCard";
 
 interface MonthListProps {
 	calendarMonth: CalendarMonth;
@@ -39,44 +37,7 @@ const MonthList = ({ calendarMonth, eventMap }: MonthListProps) => {
 								<div className="w-full">{day.format("ddd DD MMM, YYYY")}</div>
 								<div className="flex flex-col gap-1">
 									{eventMap[key].map((event, idx) => (
-										<div
-											key={event.id + idx}
-											className={cn(
-												`rounded-xl bg-accent-light dark:bg-accent-dark p-2
-                        flex flex-col gap-2`,
-											)}>
-											<div className="flex gap-1 items-center">
-												<RenderEventIcon eventType={event.eventType} />
-												<span className="font-bold">{event.title}</span>
-											</div>
-											<div className="flex flex-col gap-1">
-												<div className="text-xs flex gap-1 items-center">
-													<LuClock />
-													<span>
-														{`${dayjs.utc(event.start).format("hh:mm a")} - ${dayjs.utc(event.end).format("hh:mm a")}
-                            (${dayjs.utc(event.end).startOf("day").diff(dayjs.utc(event.start).startOf("day"), "day") + 1} day(s))`}
-													</span>
-												</div>
-												<div className="text-xs flex gap-1 items-center">
-													<LuCalendar />
-													<span>
-														{event.eventRepeat === "YEARLY"
-															? `${dayjs.utc(event.start).format("DD MMM")} (every year)`
-															: event.eventRepeat === "MONTHLY"
-																? `Starts ${dayjs.utc(event.start).format("DD")}th of every month`
-																: event.eventRepeat === "WEEKLY"
-																	? `Starts every ${WEEKS[dayjs.utc(event.start).day()]}`
-																	: `${dayjs.utc(event.start).format("DD MMM YY")} - ${dayjs.utc(event.end).format("DD MMM YY")}`}
-													</span>
-												</div>
-											</div>
-											{/* <div className="flex flex-col">
-											<span className="text-xs">Description:</span>
-											<span className="text-xs italic text-wrap">
-												{event.description}
-											</span>
-										</div> */}
-										</div>
+										<EventCard key={event.id + idx} event={event} />
 									))}
 								</div>
 							</div>
