@@ -14,7 +14,7 @@ import { useStore } from "@/context/store";
 
 const Calendar = () => {
 	const events = useStore((state) => state.events);
-	const [calendarView, setCalendarView] = useState<"GRID" | "LIST">("GRID");
+	const [calendarView, setCalendarView] = useState<"GRID" | "LIST">("LIST");
 	const [currCalendarMonth, setCurrCalendarMonth] = useState<CalendarMonth>({
 		month: dayjs().month(),
 		year: dayjs().year(),

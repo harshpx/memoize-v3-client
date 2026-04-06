@@ -3,9 +3,10 @@ import { LuNotebookPen as MemoizeIcon } from "react-icons/lu";
 
 interface LogoProps {
 	className?: string;
+	iconOnly?: boolean;
 }
 
-const Logo = ({ className }: LogoProps) => {
+const Logo = ({ className, iconOnly = false }: LogoProps) => {
 	return (
 		<div
 			className={cn(
@@ -13,7 +14,9 @@ const Logo = ({ className }: LogoProps) => {
 				className,
 			)}>
 			<MemoizeIcon className="text-2xl" />
-			<span className="text-xl font-light">Memoize</span>
+			{!iconOnly && (
+				<span className="text-lg text-nowrap truncate">Memoize</span>
+			)}
 		</div>
 	);
 };

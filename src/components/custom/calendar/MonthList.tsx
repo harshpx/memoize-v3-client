@@ -23,7 +23,7 @@ const MonthList = ({ calendarMonth, eventMap }: MonthListProps) => {
 
 	return (
 		<div className="flex h-full w-full p-4 overflow-hidden">
-			<div className="flex flex-wrap gap-2 w-full overflow-scroll">
+			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 w-full overflow-scroll">
 				{dayList
 					.filter(
 						(day) =>
@@ -33,9 +33,13 @@ const MonthList = ({ calendarMonth, eventMap }: MonthListProps) => {
 					.map((day) => {
 						const key = day.toISOString();
 						return (
-							<div key={key} className="flex flex-col gap-1 w-[240px]">
-								<div className="w-full">{day.format("ddd DD MMM, YYYY")}</div>
-								<div className="flex flex-col gap-1">
+							<div
+								key={key}
+								className="flex flex-col gap-2 p-2 rounded-xl bg-accent-light/50 dark:bg-accent-dark/50 w-full">
+								<div className="text-sm font-medium">
+									{day.format("ddd DD MMM, YYYY")}
+								</div>
+								<div className="flex flex-col gap-2">
 									{eventMap[key].map((event, idx) => (
 										<EventCard key={event.id + idx} event={event} />
 									))}

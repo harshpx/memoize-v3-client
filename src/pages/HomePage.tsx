@@ -36,6 +36,7 @@ const HomePage = () => {
 
 	const navigate = useNavigate();
 	const isDesktop = useMediaQuery("(min-width: 1280px)");
+	const ismobile = useMediaQuery("(max-width: 420px)");
 
 	const didRun = useRef(false);
 
@@ -64,10 +65,10 @@ const HomePage = () => {
 	return (
 		<div
 			className={cn(
-				"grow h-full w-full flex flex-col overflow-scroll",
+				"grow h-full w-full flex flex-col overflow-scroll gap-1",
 				isDesktop ? "p-4" : "p-1",
 			)}>
-			<div className="flex flex-col min-h-1/5 w-full items-start justify-center gap-2">
+			<div className="flex flex-col w-full items-start justify-center gap-2">
 				<div className="flex flex-col gap-0 items-start">
 					<span className="text-2xl">{getTimeOfDayGreeting()}</span>
 					<span className="text-3xl">{`${user?.name?.split(" ")?.[0] || ""}!`}</span>
@@ -91,11 +92,12 @@ const HomePage = () => {
 						onClick={() => navigate("/home/events")}
 						className="min-w-0
 							text-sm shadow-2xl bg-accent-light/40 dark:bg-accent-light/30 gap-1 items-center
-							text-black dark:text-white hover:text-white cursor-help
+							hover:border-accent-light dark:hover:border-accent-dark 
+							hover:bg-accent-light dark:hover:bg-accent-dark text-black dark:text-white hover:text-white
 							transition-colors">
 						<LuCalendarPlus className="size-4 shrink-0" />
 						<span className="text-[12px] leading-[1.5rem] truncate">
-							Events are coming soon!
+							Add an Event!
 						</span>
 					</CustomizableButton>
 				</div>
@@ -155,7 +157,11 @@ const HomePage = () => {
 							<EventsLoadingSkeletonItem />
 						</div>
 					) : (
-						<CollapsibleContent className="flex gap-2 flex-wrap">
+						<CollapsibleContent
+							className={cn(
+								"gap-2 grid",
+								ismobile ? "grid-cols-1" : "grid-cols-2",
+							)}>
 							{Object.values(upcomingEvents).reduce(
 								(acc, eventList) => acc + eventList.length,
 								0,
@@ -174,17 +180,22 @@ const HomePage = () => {
 											Array.isArray(upcomingEvents[dayString]) &&
 											upcomingEvents[dayString].length > 0,
 									)
+									.slice(0, 4)
 									.map((dayString) => {
 										const dayEvents = upcomingEvents[dayString];
 										return (
 											<div
 												key={dayString}
-												className="flex flex-col gap-1 p-2 rounded-xl bg-accent-light/50 dark:bg-accent-dark/50 w-[100%] sm:w-[47%]">
+												className="flex flex-col gap-1 p-2 rounded-xl bg-accent-light/50 dark:bg-accent-dark/50 w-full">
 												<div className="text-sm font-medium">
 													{dayjs.utc(dayString).format("ddd, DD MMM")}
 												</div>
 												{dayEvents.map((event, idx) => (
-													<EventCard key={event.id + idx} event={event} />
+													<EventCard
+														key={event.id + idx}
+														event={event}
+														className="grow"
+													/>
 												))}
 											</div>
 										);

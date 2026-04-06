@@ -19,7 +19,13 @@ import useMediaQuery from "@/hooks/useMediaQuery";
 import { cn } from "@/lib/utils";
 import { logoutUser } from "@/services/services";
 import { useState, type RefObject } from "react";
-import { LuNotebookPen, LuCalendar, LuTrash, LuHouse } from "react-icons/lu";
+import {
+	LuNotebookPen,
+	LuCalendar,
+	LuTrash,
+	LuHouse,
+	LuCalendarPlus,
+} from "react-icons/lu";
 import { RiStickyNoteAddLine } from "react-icons/ri";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
 import {
@@ -27,6 +33,7 @@ import {
 	type PanelImperativeHandle,
 } from "react-resizable-panels";
 import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import Logo from "@/components/custom/Logo";
 
 const HomeLayout = () => {
 	const isDesktop = useMediaQuery("(min-width: 768px)");
@@ -110,16 +117,9 @@ const SidebarComponents = ({
 			border bg-neutral-100 dark:bg-neutral-900 shadow-sm
 		">
 			{/* Nav group 1 */}
-			<div className="flex flex-col gap-1 mb-4">
-				<div className={`flex ${collapsed ? "flex-col" : "flex-row"} gap-1`}>
-					<CustomizableButton
-						onClick={() =>
-							navigate("/home/notes/editor", { state: { note: null } })
-						}
-						className={`grow flex-nowrap bg-accent-light/80 dark:bg-accent-dark/70 gap-2 truncate ${collapsed ? "order-2" : "order-1"}`}>
-						<RiStickyNoteAddLine size={16} />
-						{!collapsed && <span className="text-sm">Add Note</span>}
-					</CustomizableButton>
+			<div className="flex flex-col gap-2 mb-4">
+				<div className={cn("flex gap-2", collapsed ? "flex-col" : "flex-row")}>
+					<Logo className="grow" iconOnly={collapsed} />
 					<CustomizableButton
 						onClick={() => {
 							if (ref.current?.isCollapsed()) {
@@ -130,6 +130,28 @@ const SidebarComponents = ({
 						}}
 						className={`p-2 border ${collapsed ? "order-1 w-full" : "order-2 w-[40px]"}`}>
 						{collapsed ? <IoChevronForward /> : <IoChevronBack />}
+					</CustomizableButton>
+				</div>
+				<div className={cn("flex gap-1", collapsed ? "flex-col" : "flex-row")}>
+					<CustomizableButton
+						onClick={() =>
+							navigate("/home/notes/editor", { state: { note: null } })
+						}
+						className={`grow flex-nowrap bg-accent-light/80 dark:bg-accent-dark/70 gap-1 truncate ${collapsed ? "order-2" : "order-1"}`}>
+						<RiStickyNoteAddLine size={16} className="shrink-0" />
+						{!collapsed && (
+							<span className="text-[12px] truncate text-nowrap">Add Note</span>
+						)}
+					</CustomizableButton>
+					<CustomizableButton
+						onClick={() => navigate("/home/events")}
+						className={`grow flex-nowrap bg-accent-light/80 dark:bg-accent-dark/70 gap-1 truncate ${collapsed ? "order-2" : "order-1"}`}>
+						<LuCalendarPlus size={16} className="shrink-0" />
+						{!collapsed && (
+							<span className="text-[12px] truncate text-nowrap">
+								Add Event
+							</span>
+						)}
 					</CustomizableButton>
 				</div>
 			</div>
