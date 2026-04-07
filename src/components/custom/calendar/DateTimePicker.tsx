@@ -1,5 +1,5 @@
 import { LuCalendar } from "react-icons/lu";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -8,40 +8,47 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { useState } from "react";
+import useMediaQuery from "@/hooks/useMediaQuery";
 
-const DateTimePicker = () => {
-	const [date, setDate] = useState<Date>();
+interface DateTimePickerProps {
+	date: Dayjs;
+	setDate: (date: Dayjs) => void;
+}
+
+const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
+	const isSmallScreen = useMediaQuery("(max-width: 768px)");
 	const [isOpen, setIsOpen] = useState(false);
 
-	const hours = Array.from({ length: 24 }, (_, i) => i);
 	const handleDateSelect = (selectedDate: Date | undefined) => {
 		if (selectedDate) {
-			setDate(selectedDate);
+			const year = selectedDate.getFullYear();
+			const month = selectedDate.getMonth();
+			const day = selectedDate.getDate();
+			setDate(dayjs.utc().year(year).month(month).date(day).startOf("day"));
 		}
 	};
 
-	const handleTimeChange = (type: "hour" | "minute", value: string) => {
+	const handleTimeChange = (type: "hour" | "minute", value: number) => {
 		if (date) {
-			const newDate = new Date(date);
+			let newDate = date.clone();
 			if (type === "hour") {
-				newDate.setHours(parseInt(value));
+				newDate = newDate.hour(value);
 			} else if (type === "minute") {
-				newDate.setMinutes(parseInt(value));
+				newDate = newDate.minute(value);
 			}
 			setDate(newDate);
 		}
 	};
 
 	return (
-		<Popover open={isOpen} onOpenChange={setIsOpen}>
+		<Popover open={isOpen} onOpenChange={setIsOpen} modal={true}>
 			<PopoverTrigger asChild>
 				<Button
 					variant="outline"
 					className={cn(
 						"flex gap-0 items-center",
-						"w-fit justify-start text-left font-normal",
+						"w-52 h-9 justify-start text-left font-normal",
 						!date && "text-muted-foreground",
 					)}>
 					<LuCalendar className="mr-2 h-4 w-4" />
@@ -52,51 +59,48 @@ const DateTimePicker = () => {
 					)}
 				</Button>
 			</PopoverTrigger>
-			<PopoverContent className="w-auto p-0">
+			<PopoverContent
+				className="w-auto p-0"
+				side={isSmallScreen ? "top" : "right"}
+				align="center">
 				<div className="sm:flex">
 					<Calendar
 						mode="single"
-						selected={date}
+						selected={date?.toDate()}
 						onSelect={handleDateSelect}
 						autoFocus
 					/>
 					<div className="flex flex-col sm:flex-row sm:h-[300px] divide-y sm:divide-y-0 sm:divide-x">
-						<ScrollArea className="w-64 sm:w-auto h-full flex-1">
+						<div className="w-64 sm:w-12 flex-1 overflow-auto">
 							<div className="flex sm:flex-col p-2">
-								{hours.map((hour) => (
+								{Array.from({ length: 24 }, (_, i) => i).map((hour) => (
 									<Button
 										key={hour}
 										size="icon"
-										variant={
-											date && date.getHours() === hour ? "default" : "ghost"
-										}
+										variant={date && date.hour() === hour ? "default" : "ghost"}
 										className="sm:w-full shrink-0 aspect-square"
-										onClick={() => handleTimeChange("hour", hour.toString())}>
+										onClick={() => handleTimeChange("hour", hour)}>
 										{hour}
 									</Button>
 								))}
 							</div>
-							<ScrollBar orientation="horizontal" className="sm:hidden" />
-						</ScrollArea>
-						<ScrollArea className="w-64 sm:w-auto">
-							<div className="flex sm:flex-col p-2 h-full flex-1">
-								{Array.from({ length: 12 }, (_, i) => i * 5).map((minute) => (
+						</div>
+						<div className="w-64 sm:w-12 h-full flex-1 overflow-auto">
+							<div className="flex sm:flex-col p-2">
+								{Array.from({ length: 60 }, (_, i) => i).map((minute) => (
 									<Button
 										key={minute}
 										size="icon"
 										variant={
-											date && date.getMinutes() === minute ? "default" : "ghost"
+											date && date.minute() === minute ? "default" : "ghost"
 										}
 										className="sm:w-full shrink-0 aspect-square"
-										onClick={() =>
-											handleTimeChange("minute", minute.toString())
-										}>
+										onClick={() => handleTimeChange("minute", minute)}>
 										{minute.toString().padStart(2, "0")}
 									</Button>
 								))}
 							</div>
-							<ScrollBar orientation="horizontal" className="sm:hidden" />
-						</ScrollArea>
+						</div>
 					</div>
 				</div>
 			</PopoverContent>

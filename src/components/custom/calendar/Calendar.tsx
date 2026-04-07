@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import CustomizableButton from "../CustomizableButton";
 import { LuChevronLeft, LuChevronRight } from "react-icons/lu";
 import {
+	cn,
 	getCalendarMonthRange,
 	MONTHS,
 	populateEventsInRange,
@@ -14,12 +15,19 @@ import { useStore } from "@/context/store";
 
 const Calendar = () => {
 	const events = useStore((state) => state.events);
-	const [calendarView, setCalendarView] = useState<"GRID" | "LIST">("LIST");
+	const [calendarView, setCalendarView] = useState<"GRID" | "LIST">(
+		localStorage.getItem("calendarView") === "LIST" ? "LIST" : "GRID",
+	);
 	const [currCalendarMonth, setCurrCalendarMonth] = useState<CalendarMonth>({
 		month: dayjs().month(),
 		year: dayjs().year(),
 	});
 	const [dateEventMap, setDateEventMap] = useState<Record<string, Event[]>>({});
+
+	const changeCalendarView = (view: "GRID" | "LIST") => {
+		localStorage.setItem("calendarView", view);
+		setCalendarView(view);
+	};
 
 	useEffect(() => {
 		const days = getCalendarMonthRange(
@@ -27,7 +35,7 @@ const Calendar = () => {
 			currCalendarMonth.year,
 		);
 		setDateEventMap(populateEventsInRange(events, days));
-	}, [currCalendarMonth]);
+	}, [currCalendarMonth, events]);
 
 	const nextMonth = () => {
 		setCurrCalendarMonth((prev) => {
@@ -47,9 +55,9 @@ const Calendar = () => {
 
 	return (
 		<div className="w-full h-full flex flex-col gap-1">
-			<div className="w-full shrink-0 h-[40px] border border-black dark:border-white rounded-xl flex items-center justify-between px-4 gap-4">
+			<div className="w-full shrink-0 h-[40px] border border-accent-light dark:border-accent-dark rounded-xl flex items-center justify-between gap-4">
 				<div className="flex items-center gap-2">
-					<div className="flex items-center gap-2">
+					<div className="flex items-center">
 						<CustomizableButton onClick={prevMonth}>
 							<LuChevronLeft />
 						</CustomizableButton>
@@ -61,11 +69,19 @@ const Calendar = () => {
 						{MONTHS[currCalendarMonth.month]}, {currCalendarMonth.year}
 					</div>
 				</div>
-				<div className="flex items-stretch">
-					<CustomizableButton onClick={() => setCalendarView("GRID")}>
+				<div className="flex items-stretch text-sm">
+					<CustomizableButton
+						className={cn(
+							calendarView === "GRID" && "bg-accent-light dark:bg-accent-dark",
+						)}
+						onClick={() => changeCalendarView("GRID")}>
 						Grid
 					</CustomizableButton>
-					<CustomizableButton onClick={() => setCalendarView("LIST")}>
+					<CustomizableButton
+						className={cn(
+							calendarView === "LIST" && "bg-accent-light dark:bg-accent-dark",
+						)}
+						onClick={() => changeCalendarView("LIST")}>
 						List
 					</CustomizableButton>
 				</div>

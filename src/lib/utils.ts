@@ -253,5 +253,10 @@ export const sortDateStringList = (dateList: string[]): void => {
 	}
 };
 
+export const toSentenceCase = (str: string): string => {
+	if (!str) return "";
+	return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+};
+
 // comment to trigger build
 // another comment to trigger build

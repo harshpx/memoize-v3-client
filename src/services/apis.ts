@@ -3,6 +3,7 @@ import type {
 	AccessTokenResponse,
 	ApiResponse,
 	Event,
+	EventModifyRequest,
 	LoginRequest,
 	Note,
 	NoteModifyRequest,
@@ -474,7 +475,7 @@ export const permanentlyDeleteNote = async (
 	return result.data as number;
 };
 
-// ------------------ Note APIs ------------------ //
+// ------------------ Event APIs ------------------ //
 
 export const fetchEvents = async (): Promise<Event[]> => {
 	const { accessToken } = useStore.getState();
@@ -500,4 +501,88 @@ export const fetchEvents = async (): Promise<Event[]> => {
 		throw new Error(String(result?.data) || "Failed to fetch events");
 	}
 	return result.data as Event[];
+};
+
+export const createEvent = async (
+	requestBody: EventModifyRequest,
+): Promise<Event> => {
+	const { accessToken } = useStore.getState();
+	if (!accessToken) {
+		throw new AuthError("No access token present");
+	}
+	const url = `${BASE_URL}/events`;
+	const options: RequestInit = {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+		body: JSON.stringify(requestBody),
+		keepalive: true,
+		credentials: "include",
+	};
+	const response = await fetch(url, options);
+	const result: ApiResponse<Event> = await response.json();
+	if (!response.ok) {
+		if (response.status === 401) {
+			throw new AuthError("Unauthorized. Please log in again.");
+		}
+		throw new Error(String(result?.data) || "Failed to create event");
+	}
+	return result.data as Event;
+};
+
+export const updateEvent = async (
+	eventId: string,
+	requestBody: EventModifyRequest,
+): Promise<Event> => {
+	const { accessToken } = useStore.getState();
+	if (!accessToken) {
+		throw new AuthError("No access token present");
+	}
+	const url = `${BASE_URL}/events/${eventId}`;
+	const options: RequestInit = {
+		method: "PUT",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+		body: JSON.stringify(requestBody),
+		keepalive: true,
+		credentials: "include",
+	};
+	const response = await fetch(url, options);
+	const result: ApiResponse<Event> = await response.json();
+	if (!response.ok) {
+		if (response.status === 401) {
+			throw new AuthError("Unauthorized. Please log in again.");
+		}
+		throw new Error(String(result?.data) || "Failed to update event");
+	}
+	return result.data as Event;
+};
+
+export const deleteEvent = async (eventId: string): Promise<number> => {
+	const { accessToken } = useStore.getState();
+	if (!accessToken) {
+		throw new AuthError("No access token present");
+	}
+	const url = `${BASE_URL}/events/${eventId}`;
+	const options: RequestInit = {
+		method: "DELETE",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+		credentials: "include",
+	};
+	const response = await fetch(url, options);
+	const result: ApiResponse<number> = await response.json();
+	if (!response.ok) {
+		if (response.status === 401) {
+			throw new AuthError("Unauthorized. Please log in again.");
+		}
+		throw new Error(String(result?.data) || "Failed to delete event");
+	}
+	return result.data as number;
 };

@@ -1,6 +1,7 @@
 import { useStore, type NotesEntityState } from "@/context/store";
 import type {
 	Event,
+	EventModifyRequest,
 	LoginRequest,
 	Note,
 	NoteModifyRequest,
@@ -10,7 +11,9 @@ import type {
 } from "@/lib/commonTypes";
 import { AuthError } from "@/lib/errors";
 import {
+	createEvent,
 	createNote,
+	deleteEvent,
 	fetchEvents,
 	fetchNotes,
 	getUserInfo,
@@ -21,6 +24,7 @@ import {
 	restoreNote,
 	signup,
 	softDeleteNote,
+	updateEvent,
 	updateNote,
 } from "@/services/apis";
 import { toast } from "sonner";
@@ -343,5 +347,65 @@ export const eventsFetchHandler = async (): Promise<void> => {
 		if (error instanceof Error) console.error(error.message);
 	} finally {
 		useStore.setState(() => ({ eventsLoading: false }));
+	}
+};
+
+export const eventCreateHandler = async (
+	eventContent: EventModifyRequest,
+	notify = false,
+): Promise<Event | undefined> => {
+	try {
+		const newEvent: Event = await retryWithRefresh(createEvent, [eventContent]);
+		useStore.setState((state) => ({
+			events: [newEvent, ...state.events],
+		}));
+		if (notify) {
+			toast.success("Event created successfully!", { duration: 1000 });
+		}
+		return newEvent;
+	} catch (error) {
+		if (error instanceof Error) console.error(error.message);
+		toast.error("Failed to create event.", { duration: 1000 });
+	}
+};
+
+export const eventUpdateHandler = async (
+	eventId: string,
+	eventContent: EventModifyRequest,
+	notify = false,
+): Promise<Event | undefined> => {
+	try {
+		const updatedEvent = await retryWithRefresh(updateEvent, [
+			eventId,
+			eventContent,
+		]);
+		useStore.setState((state) => ({
+			events: [
+				updatedEvent,
+				...state.events.filter((event) => event.id !== updatedEvent.id),
+			],
+		}));
+		if (notify) {
+			toast.success("Event updated successfully!", { duration: 1000 });
+		}
+		return updatedEvent;
+	} catch (error) {
+		if (error instanceof Error) console.error(error.message);
+		toast.error("Failed to update event", { duration: 1000 });
+	}
+};
+
+export const eventDeleteHandler = async (eventId: string, notify = false) => {
+	try {
+		await retryWithRefresh(deleteEvent, [eventId]);
+		useStore.setState((state) => ({
+			events: state.events.filter((event) => event.id !== eventId),
+		}));
+		if (notify) {
+			toast.success("Event deleted successfully!", { duration: 1000 });
+		}
+	} catch (error) {
+		if (error instanceof Error) console.error(error.message);
+		toast.error("Failed to delete event", { duration: 1000 });
 	}
 };

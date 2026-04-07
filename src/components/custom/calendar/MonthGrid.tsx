@@ -38,9 +38,9 @@ const MonthGrid = ({ calendarMonth, eventMap }: MonthGridProps) => {
 	}, [calendarMonth]);
 
 	return (
-		<div className="flex flex-col gap-2 h-full w-full overflow-hidden">
+		<div className="flex flex-col h-full w-full overflow-hidden">
 			{/* Weekdays ribbon */}
-			<div className="w-full h-[40px] border border-black dark:border-white rounded-xl flex shrink-0 gap-1 items-stretch">
+			<div className="w-full h-[40px] rounded-xl flex shrink-0 gap-1 items-stretch">
 				{WEEKS.map((week) => (
 					<div
 						key={week}
