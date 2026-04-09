@@ -238,6 +238,7 @@ const SignupForm = () => {
 								</FormLabel>
 								<FormControl>
 									<Input
+										{...field}
 										type="text"
 										placeholder="Name"
 										className="border-neutral-400 dark:border-neutral-600"
@@ -272,6 +273,7 @@ const SignupForm = () => {
 								</FormLabel>
 								<FormControl>
 									<Input
+										{...field}
 										type="text"
 										placeholder="Username"
 										className="border-neutral-400 dark:border-neutral-600"
@@ -321,6 +323,7 @@ const SignupForm = () => {
 								</FormLabel>
 								<FormControl>
 									<Input
+										{...field}
 										type="text"
 										placeholder="Email"
 										className="border-neutral-400 dark:border-neutral-600"
@@ -371,10 +374,11 @@ const SignupForm = () => {
 								</FormLabel>
 								<FormControl>
 									<Input
+										{...field}
 										type="password"
 										placeholder="Password"
+										autoComplete="new-password"
 										className="border-neutral-400 dark:border-neutral-600"
-										{...field}
 									/>
 								</FormControl>
 								<FormMessage className="text-red-600 text-[12px]" />
@@ -396,10 +400,11 @@ const SignupForm = () => {
 								</FormLabel>
 								<FormControl>
 									<Input
+										{...field}
 										type="password"
 										placeholder="Confirm Password"
+										autoComplete="new-password"
 										className="border-neutral-400 dark:border-neutral-600"
-										{...field}
 									/>
 								</FormControl>
 								<FormMessage className="text-red-600 text-[12px]" />

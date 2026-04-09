@@ -79,6 +79,7 @@ const LoginForm = () => {
 								</FormLabel>
 								<FormControl>
 									<Input
+										{...field}
 										type="text"
 										placeholder="Enter your username or email"
 										className="border-neutral-400 dark:border-neutral-600"
@@ -109,8 +110,10 @@ const LoginForm = () => {
 								</FormLabel>
 								<FormControl>
 									<Input
+										{...field}
 										type="password"
 										placeholder="Password"
+										autoComplete="current-password"
 										className="border-neutral-400 dark:border-neutral-600"
 										value={field.value}
 										width={400}

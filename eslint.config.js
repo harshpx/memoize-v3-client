@@ -5,7 +5,13 @@ import pluginReact from "eslint-plugin-react";
 import { defineConfig, globalIgnores } from "eslint/config";
 
 export default defineConfig([
-	globalIgnores(["dist", "node_modules/*", "build/", "build/*"]),
+	globalIgnores([
+		"dist/**",
+		"node_modules/**",
+		"build/**",
+		"android/**",
+		"ios/**",
+	]),
 	{
 		files: ["**/*.{ts,tsx}"],
 		extends: [

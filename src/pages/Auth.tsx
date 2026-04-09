@@ -21,6 +21,8 @@ import CustomizableButton from "@/components/custom/CustomizableButton";
 import { FaGoogle } from "react-icons/fa";
 import { BASE_URL } from "@/services/apis";
 import BgIcons from "@/components/custom/BgIcons";
+import logoBlack from "@/assets/logo-black.png";
+import logoWhite from "@/assets/logo-white.png";
 
 const tabs = [
 	{
@@ -47,12 +49,12 @@ const tabs = [
 
 const Auth: FC = () => {
 	const isLargeScreen = useMediaQuery("(min-width: 1024px)");
-	const { loading } = useStore();
+	const { loading, theme } = useStore();
 	const [activePage, setActivePage] = useState("login");
 	return (
 		<div className="h-dvh w-full flex flex-col items-center justify-center relative overflow-hidden">
 			{loading && <Loader />}
-			<BgIcons className="text-white dark:text-black bg-accent-dark" />
+			<BgIcons className="text-white dark:text-black bg-accent-light brightness-[80%] dark:brightness-100" />
 			{!isLargeScreen && (
 				<div
 					className={`px-4 h-[56px] w-full flex items-center justify-between shrink-0 `}>
@@ -65,18 +67,19 @@ const Auth: FC = () => {
 				{isLargeScreen && (
 					<motion.div
 						layout
-						className={`z-20 relative w-1/2 rounded-2xl flex flex-col items-center justify-center gap-4 ${activePage === "signup" ? "translate-x-full" : "translate-x-0"}`}
+						className={`z-20 relative w-1/2 rounded-2xl flex flex-col items-center justify-center gap-0 ${activePage === "signup" ? "translate-x-full" : "translate-x-0"}`}
 						transition={{ duration: 0.15 }}>
 						<div
 							className={`absolute top-0 ${activePage === "signup" ? "right-0" : "left-0"}`}>
 							<ThemeSwitch buttonStyle="themed" />
 						</div>
-						<p className="text-5xl text-white dark:text-black text-center font-extralight">
+						<p className="text-3xl text-white dark:text-black text-center font-semibold">
 							{activePage === "login" ? "Welcome back to" : "Get started with"}
 						</p>
-						<div className="text-5xl text-white dark:text-black font-semibold">
-							Memoize
-						</div>
+						<img
+							className="w-72"
+							src={theme === "dark" ? logoBlack : logoWhite}
+						/>
 						<p className="text-white dark:text-black w-2/3 text-center">
 							{activePage === "login"
 								? "Pick up right where you left off — your notes, tasks, and code are waiting."

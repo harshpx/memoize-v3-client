@@ -4,8 +4,12 @@ import ThemeSwitch from "@/components/custom/ThemeSwitch";
 import { type FC } from "react";
 import { FaArrowRight as ArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
+import logoBlack from "@/assets/logo-black.png";
+import logoWhite from "@/assets/logo-white.png";
+import { useStore } from "@/context/store";
 
 const LandingPage: FC = () => {
+	const theme = useStore((state) => state.theme);
 	const navigate = useNavigate();
 	return (
 		<div className="h-dvh w-full flex flex-col gap-4 items-center justify-center overflow-hidden relative">
@@ -13,11 +17,14 @@ const LandingPage: FC = () => {
 				<ThemeSwitch buttonStyle="themed" />
 			</div>
 			<div className="flex flex-col items-center">
-				<div className="text-3xl md:text-4xl font-light text-white dark:text-black">
+				<div className="text-3xl md:text-4xl font-bold text-white dark:text-black">
 					Welcome to
 				</div>
 				<div className="text-6xl md:text-7xl font-medium text-white dark:text-black">
-					Memoize
+					<img
+						className="w-96"
+						src={theme === "dark" ? logoBlack : logoWhite}
+					/>
 				</div>
 			</div>
 			<CustomizableButton
@@ -34,7 +41,7 @@ const LandingPage: FC = () => {
 					<ArrowRight size={14} className="" />
 				</div>
 			</CustomizableButton>
-			<BgIcons className="text-white dark:text-black bg-accent-dark" />
+			<BgIcons className="text-white dark:text-black bg-accent-light brightness-[80%] dark:brightness-100" />
 		</div>
 	);
 };

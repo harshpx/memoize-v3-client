@@ -119,7 +119,10 @@ const SidebarComponents = ({
 			{/* Nav group 1 */}
 			<div className="flex flex-col gap-2 mb-4">
 				<div className={cn("flex gap-2", collapsed ? "flex-col" : "flex-row")}>
-					<Logo className="grow" iconOnly={collapsed} />
+					<Logo
+						className="grow text-black dark:text-white"
+						iconOnly={collapsed}
+					/>
 					<CustomizableButton
 						onClick={() => {
 							if (ref.current?.isCollapsed()) {

@@ -15,8 +15,21 @@ import NotePage from "./pages/NotePage";
 import Events from "./pages/Events";
 import Trash from "./pages/Trash";
 import OAuth2Redirect from "./pages/OAuth2Redirect";
+import useMediaQuery from "./hooks/useMediaQuery";
 
 const App: FC = () => {
+	const unsafeScreenHeight = useMediaQuery("(max-height: 490px)");
+	if (unsafeScreenHeight) {
+		return (
+			<div className="h-screen w-screen flex flex-col items-center justify-center p-4">
+				<span>Window height too small.</span>
+				<span>
+					Please use a device with a larger screen or increase the window height
+					to at least 490px.
+				</span>
+			</div>
+		);
+	}
 	return (
 		<ThemeInit>
 			<AuthInit>
