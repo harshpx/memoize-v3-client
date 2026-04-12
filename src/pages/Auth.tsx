@@ -24,6 +24,7 @@ import BgIcons from "@/components/custom/BgIcons";
 import logoBlack from "@/assets/logo-black.png";
 import logoWhite from "@/assets/logo-white.png";
 import { useNavigate } from "react-router-dom";
+import { Capacitor } from "@capacitor/core";
 
 const tabs = [
 	{
@@ -53,6 +54,7 @@ const Auth: FC = () => {
 	const navigate = useNavigate();
 	const { loading, theme } = useStore();
 	const [activePage, setActivePage] = useState("login");
+
 	return (
 		<div className="h-dvh w-full flex flex-col items-center justify-center relative overflow-hidden">
 			{loading && <Loader />}
@@ -166,16 +168,20 @@ const Auth: FC = () => {
 												{tab?.footer?.link}
 											</div>
 										</div>
-										<span>Or</span>
-										<CustomizableButton
-											type="button"
-											onClick={() =>
-												(window.location.href = `${BASE_URL}/oauth2/authorization/google`)
-											}
-											className="bg-black dark:bg-white text-white dark:text-black">
-											<FaGoogle className="mr-2" />
-											<span className="text-sm">Continue with Google</span>
-										</CustomizableButton>
+										{!Capacitor.isNativePlatform() && (
+											<>
+												<span>Or</span>
+												<CustomizableButton
+													type="button"
+													onClick={() =>
+														(window.location.href = `${BASE_URL}/oauth2/authorization/google`)
+													}
+													className="bg-black dark:bg-white text-white dark:text-black">
+													<FaGoogle className="mr-2" />
+													<span className="text-sm">Continue with Google</span>
+												</CustomizableButton>
+											</>
+										)}
 									</CardFooter>
 								</Card>
 							</TabsContent>

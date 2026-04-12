@@ -15,12 +15,14 @@ import NoteEdit from "./pages/NoteEdit";
 import Trash from "./pages/Trash";
 import OAuth2Redirect from "./pages/OAuth2Redirect";
 import EventLayout from "./pages/EventLayout";
+import NativeBackHandler from "./pages/NativeBackHandler";
 
 const App: FC = () => {
 	return (
 		<ThemeInit>
 			<AuthInit>
 				<BrowserRouter>
+					<NativeBackHandler />
 					<Routes>
 						<Route element={<PublicRoute />}>
 							<Route path="/" element={<LandingPage />} />
