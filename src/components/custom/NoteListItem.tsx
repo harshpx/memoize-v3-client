@@ -1,5 +1,5 @@
 import type { Note } from "@/lib/commonTypes";
-import { formatDate } from "@/lib/utils";
+import { cn, formatDate } from "@/lib/utils";
 import { LuPlus } from "react-icons/lu";
 import { useNavigate } from "react-router-dom";
 
@@ -31,11 +31,14 @@ const NoteListItem = ({
 					state: { note: note },
 				})
 			}
-			className={`rounded-lg border-2 
-        ${!note ? "border-accent-light dark:border-accent-dark" : ""} 
-        p-4 flex flex-col justify-between gap-2 break-inside-avoid min-h-52 max-h-96
-        hover:border-accent-light hover:dark:border-accent-dark cursor-pointer ${className}
-      `}>
+			className={cn(
+				"rounded-lg bg-accent-light/20 dark:bg-accent-dark/5",
+				"border-2 border-accent-light/10 dark:border-accent-dark/10",
+				"p-4 flex flex-col justify-between gap-2 break-inside-avoid min-h-52 max-h-96",
+				"hover:border-accent-light hover:dark:border-accent-dark cursor-pointer",
+				!note ? "border-accent-light dark:border-accent-dark" : "",
+				className,
+			)}>
 			{note ? (
 				<div
 					className={`tiptap ProseMirror grow overflow-hidden ${previewClassName}`}

@@ -5,7 +5,7 @@ import { useStore } from "@/context/store";
 import { eventsFetchHandler } from "@/services/services";
 import { useEffect } from "react";
 
-const Events = () => {
+const EventPage = () => {
 	const events = useStore((state) => state.events);
 	const eventsLoading = useStore((state) => state.eventsLoading);
 
@@ -29,4 +29,4 @@ const Events = () => {
 	);
 };
 
-export default Events;
+export default EventPage;

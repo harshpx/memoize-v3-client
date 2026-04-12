@@ -22,7 +22,7 @@ const MonthList = ({ calendarMonth, eventMap }: MonthListProps) => {
 	}
 
 	return (
-		<div className="flex h-full w-full p-4 overflow-hidden">
+		<div className="flex h-full w-full p-4 overflow-auto">
 			<div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 w-full overflow-scroll">
 				{dayList
 					.filter(
@@ -35,7 +35,7 @@ const MonthList = ({ calendarMonth, eventMap }: MonthListProps) => {
 						return (
 							<div
 								key={key}
-								className="flex flex-col gap-2 p-2 rounded-xl bg-accent-light/50 dark:bg-accent-dark/50 w-full">
+								className="flex flex-col gap-2 p-2 rounded-xl bg-accent-light/30 dark:bg-accent-dark/30 w-full">
 								<div className="text-sm font-medium">
 									{day.format("ddd DD MMM, YYYY")}
 								</div>

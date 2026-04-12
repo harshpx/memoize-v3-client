@@ -3,7 +3,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import LandingPage from "@/pages/LandingPage";
 import Auth from "@/pages/Auth";
 import NotFound from "@/pages/NotFound";
-import Notes from "./pages/Notes";
+import NotePage from "./pages/NotePage";
 import HomePage from "./pages/HomePage";
 import HomeLayout from "./pages/HomeLayout";
 import { Toaster } from "./components/ui/sonner";
@@ -11,25 +11,12 @@ import ThemeInit from "./components/wrapper/ThemeInit";
 import AuthInit from "./components/wrapper/AuthInit";
 import PublicRoute from "./components/wrapper/PublicRoute";
 import ProtectedRoute from "./components/wrapper/ProtectedRoute";
-import NotePage from "./pages/NotePage";
-import Events from "./pages/Events";
+import NoteEdit from "./pages/NoteEdit";
 import Trash from "./pages/Trash";
 import OAuth2Redirect from "./pages/OAuth2Redirect";
-import useMediaQuery from "./hooks/useMediaQuery";
+import EventLayout from "./pages/EventLayout";
 
 const App: FC = () => {
-	const unsafeScreenHeight = useMediaQuery("(max-height: 490px)");
-	if (unsafeScreenHeight) {
-		return (
-			<div className="h-screen w-screen flex flex-col items-center justify-center p-4">
-				<span>Window height too small.</span>
-				<span>
-					Please use a device with a larger screen or increase the window height
-					to at least 490px.
-				</span>
-			</div>
-		);
-	}
 	return (
 		<ThemeInit>
 			<AuthInit>
@@ -43,9 +30,9 @@ const App: FC = () => {
 						<Route element={<ProtectedRoute />}>
 							<Route path="/home" element={<HomeLayout />}>
 								<Route index element={<HomePage />} />
-								<Route path="notes" element={<Notes />} />
-								<Route path="notes/editor" element={<NotePage />} />
-								<Route path="events" element={<Events />} />
+								<Route path="notes" element={<NotePage />} />
+								<Route path="notes/editor" element={<NoteEdit />} />
+								<Route path="events/*" element={<EventLayout />} />
 								<Route path="trash" element={<Trash />} />
 							</Route>
 						</Route>

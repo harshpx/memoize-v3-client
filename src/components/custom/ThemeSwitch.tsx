@@ -48,6 +48,7 @@ const ThemeSwitch: FC<ThemeSwitchProps> = ({ buttonStyle = "accent" }) => {
 								size="lg"
 								checked={theme === "dark"}
 								onCheckedChange={toggleTheme}
+								className="cursor-pointer"
 							/>
 							<span>{theme === "dark" ? "Dark" : "Light"}</span>
 						</div>

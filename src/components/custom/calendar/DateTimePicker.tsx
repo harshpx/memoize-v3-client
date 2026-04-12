@@ -8,15 +8,16 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-import { useState } from "react";
+import { useState, type Ref } from "react";
 import useMediaQuery from "@/hooks/useMediaQuery";
 
 interface DateTimePickerProps {
 	date: Dayjs;
 	setDate: (date: Dayjs) => void;
+	ref?: Ref<HTMLDivElement>;
 }
 
-const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
+const DateTimePicker = ({ date, setDate, ref }: DateTimePickerProps) => {
 	const isSmallScreen = useMediaQuery("(max-width: 768px)");
 	const [isOpen, setIsOpen] = useState(false);
 
@@ -42,12 +43,12 @@ const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
 	};
 
 	return (
-		<Popover open={isOpen} onOpenChange={setIsOpen} modal={true}>
+		<Popover open={isOpen} onOpenChange={setIsOpen}>
 			<PopoverTrigger asChild>
 				<Button
 					variant="outline"
 					className={cn(
-						"flex gap-0 items-center",
+						"cursor-pointer flex gap-0 items-center",
 						"w-52 h-9 justify-start text-left font-normal",
 						!date && "text-muted-foreground",
 					)}>
@@ -60,6 +61,7 @@ const DateTimePicker = ({ date, setDate }: DateTimePickerProps) => {
 				</Button>
 			</PopoverTrigger>
 			<PopoverContent
+				ref={ref}
 				className="w-auto p-0"
 				side={isSmallScreen ? "top" : "right"}
 				align="center">

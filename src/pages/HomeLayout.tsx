@@ -1,7 +1,6 @@
 import BgIcons from "@/components/custom/BgIcons";
 import CustomizableButton from "@/components/custom/CustomizableButton";
 import Loader from "@/components/custom/Loader";
-import ThemeSwitch from "@/components/custom/ThemeSwitch";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,9 +48,6 @@ const HomeLayout = () => {
 
 	return (
 		<div className="h-dvh w-full overflow-hidden">
-			<div className="absolute right-2 top-2 z-50">
-				<ThemeSwitch />
-			</div>
 			<ResizablePanelGroup orientation={isDesktop ? "horizontal" : "vertical"}>
 				<ResizablePanel
 					className={cn("flex", isDesktop ? "p-2" : "p-2 pb-0")}
@@ -147,7 +143,9 @@ const SidebarComponents = ({
 						)}
 					</CustomizableButton>
 					<CustomizableButton
-						onClick={() => navigate("/home/events")}
+						onClick={() =>
+							navigate("/home/events/editor", { state: { event: undefined } })
+						}
 						className={`grow flex-nowrap bg-accent-light/80 dark:bg-accent-dark/70 gap-1 truncate ${collapsed ? "order-2" : "order-1"}`}>
 						<LuCalendarPlus size={16} className="shrink-0" />
 						{!collapsed && (
@@ -252,7 +250,7 @@ const SidebarComponents = ({
 const DockComponents = () => {
 	const navigate = useNavigate();
 	const { pathname } = useLocation();
-	if (pathname === "/home/notes/editor") {
+	if (pathname === "/home/notes/editor" || pathname === "/home/events/editor") {
 		return null;
 	}
 	return (

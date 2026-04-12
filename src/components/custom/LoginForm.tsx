@@ -113,7 +113,6 @@ const LoginForm = () => {
 										{...field}
 										type="password"
 										placeholder="Password"
-										autoComplete="current-password"
 										className="border-neutral-400 dark:border-neutral-600"
 										value={field.value}
 										width={400}

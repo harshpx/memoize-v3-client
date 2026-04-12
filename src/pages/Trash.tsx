@@ -1,5 +1,6 @@
 import { NotesLoadingSkeleton } from "@/components/custom/LoadingSkeletons";
 import NoteListItem from "@/components/custom/NoteListItem";
+import ThemeSwitch from "@/components/custom/ThemeSwitch";
 import { useStore } from "@/context/store";
 import useMediaQuery from "@/hooks/useMediaQuery";
 import type { Note } from "@/lib/commonTypes";
@@ -31,6 +32,9 @@ const Trash = () => {
 				"grow h-full w-full flex items-center justify-center overflow-scroll",
 				isDesktop ? "p-4" : "p-1",
 			)}>
+			<div className="absolute right-2 top-2 z-50">
+				<ThemeSwitch />
+			</div>
 			{deletedNotes.length > 0 ? (
 				<ResponsiveMasonry
 					className="w-full h-full"

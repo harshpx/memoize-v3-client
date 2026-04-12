@@ -66,7 +66,8 @@ const MonthGrid = ({ calendarMonth, eventMap }: MonthGridProps) => {
 									flex flex-col p-1 sm:p-2 gap-1 cursor-pointer`,
 									selectedDate === dayString &&
 										"border-accent-light dark:border-accent-dark",
-									today === dayString && "bg-accent-light dark:bg-accent-dark",
+									today === dayString &&
+										"bg-accent-light dark:bg-accent-dark text-white",
 								)}>
 								{dayObj.date()}
 								<div className="flex flex-wrap gap-1 items-center text-xs sm:text-sm md:text-base">

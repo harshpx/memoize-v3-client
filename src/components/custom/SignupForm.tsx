@@ -377,7 +377,6 @@ const SignupForm = () => {
 										{...field}
 										type="password"
 										placeholder="Password"
-										autoComplete="new-password"
 										className="border-neutral-400 dark:border-neutral-600"
 									/>
 								</FormControl>
@@ -403,7 +402,6 @@ const SignupForm = () => {
 										{...field}
 										type="password"
 										placeholder="Confirm Password"
-										autoComplete="new-password"
 										className="border-neutral-400 dark:border-neutral-600"
 									/>
 								</FormControl>

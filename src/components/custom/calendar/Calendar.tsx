@@ -12,6 +12,7 @@ import {
 import MonthGrid from "./MonthGrid";
 import MonthList from "./MonthList";
 import { useStore } from "@/context/store";
+import ThemeSwitch from "../ThemeSwitch";
 
 const Calendar = () => {
 	const events = useStore((state) => state.events);
@@ -54,8 +55,8 @@ const Calendar = () => {
 	};
 
 	return (
-		<div className="w-full h-full flex flex-col gap-1">
-			<div className="w-full shrink-0 h-[40px] border border-accent-light dark:border-accent-dark rounded-xl flex items-center justify-between gap-4">
+		<div className="w-full h-full flex flex-col gap-2">
+			<div className="w-full shrink-0 h-[40px] flex items-center justify-between gap-4">
 				<div className="flex items-center gap-2">
 					<div className="flex items-center">
 						<CustomizableButton onClick={prevMonth}>
@@ -72,20 +73,26 @@ const Calendar = () => {
 				<div className="flex items-stretch text-sm">
 					<CustomizableButton
 						className={cn(
-							calendarView === "GRID" && "bg-accent-light dark:bg-accent-dark",
+							calendarView === "GRID" &&
+								"bg-accent-light dark:bg-accent-dark text-white",
 						)}
 						onClick={() => changeCalendarView("GRID")}>
 						Grid
 					</CustomizableButton>
 					<CustomizableButton
 						className={cn(
-							calendarView === "LIST" && "bg-accent-light dark:bg-accent-dark",
+							calendarView === "LIST" &&
+								"bg-accent-light dark:bg-accent-dark text-white",
 						)}
 						onClick={() => changeCalendarView("LIST")}>
 						List
 					</CustomizableButton>
+					<div className="ml-4">
+						<ThemeSwitch />
+					</div>
 				</div>
 			</div>
+			<div className="w-full h-0 border-b-2 border-accent-light dark:border-accent-dark"></div>
 			<div className="w-full h-[calc(100%_-_40px)]">
 				{calendarView === "GRID" ? (
 					<MonthGrid

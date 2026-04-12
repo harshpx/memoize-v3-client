@@ -5,6 +5,7 @@ import {
 	NotesLoadingSkeletonItem,
 } from "@/components/custom/LoadingSkeletons";
 import NoteListItem from "@/components/custom/NoteListItem";
+import ThemeSwitch from "@/components/custom/ThemeSwitch";
 import {
 	Collapsible,
 	CollapsibleContent,
@@ -68,6 +69,9 @@ const HomePage = () => {
 				"grow h-full w-full flex flex-col overflow-scroll gap-1",
 				isDesktop ? "p-4" : "p-1",
 			)}>
+			<div className="absolute right-2 top-2 z-50">
+				<ThemeSwitch />
+			</div>
 			<div className="flex flex-col w-full items-start justify-center gap-2">
 				<div className="flex flex-col gap-0 items-start">
 					<span className="text-2xl">{getTimeOfDayGreeting()}</span>
@@ -89,7 +93,9 @@ const HomePage = () => {
 						</span>
 					</CustomizableButton>
 					<CustomizableButton
-						onClick={() => navigate("/home/events")}
+						onClick={() =>
+							navigate("/home/events/editor", { state: { event: undefined } })
+						}
 						className="min-w-0
 							text-sm shadow-2xl bg-accent-light/40 dark:bg-accent-light/30 gap-1 items-center
 							hover:border-accent-light dark:hover:border-accent-dark 
@@ -118,15 +124,15 @@ const HomePage = () => {
 							<NotesLoadingSkeletonItem />
 						</div>
 					) : (
-						<CollapsibleContent className="flex gap-2 ">
+						<CollapsibleContent className="grid grid-cols-2 gap-2">
 							{activeNotes.data.length > 0 ? (
 								activeNotes.data
-									.slice(0, 2)
+									.slice(0, 4)
 									.map((note) => (
 										<NoteListItem
 											key={note.id}
 											note={note as Note}
-											className="h-60 w-1/2"
+											className="h-60 w-full"
 											previewClassName="text-sm"
 										/>
 									))
@@ -186,7 +192,7 @@ const HomePage = () => {
 										return (
 											<div
 												key={dayString}
-												className="flex flex-col gap-1 p-2 rounded-xl bg-accent-light/50 dark:bg-accent-dark/50 w-full">
+												className="flex flex-col gap-1 p-2 rounded-xl bg-accent-light/20 dark:bg-accent-dark/20 w-full">
 												<div className="text-sm font-medium">
 													{dayjs.utc(dayString).format("ddd, DD MMM")}
 												</div>

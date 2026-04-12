@@ -23,6 +23,7 @@ import { BASE_URL } from "@/services/apis";
 import BgIcons from "@/components/custom/BgIcons";
 import logoBlack from "@/assets/logo-black.png";
 import logoWhite from "@/assets/logo-white.png";
+import { useNavigate } from "react-router-dom";
 
 const tabs = [
 	{
@@ -49,6 +50,7 @@ const tabs = [
 
 const Auth: FC = () => {
 	const isLargeScreen = useMediaQuery("(min-width: 1024px)");
+	const navigate = useNavigate();
 	const { loading, theme } = useStore();
 	const [activePage, setActivePage] = useState("login");
 	return (
@@ -58,7 +60,7 @@ const Auth: FC = () => {
 			{!isLargeScreen && (
 				<div
 					className={`px-4 h-[56px] w-full flex items-center justify-between shrink-0 `}>
-					<Logo className="dark:text-black" />
+					<Logo onClick={() => navigate("/")} className="dark:text-black" />
 					<ThemeSwitch buttonStyle="themed" />
 				</div>
 			)}
