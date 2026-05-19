@@ -1,5 +1,9 @@
 const MemoAi = () => {
-	return <div>MemoAi</div>;
+	return (
+		<div className="h-full w-full flex items-center justify-center">
+			MemoAi is coming soon!
+		</div>
+	);
 };
 
 export default MemoAi;

@@ -16,6 +16,7 @@ import Trash from "./pages/Trash";
 import OAuth2Redirect from "./pages/OAuth2Redirect";
 import EventLayout from "./pages/EventLayout";
 import NativeBackHandler from "./pages/NativeBackHandler";
+import MemoAi from "./pages/MemoAi";
 
 const App: FC = () => {
 	return (
@@ -35,6 +36,7 @@ const App: FC = () => {
 								<Route path="notes" element={<NotePage />} />
 								<Route path="notes/editor" element={<NoteEdit />} />
 								<Route path="events/*" element={<EventLayout />} />
+								<Route path="ai" element={<MemoAi />} />
 								<Route path="trash" element={<Trash />} />
 							</Route>
 						</Route>

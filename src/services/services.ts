@@ -1,5 +1,6 @@
 import { useStore, type NotesEntityState } from "@/context/store";
 import type {
+	AiChat,
 	Event,
 	EventModifyRequest,
 	LoginRequest,
@@ -11,9 +12,11 @@ import type {
 } from "@/lib/commonTypes";
 import { AuthError } from "@/lib/errors";
 import {
+	askChatStream,
 	createEvent,
 	createNote,
 	deleteEvent,
+	fetchAiChats,
 	fetchEvents,
 	fetchNotes,
 	getUserInfo,
@@ -407,5 +410,79 @@ export const eventDeleteHandler = async (eventId: string, notify = false) => {
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
 		toast.error("Failed to delete event", { duration: 1000 });
+	}
+};
+
+export const aiChatsFetchHandler = async (): Promise<void> => {
+	const { aiChats, aiChatsLoading } = useStore.getState();
+
+	if (aiChatsLoading) return;
+
+	try {
+		useStore.setState(() => ({ aiChatsLoading: true }));
+		if (!aiChats.hasMore) return;
+		const newChatsData: Page<AiChat> = await retryWithRefresh(fetchAiChats, [
+			{ page: aiChats.pageNumber + 1 },
+		]);
+		useStore.setState((state) => ({
+			aiChats: {
+				data: [...newChatsData.content, ...state.aiChats.data],
+				pageNumber: newChatsData.number,
+				hasMore: !newChatsData.last,
+			},
+		}));
+	} catch (error) {
+		if (error instanceof Error) console.error(error.message);
+	} finally {
+		useStore.setState(() => ({ aiChatsLoading: false }));
+	}
+};
+
+export const aiChatQueryHandler = async (query: string): Promise<void> => {
+	const controller = new AbortController();
+	const question: AiChat = {
+		id: crypto.randomUUID(),
+		content: query,
+		type: "QUESTION",
+		createdAt: new Date().toISOString(),
+	};
+	useStore.setState((state) => ({
+		aiChats: {
+			...state.aiChats,
+			data: [...state.aiChats.data, question],
+		},
+		aiChatStreaming: true,
+	}));
+	try {
+		const answerId = crypto.randomUUID();
+		const answer: AiChat = {
+			id: answerId,
+			content: "",
+			type: "ANSWER",
+			createdAt: new Date().toISOString(),
+		};
+
+		useStore.setState((state) => ({
+			aiChats: {
+				...state.aiChats,
+				data: [...state.aiChats.data, answer],
+			},
+		}));
+
+		await retryWithRefresh(askChatStream, [
+			query,
+			(chunk: string) => {
+				useStore((state) => state.aiChats).data.map((data) =>
+					data.id === answerId
+						? { ...data, content: data.content + chunk }
+						: data,
+				);
+			},
+			controller.signal,
+		]);
+	} catch (error) {
+		if (error instanceof Error) console.error(error.message);
+	} finally {
+		useStore.setState(() => ({ aiChatStreaming: false }));
 	}
 };

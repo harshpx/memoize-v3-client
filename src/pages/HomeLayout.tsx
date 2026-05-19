@@ -24,6 +24,7 @@ import {
 	LuTrash,
 	LuHouse,
 	LuCalendarPlus,
+	LuBotMessageSquare,
 } from "react-icons/lu";
 import { RiStickyNoteAddLine } from "react-icons/ri";
 import { IoChevronBack, IoChevronForward } from "react-icons/io5";
@@ -219,6 +220,26 @@ const SidebarComponents = ({
 						<LuCalendar />
 						<span className={cn(collapsed ? "text-[10px]" : "text-[14px]")}>
 							Events
+						</span>
+					</div>
+				</CustomizableButton>
+				<CustomizableButton
+					onClick={() => navigate("/home/ai")}
+					className={cn(
+						"w-full hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
+						pathname.split("/").includes("ai")
+							? "bg-accent-light/40 dark:bg-accent-light/30"
+							: "",
+						collapsed ? "justify-center" : "justify-start",
+					)}>
+					<div
+						className={cn(
+							"flex items-center gap-1",
+							collapsed && "flex-col gap-0.5",
+						)}>
+						<LuBotMessageSquare />
+						<span className={cn(collapsed ? "text-[10px]" : "text-[14px]")}>
+							MemoAI
 						</span>
 					</div>
 				</CustomizableButton>

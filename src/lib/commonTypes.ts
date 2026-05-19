@@ -55,6 +55,13 @@ export interface Note {
 	deletedAt?: string;
 }
 
+export interface AiChat {
+	id: string;
+	content: string;
+	type: "QUESTION" | "ANSWER";
+	createdAt: string;
+}
+
 export interface NoteModifyRequest {
 	content: string;
 	preview: string;

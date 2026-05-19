@@ -2,6 +2,7 @@ import { useStore } from "@/context/store";
 import { Capacitor } from "@capacitor/core";
 import type {
 	AccessTokenResponse,
+	AiChat,
 	ApiResponse,
 	Event,
 	EventModifyRequest,
@@ -586,4 +587,85 @@ export const deleteEvent = async (eventId: string): Promise<number> => {
 		throw new Error(String(result?.data) || "Failed to delete event");
 	}
 	return result.data as number;
+};
+
+// ------------------ AI APIs ------------------ //
+export const fetchAiChats = async ({
+	page = 0,
+	size = 50,
+}: PageRequest): Promise<Page<AiChat>> => {
+	const { accessToken } = useStore.getState();
+	if (!accessToken) {
+		throw new AuthError("No access token present");
+	}
+
+	const params = new URLSearchParams();
+	params.append("page", String(page));
+	params.append("size", String(size));
+
+	const url = `${BASE_URL}/ai/chats?${params.toString()}`;
+	const options: RequestInit = {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+		credentials: "include",
+	};
+	const response = await fetch(url, options);
+	const result: ApiResponse<Page<AiChat>> = await response.json();
+	if (!response.ok) {
+		if (response.status === 401) {
+			throw new AuthError("Unauthorized. Please log in again.");
+		}
+		throw new Error(String(result?.data) || "Failed to fetch chats");
+	}
+	return result.data as Page<AiChat>;
+};
+
+export const askChatStream = async (
+	query: string,
+	onChunk: (chunk: string) => void,
+	signal?: AbortSignal,
+): Promise<void> => {
+	const { accessToken } = useStore.getState();
+	if (!accessToken) {
+		throw new AuthError("No access token present");
+	}
+	const url = `${BASE_URL}/ai/stream?query=${encodeURIComponent(query)}`;
+	const options: RequestInit = {
+		method: "POST",
+		headers: {
+			Authorization: `Bearer ${accessToken}`,
+		},
+		credentials: "include",
+		signal: signal,
+	};
+	const response = await fetch(url, options);
+
+	if (!response.ok) {
+		if (response.status === 401) {
+			throw new AuthError("Unauthorized. Please log in again.");
+		}
+		throw new Error("Streaming request failed :(");
+	}
+
+	const reader = response.body!.getReader();
+	const decoder = new TextDecoder();
+
+	while (true) {
+		const { done, value } = await reader.read();
+		if (done) break;
+
+		const chunk = decoder.decode(value, { stream: true });
+		const cleanedChunk = chunk
+			.split("\n")
+			.filter((line) => line.startsWith("data:"))
+			.map((line) => line.replace("data:", "").trim)
+			.join(" ");
+
+		if (cleanedChunk) {
+			onChunk(cleanedChunk);
+		}
+	}
 };
