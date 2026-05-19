@@ -192,7 +192,7 @@ const HomePage = () => {
 										return (
 											<div
 												key={dayString}
-												className="flex flex-col gap-1 p-2 rounded-xl bg-accent-light/20 dark:bg-accent-dark/20 w-full">
+												className="flex flex-col gap-1 p-2 rounded-xl backdrop-blur-sm bg-accent-light/20 dark:bg-accent-light/10 w-full">
 												<div className="text-sm font-medium">
 													{dayjs.utc(dayString).format("ddd, DD MMM")}
 												</div>

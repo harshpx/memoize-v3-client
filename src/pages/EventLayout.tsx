@@ -13,7 +13,7 @@ const EventLayout = () => {
 				<Events />
 			</div>
 			{editPage && (
-				<div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 pointer-events-auto">
+				<div className="fixed inset-0 bg-black/50 backdrop-blur-2xl flex items-center justify-center z-50 pointer-events-auto">
 					<EventEdit />
 				</div>
 			)}

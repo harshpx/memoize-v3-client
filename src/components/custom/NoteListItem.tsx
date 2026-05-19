@@ -32,11 +32,10 @@ const NoteListItem = ({
 				})
 			}
 			className={cn(
-				"rounded-lg bg-accent-light/20 dark:bg-accent-dark/5",
-				"border-2 border-accent-light/10 dark:border-accent-dark/10",
+				"rounded-lg bg-accent-light/20 dark:bg-accent-light/10",
 				"p-4 flex flex-col justify-between gap-2 break-inside-avoid min-h-52 max-h-96",
 				"hover:border-accent-light hover:dark:border-accent-dark cursor-pointer",
-				!note ? "border-accent-light dark:border-accent-dark" : "",
+				"backdrop-blur-sm hover:brightness-110",
 				className,
 			)}>
 			{note ? (

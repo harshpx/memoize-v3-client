@@ -37,8 +37,8 @@ const EventCard = ({
 			{event ? (
 				<div
 					className={cn(
-						"rounded-xl bg-accent-light dark:bg-accent-dark p-2",
-						"flex flex-col gap-2 text-white cursor-pointer",
+						"rounded-xl bg-accent-light/30 dark:bg-accent-dark/10 p-2",
+						"flex flex-col gap-2 text-black dark:text-white cursor-pointer",
 						className,
 					)}>
 					<div className="flex gap-1 items-center">

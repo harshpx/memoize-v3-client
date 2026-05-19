@@ -201,7 +201,7 @@ const NoteEdit = () => {
 	if (!editor) return null;
 
 	return (
-		<div className="p-4 grow h-full w-full flex justify-center">
+		<div className="p-4 grow h-full w-full flex justify-center backdrop-blur-sm">
 			<EditorContext.Provider value={{ editor }}>
 				<div className="md:w-[90%] flex flex-col gap-4">
 					<div className="flex gap-1 flex-wrap justify-center items-center w-full">

@@ -21,8 +21,6 @@ import CustomizableButton from "@/components/custom/CustomizableButton";
 import { FaGoogle } from "react-icons/fa";
 import { BASE_URL } from "@/services/apis";
 import BgIcons from "@/components/custom/BgIcons";
-import logoBlack from "@/assets/logo-black.png";
-import logoWhite from "@/assets/logo-white.png";
 import { useNavigate } from "react-router-dom";
 import { Capacitor } from "@capacitor/core";
 
@@ -58,12 +56,17 @@ const Auth: FC = () => {
 	return (
 		<div className="h-dvh w-full flex flex-col items-center justify-center relative overflow-hidden">
 			{loading && <Loader />}
-			<BgIcons className="text-white dark:text-black bg-accent-light brightness-[80%] dark:brightness-100" />
+			<BgIcons className="text-accent-dark dark:text-accent-light/80" />
 			{!isLargeScreen && (
 				<div
 					className={`px-4 h-[56px] w-full flex items-center justify-between shrink-0 `}>
-					<Logo onClick={() => navigate("/")} className="dark:text-black" />
-					<ThemeSwitch buttonStyle="themed" />
+					<Logo
+						onClick={() => navigate("/")}
+						darkText={theme === "light"}
+						outerDivClassName="flex-row gap-2"
+						iconDivClassName="text-lg"
+					/>
+					<ThemeSwitch />
 				</div>
 			)}
 			<div
@@ -71,25 +74,26 @@ const Auth: FC = () => {
 				{isLargeScreen && (
 					<motion.div
 						layout
-						className={`z-20 relative w-1/2 rounded-2xl flex flex-col items-center justify-center gap-0 ${activePage === "signup" ? "translate-x-full" : "translate-x-0"}`}
+						className={`z-20 relative w-1/2 rounded-2xl flex flex-col items-center justify-center gap-2 ${activePage === "signup" ? "translate-x-full" : "translate-x-0"}`}
 						transition={{ duration: 0.15 }}>
 						<div
 							className={`absolute top-0 ${activePage === "signup" ? "right-0" : "left-0"}`}>
 							<ThemeSwitch buttonStyle="themed" />
 						</div>
-						<p className="text-3xl text-white dark:text-black text-center font-semibold">
+						<p className="text-3xl text-black dark:text-white text-center font-semibold">
 							{activePage === "login" ? "Welcome back to" : "Get started with"}
 						</p>
-						<img
-							className="w-72"
-							src={theme === "dark" ? logoBlack : logoWhite}
+						<Logo
+							darkText={theme === "light"}
+							iconDivClassName="text-6xl"
+							textDivClassName="text-6xl font-bold"
 						/>
-						<p className="text-white dark:text-black w-2/3 text-center">
+						<p className="text-black dark:text-white w-2/3 text-center">
 							{activePage === "login"
 								? "Pick up right where you left off — your notes, tasks, and code are waiting."
 								: "Build your second brain with Memoize, Capture ideas, manage tasks, save code, and keep everything connected."}
 						</p>
-						<div className="mt-10 w-full flex items-center justify-center gap-2 text-[14px] text-white dark:text-black">
+						<div className="mt-10 w-full flex items-center justify-center gap-2 text-[14px] text-black dark:text-white">
 							<p>
 								{activePage === "login"
 									? "Don't have an account?"
@@ -99,7 +103,7 @@ const Auth: FC = () => {
 								onClick={() => {
 									setActivePage(activePage === "login" ? "signup" : "login");
 								}}
-								className="cursor-pointer bg-transparent text-white dark:text-black border border-white dark:border-black hover:bg-white/20">
+								className="cursor-pointer bg-transparent text-black dark:text-white border border-black dark:border-white hover:bg-white/20">
 								{activePage === "login" ? "Signup" : "Login"}
 							</Button>
 							<p>
@@ -112,7 +116,8 @@ const Auth: FC = () => {
 					layout
 					className={`
             ${isLargeScreen ? "w-1/2 self-center h-full" : "w-full sm:w-150 self-start max-h-full"} 
-            bg-white dark:bg-black flex flex-col items-center justify-center py-4 rounded-xl
+            bg-white dark:bg-black flex flex-col items-center justify-center py-4 rounded-xl shadow-2xl
+						border-2 border-neutral-200/60 dark:border-neutral-800/60
             ${isLargeScreen && activePage === "signup" ? "-translate-x-full" : "translate-x-0"}
           `}
 					transition={{ duration: 0.15 }}>

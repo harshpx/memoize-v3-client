@@ -1,13 +1,14 @@
 import { useStore } from "@/context/store";
+import { cn } from "@/lib/utils";
 import {
 	LuNotebookPen,
 	LuListChecks,
 	LuCalendarDays,
 	LuCodeXml,
-	LuBrain,
 	LuCalendarSearch,
 	LuFileCode,
 	LuFileText,
+	LuBotMessageSquare,
 } from "react-icons/lu";
 export interface BgIconsProps {
 	className?: string;
@@ -17,7 +18,10 @@ const BgIcons = ({ className = "", iconOpacity }: BgIconsProps) => {
 	const theme = useStore((state) => state.theme);
 	return (
 		<div
-			className={`absolute h-screen w-screen top-0 left-0 p-5 flex gap-10 flex-wrap justify-center -z-50 ${className}`}>
+			className={cn(
+				"absolute h-screen w-screen top-0 left-0 p-5 flex gap-10 flex-wrap justify-center -z-50",
+				className,
+			)}>
 			{Array.from({ length: 100 }, (_, i) => i)
 				// .sort(() => Math.random() - 0.5)
 				.map((idx) => {
@@ -50,7 +54,7 @@ const BgIcons = ({ className = "", iconOpacity }: BgIconsProps) => {
 						case 4:
 							return <LuCodeXml key={idx} {...commonProps} />;
 						case 5:
-							return <LuBrain key={idx} {...commonProps} />;
+							return <LuBotMessageSquare key={idx} {...commonProps} />;
 						case 6:
 							return <LuCalendarSearch key={idx} {...commonProps} />;
 						case 7:

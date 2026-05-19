@@ -4,9 +4,8 @@ import ThemeSwitch from "@/components/custom/ThemeSwitch";
 import { type FC } from "react";
 import { FaArrowRight as ArrowRight } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
-import logoBlack from "@/assets/logo-black.png";
-import logoWhite from "@/assets/logo-white.png";
 import { useStore } from "@/context/store";
+import Logo from "@/components/custom/Logo";
 
 const LandingPage: FC = () => {
 	const theme = useStore((state) => state.theme);
@@ -14,25 +13,24 @@ const LandingPage: FC = () => {
 	return (
 		<div className="h-dvh w-full flex flex-col gap-4 items-center justify-center overflow-hidden relative">
 			<div className="absolute right-2 top-2">
-				<ThemeSwitch buttonStyle="themed" />
+				<ThemeSwitch />
 			</div>
-			<div className="flex flex-col items-center">
-				<div className="text-3xl md:text-4xl font-bold text-white dark:text-black">
+			<div className="flex flex-col items-center gap-4">
+				<div className="text-3xl md:text-4xl text-black dark:text-white">
 					Welcome to
 				</div>
-				<div className="text-6xl md:text-7xl font-medium text-white dark:text-black">
-					<img
-						className="w-96"
-						src={theme === "dark" ? logoBlack : logoWhite}
-					/>
-				</div>
+				<Logo
+					darkText={theme === "light"}
+					iconDivClassName="text-6xl"
+					textDivClassName="text-6xl font-bold"
+				/>
 			</div>
 			<CustomizableButton
 				className="
           border-2 border-white dark:border-black
 					text-white dark:text-black
-					shadow-2xl bg-accent-light/40 dark:bg-accent-light/30
-					hover:brightness-150
+					shadow-2xl bg-accent-dark
+					hover:brightness-110
           transition-colors
         "
 				onClick={() => navigate("/auth")}>
@@ -41,7 +39,7 @@ const LandingPage: FC = () => {
 					<ArrowRight size={14} className="" />
 				</div>
 			</CustomizableButton>
-			<BgIcons className="text-white dark:text-black bg-accent-light brightness-[80%] dark:brightness-100" />
+			<BgIcons className="text-accent-dark dark:text-accent-light/80" />
 		</div>
 	);
 };

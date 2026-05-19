@@ -106,6 +106,7 @@ const SidebarComponents = ({
 }) => {
 	const navigate = useNavigate();
 	const { pathname } = useLocation();
+	const theme = useStore((state) => state.theme);
 	return (
 		<div
 			className="
@@ -116,7 +117,10 @@ const SidebarComponents = ({
 			<div className="flex flex-col gap-2 mb-4">
 				<div className={cn("flex gap-2", collapsed ? "flex-col" : "flex-row")}>
 					<Logo
-						className="grow text-black dark:text-white"
+						onClick={() => navigate("/")}
+						darkText={theme === "light"}
+						outerDivClassName="flex-row gap-2 grow"
+						iconDivClassName={`text-sm ${collapsed ? "flex-col text-xl" : ""}`}
 						iconOnly={collapsed}
 					/>
 					<CustomizableButton

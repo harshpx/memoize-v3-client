@@ -35,7 +35,7 @@ const MonthList = ({ calendarMonth, eventMap }: MonthListProps) => {
 						return (
 							<div
 								key={key}
-								className="flex flex-col gap-2 p-2 rounded-xl bg-accent-light/30 dark:bg-accent-dark/30 w-full">
+								className="flex flex-col gap-2 p-2 rounded-xl backdrop-blur-sm bg-accent-light/20 dark:bg-accent-light/10 w-full">
 								<div className="text-sm font-medium">
 									{day.format("ddd DD MMM, YYYY")}
 								</div>
