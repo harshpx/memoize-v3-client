@@ -326,6 +326,19 @@ const DockComponents = () => {
 					</div>
 				</CustomizableButton>
 				<CustomizableButton
+					onClick={() => navigate("/home/ai")}
+					className={cn(
+						"hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
+						pathname.split("/").reverse()?.[0] === "ai"
+							? "bg-accent-light/40 dark:bg-accent-light/30"
+							: "",
+					)}>
+					<div className="flex flex-col items-center justify-center">
+						<LuBotMessageSquare className="size-4" />
+						<span className="text-[10px]">MemoAI</span>
+					</div>
+				</CustomizableButton>
+				<CustomizableButton
 					onClick={() => navigate("/home/trash")}
 					className={cn(
 						"hover:bg-accent-light/40 dark:hover:bg-accent-light/30",

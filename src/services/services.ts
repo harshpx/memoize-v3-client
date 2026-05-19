@@ -413,6 +413,8 @@ export const eventDeleteHandler = async (eventId: string, notify = false) => {
 	}
 };
 
+// -------------- AI Chat services ----------------
+
 export const aiChatsFetchHandler = async (): Promise<void> => {
 	const { aiChats, aiChatsLoading } = useStore.getState();
 
@@ -426,7 +428,7 @@ export const aiChatsFetchHandler = async (): Promise<void> => {
 		]);
 		useStore.setState((state) => ({
 			aiChats: {
-				data: [...newChatsData.content, ...state.aiChats.data],
+				data: [...state.aiChats.data, ...newChatsData.content],
 				pageNumber: newChatsData.number,
 				hasMore: !newChatsData.last,
 			},
@@ -449,7 +451,7 @@ export const aiChatQueryHandler = async (query: string): Promise<void> => {
 	useStore.setState((state) => ({
 		aiChats: {
 			...state.aiChats,
-			data: [...state.aiChats.data, question],
+			data: [question, ...state.aiChats.data],
 		},
 		aiChatStreaming: true,
 	}));
@@ -457,7 +459,7 @@ export const aiChatQueryHandler = async (query: string): Promise<void> => {
 		const answerId = crypto.randomUUID();
 		const answer: AiChat = {
 			id: answerId,
-			content: "",
+			content: "Thinking...",
 			type: "ANSWER",
 			createdAt: new Date().toISOString(),
 		};
@@ -465,24 +467,34 @@ export const aiChatQueryHandler = async (query: string): Promise<void> => {
 		useStore.setState((state) => ({
 			aiChats: {
 				...state.aiChats,
-				data: [...state.aiChats.data, answer],
+				data: [answer, ...state.aiChats.data],
 			},
 		}));
 
 		await retryWithRefresh(askChatStream, [
 			query,
 			(chunk: string) => {
-				useStore((state) => state.aiChats).data.map((data) =>
-					data.id === answerId
-						? { ...data, content: data.content + chunk }
-						: data,
-				);
+				useStore.setState((state) => ({
+					aiChatStreaming: false,
+					aiChats: {
+						...state.aiChats,
+						data: state.aiChats.data.map((chat) =>
+							chat.id === answerId
+								? {
+										...chat,
+										content:
+											chat.content === "Thinking..."
+												? chunk
+												: chat.content + chunk,
+									}
+								: chat,
+						),
+					},
+				}));
 			},
 			controller.signal,
 		]);
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
-	} finally {
-		useStore.setState(() => ({ aiChatStreaming: false }));
 	}
 };

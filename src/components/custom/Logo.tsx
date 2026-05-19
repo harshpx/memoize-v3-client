@@ -32,11 +32,14 @@ const Logo = ({
 					"flex gap-1 items-center justify-center",
 					iconDivClassName,
 				)}>
-				<div className="flex gap-1">
-					<LuNotebookPen />
+				<div className="flex gap-1 items-center">
+					{iconOnly && <span>M</span>}
 					<LuBotMessageSquare />
 				</div>
-				<LuCalendar />
+				<div className="flex gap-1 items-center">
+					<LuNotebookPen />
+					<LuCalendar />
+				</div>
 			</div>
 			{!iconOnly && (
 				<span className={cn("text-lg text-nowrap truncate", textDivClassName)}>

@@ -661,8 +661,8 @@ export const askChatStream = async (
 		const cleanedChunk = chunk
 			.split("\n")
 			.filter((line) => line.startsWith("data:"))
-			.map((line) => line.replace("data:", "").trim)
-			.join(" ");
+			.map((line) => line.replace("data:", ""))
+			.join("\n");
 
 		if (cleanedChunk) {
 			onChunk(cleanedChunk);
