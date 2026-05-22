@@ -2,8 +2,9 @@ import { useStore } from "@/context/store";
 import { Capacitor } from "@capacitor/core";
 import type {
 	AccessTokenResponse,
-	AiChat,
 	ApiResponse,
+	Chat,
+	Conversation,
 	Event,
 	EventModifyRequest,
 	LoginRequest,
@@ -589,21 +590,41 @@ export const deleteEvent = async (eventId: string): Promise<number> => {
 	return result.data as number;
 };
 
-// ------------------ AI APIs ------------------ //
-export const fetchAiChats = async ({
-	page = 0,
-	size = 50,
-}: PageRequest): Promise<Page<AiChat>> => {
+// ------------------ LLM chat APIs ------------------ //
+export const fetchConversations = async (): Promise<Conversation[]> => {
 	const { accessToken } = useStore.getState();
 	if (!accessToken) {
 		throw new AuthError("No access token present");
 	}
 
-	const params = new URLSearchParams();
-	params.append("page", String(page));
-	params.append("size", String(size));
+	const url = `${BASE_URL}/ai/conversation/all`;
+	const options: RequestInit = {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+		credentials: "include",
+	};
+	const response = await fetch(url, options);
+	const result: ApiResponse<Conversation[]> = await response.json();
+	if (!response.ok) {
+		if (response.status === 401) {
+			throw new AuthError("Unauthorized. Please log in again.");
+		}
+		throw new Error(String(result?.data) || "Failed to fetch conversations");
+	}
+	return result.data as Conversation[];
+};
 
-	const url = `${BASE_URL}/ai/chats?${params.toString()}`;
+export const fetchConversationById = async (
+	conversationId: string,
+): Promise<Conversation> => {
+	const { accessToken } = useStore.getState();
+	if (!accessToken) {
+		throw new AuthError("No access token present");
+	}
+	const url = `${BASE_URL}/ai/conversation/${conversationId}`;
 	const options: RequestInit = {
 		method: "GET",
 		headers: {
@@ -613,17 +634,97 @@ export const fetchAiChats = async ({
 		credentials: "include",
 	};
 	const response = await fetch(url, options);
-	const result: ApiResponse<Page<AiChat>> = await response.json();
+	const result: ApiResponse<Conversation> = await response.json();
 	if (!response.ok) {
 		if (response.status === 401) {
 			throw new AuthError("Unauthorized. Please log in again.");
 		}
-		throw new Error(String(result?.data) || "Failed to fetch chats");
+		throw new Error(String(result?.data) || "Failed to fetch conversations");
 	}
-	return result.data as Page<AiChat>;
+	return result.data as Conversation;
 };
 
-export const askChatStream = async (
+export const createConversation = async (): Promise<Conversation> => {
+	const { accessToken } = useStore.getState();
+	if (!accessToken) {
+		throw new AuthError("No access token present");
+	}
+	const url = `${BASE_URL}/ai/conversation`;
+	const options: RequestInit = {
+		method: "POST",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+		credentials: "include",
+	};
+	const response = await fetch(url, options);
+	const result: ApiResponse<Conversation> = await response.json();
+	if (!response.ok) {
+		if (response.status === 401) {
+			throw new AuthError("Unauthorized. Please log in again.");
+		}
+		throw new Error(String(result?.data) || "Failed to create conversation");
+	}
+	return result.data as Conversation;
+};
+
+export const deleteConversation = async (
+	conversationId: string,
+): Promise<number> => {
+	const { accessToken } = useStore.getState();
+	if (!accessToken) {
+		throw new AuthError("No access token present");
+	}
+	const url = `${BASE_URL}/ai/conversation/${conversationId}`;
+	const options: RequestInit = {
+		method: "DELETE",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+		credentials: "include",
+	};
+	const response = await fetch(url, options);
+	const result: ApiResponse<number> = await response.json();
+	if (!response.ok) {
+		if (response.status === 401) {
+			throw new AuthError("Unauthorized. Please log in again.");
+		}
+		throw new Error(String(result?.data) || "Failed to delete conversation");
+	}
+	return result.data as number;
+};
+
+export const fetchChatsInConversation = async (
+	conversationId: string,
+): Promise<Chat[]> => {
+	const { accessToken } = useStore.getState();
+	if (!accessToken) {
+		throw new AuthError("No access token present");
+	}
+	const url = `${BASE_URL}/ai/chat/${conversationId}`;
+	const options: RequestInit = {
+		method: "GET",
+		headers: {
+			"Content-Type": "application/json",
+			Authorization: `Bearer ${accessToken}`,
+		},
+		credentials: "include",
+	};
+	const response = await fetch(url, options);
+	const result: ApiResponse<Chat[]> = await response.json();
+	if (!response.ok) {
+		if (response.status === 401) {
+			throw new AuthError("Unauthorized. Please log in again.");
+		}
+		throw new Error(String(result?.data) || "Failed to create event");
+	}
+	return result.data as Chat[];
+};
+
+export const askLLM = async (
+	conversationId: string,
 	query: string,
 	onChunk: (chunk: string) => void,
 	signal?: AbortSignal,
@@ -632,7 +733,7 @@ export const askChatStream = async (
 	if (!accessToken) {
 		throw new AuthError("No access token present");
 	}
-	const url = `${BASE_URL}/ai/stream?query=${encodeURIComponent(query)}`;
+	const url = `${BASE_URL}/ai/chat/${conversationId}?query=${encodeURIComponent(query)}`;
 	const options: RequestInit = {
 		method: "POST",
 		headers: {

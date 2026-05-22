@@ -1,6 +1,7 @@
 import { useStore, type NotesEntityState } from "@/context/store";
 import type {
-	AiChat,
+	Chat,
+	Conversation,
 	Event,
 	EventModifyRequest,
 	LoginRequest,
@@ -12,11 +13,15 @@ import type {
 } from "@/lib/commonTypes";
 import { AuthError } from "@/lib/errors";
 import {
-	askChatStream,
+	askLLM,
+	createConversation,
 	createEvent,
 	createNote,
+	deleteConversation,
 	deleteEvent,
-	fetchAiChats,
+	fetchChatsInConversation,
+	fetchConversationById,
+	fetchConversations,
 	fetchEvents,
 	fetchNotes,
 	getUserInfo,
@@ -413,51 +418,145 @@ export const eventDeleteHandler = async (eventId: string, notify = false) => {
 	}
 };
 
-// -------------- AI Chat services ----------------
+// -------------- LLM Chat services ----------------
+export const conversationsFetchHandler = async (): Promise<void> => {
+	const { conversationsLoading } = useStore.getState();
 
-export const aiChatsFetchHandler = async (): Promise<void> => {
-	const { aiChats, aiChatsLoading } = useStore.getState();
-
-	if (aiChatsLoading) return;
+	if (conversationsLoading) return;
 
 	try {
-		useStore.setState(() => ({ aiChatsLoading: true }));
-		if (!aiChats.hasMore) return;
-		const newChatsData: Page<AiChat> = await retryWithRefresh(fetchAiChats, [
-			{ page: aiChats.pageNumber + 1 },
+		useStore.setState(() => ({ conversationsLoading: true }));
+		const conversationsData: Conversation[] = await retryWithRefresh(
+			fetchConversations,
+			[],
+		);
+		useStore.setState(() => ({ conversations: conversationsData }));
+	} catch (error) {
+		if (error instanceof Error) console.error(error.message);
+		toast.error("Failed to fetch conversations.", { duration: 1000 });
+	} finally {
+		useStore.setState(() => ({ conversationsLoading: false }));
+	}
+};
+
+export const conversationInfoFetchHandler = async (
+	conversationId: string,
+): Promise<void> => {
+	try {
+		const conversation: Conversation = await retryWithRefresh(
+			fetchConversationById,
+			[conversationId],
+		);
+		useStore.setState((state) => ({
+			conversations: state.conversations.map((conv) =>
+				conv.id === conversationId ? conversation : conv,
+			),
+		}));
+	} catch (error) {}
+};
+
+export const conversationCreateHandler = async (notify = false) => {
+	try {
+		const newConversation: Conversation = await retryWithRefresh(
+			createConversation,
+			[],
+		);
+		useStore.setState((state) => ({
+			conversations: [newConversation, ...state.conversations],
+		}));
+		if (notify) {
+			toast.success("Conversation created successfully!", { duration: 1000 });
+		}
+	} catch (error) {
+		if (error instanceof Error) console.error(error.message);
+		toast.error("Failed to create conversation.", { duration: 1000 });
+	}
+};
+
+export const conversationDeleteHandler = async (
+	conversationId: string,
+	notify = false,
+) => {
+	try {
+		await retryWithRefresh(deleteConversation, [conversationId]);
+		useStore.setState((state) => {
+			const { [conversationId]: _, ...remainingChats } = state.chats;
+			return {
+				conversations: state.conversations.filter(
+					(conv) => conv.id !== conversationId,
+				),
+				chats: remainingChats,
+			};
+		});
+		if (notify) {
+			toast.success("Conversation deleted successfully!", { duration: 1000 });
+		}
+	} catch (error) {
+		if (error instanceof Error) console.error(error.message);
+		toast.error("Failed to delete Conversation", { duration: 1000 });
+	}
+};
+
+export const chatsFetchHandler = async (
+	conversationId: string,
+): Promise<void> => {
+	const { chatsLoading, conversations } = useStore.getState();
+
+	const conversation: Conversation | undefined = conversations.find(
+		(conv) => conv.id === conversationId,
+	);
+	if (!conversation) return;
+
+	if (chatsLoading) return;
+
+	try {
+		useStore.setState(() => ({ chatsLoading: true }));
+		const chatsData: Chat[] = await retryWithRefresh(fetchChatsInConversation, [
+			conversationId,
 		]);
 		useStore.setState((state) => ({
-			aiChats: {
-				data: [...state.aiChats.data, ...newChatsData.content],
-				pageNumber: newChatsData.number,
-				hasMore: !newChatsData.last,
+			chats: {
+				...state.chats,
+				[conversationId]: chatsData,
 			},
 		}));
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
 	} finally {
-		useStore.setState(() => ({ aiChatsLoading: false }));
+		useStore.setState(() => ({ chatsLoading: false }));
 	}
 };
 
-export const aiChatQueryHandler = async (query: string): Promise<void> => {
+export const llmQueryHandler = async (
+	conversationId: string,
+	query: string,
+): Promise<void> => {
+	const { conversations } = useStore.getState();
+
+	const conversation: Conversation | undefined = conversations.find(
+		(conv) => conv.id === conversationId,
+	);
+
+	if (!conversation) return;
+
 	const controller = new AbortController();
-	const question: AiChat = {
+	const question: Chat = {
 		id: crypto.randomUUID(),
 		content: query,
 		type: "QUESTION",
 		createdAt: new Date().toISOString(),
 	};
 	useStore.setState((state) => ({
-		aiChats: {
-			...state.aiChats,
-			data: [question, ...state.aiChats.data],
+		chatStreaming: true,
+		chats: {
+			...state.chats,
+			[conversationId]: [question, ...state.chats[conversationId]],
 		},
-		aiChatStreaming: true,
 	}));
+
 	try {
 		const answerId = crypto.randomUUID();
-		const answer: AiChat = {
+		const answer: Chat = {
 			id: answerId,
 			content: "Thinking...",
 			type: "ANSWER",
@@ -465,20 +564,22 @@ export const aiChatQueryHandler = async (query: string): Promise<void> => {
 		};
 
 		useStore.setState((state) => ({
-			aiChats: {
-				...state.aiChats,
-				data: [answer, ...state.aiChats.data],
+			chatStreaming: true,
+			chats: {
+				...state.chats,
+				[conversationId]: [answer, ...state.chats[conversationId]],
 			},
 		}));
 
-		await retryWithRefresh(askChatStream, [
+		await retryWithRefresh(askLLM, [
+			conversationId,
 			query,
 			(chunk: string) => {
 				useStore.setState((state) => ({
-					aiChatStreaming: false,
-					aiChats: {
-						...state.aiChats,
-						data: state.aiChats.data.map((chat) =>
+					chatStreaming: false,
+					chats: {
+						...state.chats,
+						[conversationId]: state.chats[conversationId].map((chat) =>
 							chat.id === answerId
 								? {
 										...chat,
@@ -494,6 +595,18 @@ export const aiChatQueryHandler = async (query: string): Promise<void> => {
 			},
 			controller.signal,
 		]);
+
+		if (!conversation.isProperName) {
+			const updatedConversation: Conversation = await retryWithRefresh(
+				fetchConversationById,
+				[conversationId],
+			);
+			useStore.setState((state) => ({
+				conversations: state.conversations.map((conv) =>
+					conv.id === conversationId ? updatedConversation : conv,
+				),
+			}));
+		}
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
 	}

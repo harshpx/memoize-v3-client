@@ -55,11 +55,20 @@ export interface Note {
 	deletedAt?: string;
 }
 
-export interface AiChat {
+export interface Chat {
 	id: string;
 	content: string;
 	type: "QUESTION" | "ANSWER";
 	createdAt: string;
+}
+
+export interface Conversation {
+	id: string;
+	name: string;
+	summary: string;
+	isProperName: boolean;
+	createdAt: string;
+	updatedAt: string;
 }
 
 export interface NoteModifyRequest {

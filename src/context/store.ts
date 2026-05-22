@@ -1,6 +1,6 @@
 // single source of truth
 import { create } from "zustand";
-import type { AiChat, Event, Note, User } from "@/lib/commonTypes";
+import type { Conversation, Chat, Event, Note, User } from "@/lib/commonTypes";
 import type { ACCENTS } from "@/lib/utils";
 
 export type Accent = (typeof ACCENTS)[number];
@@ -36,9 +36,11 @@ interface DataState {
 	events: Event[];
 	eventsFetched: boolean;
 	eventsLoading: boolean;
-	aiChats: PaginatedData<AiChat>;
-	aiChatsLoading: boolean;
-	aiChatStreaming: boolean;
+	conversations: Conversation[];
+	conversationsLoading: boolean;
+	chats: Record<string, Chat[]>;
+	chatsLoading: boolean;
+	chatStreaming: boolean;
 }
 
 interface AppState extends AuthState, ThemeState, DataState {
@@ -75,13 +77,11 @@ export const useStore = create<AppState>((set) => ({
 			events: [],
 			eventsFetched: false,
 			eventsLoading: false,
-			aiChats: {
-				data: [],
-				pageNumber: -1,
-				hasMore: true,
-			},
-			aiChatsLoading: false,
-			aiChatStreaming: false,
+			conversations: [],
+			conversationsLoading: false,
+			chats: {},
+			chatsLoading: false,
+			chatStreaming: false,
 		}),
 	// theme
 	theme: (localStorage.getItem("theme") as Theme) || "dark",
@@ -114,13 +114,11 @@ export const useStore = create<AppState>((set) => ({
 	events: [],
 	eventsFetched: false,
 	eventsLoading: false,
-	aiChats: {
-		data: [],
-		pageNumber: -1,
-		hasMore: true,
-	},
-	aiChatsLoading: false,
-	aiChatStreaming: false,
+	conversations: [],
+	conversationsLoading: false,
+	chats: {},
+	chatsLoading: false,
+	chatStreaming: false,
 	// ui state
 	loading: false,
 	setLoading: (loading) => set({ loading }),
