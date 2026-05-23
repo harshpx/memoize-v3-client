@@ -67,6 +67,7 @@ export interface Conversation {
 	name: string;
 	summary: string;
 	isProperName: boolean;
+	isNew: boolean;
 	createdAt: string;
 	updatedAt: string;
 }

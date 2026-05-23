@@ -37,8 +37,8 @@ const EventCard = ({
 			{event ? (
 				<div
 					className={cn(
-						"rounded-xl bg-accent-light/30 dark:bg-accent-dark/10 p-2",
-						"flex flex-col gap-2 text-black dark:text-white cursor-pointer",
+						"flex flex-col p-2 gap-2 text-black dark:text-white cursor-pointer rounded-xl backdrop-blur-sm",
+						"bg-neutral-700/5 dark:bg-neutral-500/5 border border-neutral-200 dark:border-neutral-800",
 						className,
 					)}>
 					<div className="flex gap-1 items-center">
@@ -78,7 +78,8 @@ const EventCard = ({
 			) : (
 				<CustomizableButton
 					className={cn(
-						"flex-nowrap bg-accent-light/80 dark:bg-accent-dark/70 gap-1 truncate",
+						"flex-nowrap gap-1 truncate backdrop-blur-sm",
+						"bg-accent-light/60 hover:bg-accent-light/80 dark:bg-accent-dark/60 dark:hover:bg-accent-dark/80",
 					)}>
 					<LuCalendarPlus size={16} className="shrink-0" />
 					<span className="text-[12px] truncate text-nowrap">Add Event</span>

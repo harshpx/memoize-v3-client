@@ -70,7 +70,7 @@ const HomeLayout = () => {
 					) : (
 						<div className="relative h-full w-full overflow-hidden">
 							<Outlet />
-							<BgIcons className="text-accent-dark" iconOpacity={0.1} />
+							<Background />
 						</div>
 					)}
 				</ResizablePanel>
@@ -85,7 +85,7 @@ const HomeLayout = () => {
 							{isDesktop ? (
 								<div className="relative h-full w-full overflow-hidden">
 									<Outlet />
-									<BgIcons className="text-accent-dark" iconOpacity={0.1} />
+									<Background />
 								</div>
 							) : (
 								<DockComponents />
@@ -95,6 +95,16 @@ const HomeLayout = () => {
 				)}
 			</ResizablePanelGroup>
 		</div>
+	);
+};
+
+const Background = () => {
+	const theme = useStore((state) => state.theme);
+	return (
+		<BgIcons
+			className="text-accent-dark"
+			iconOpacity={theme === "dark" ? 0.1 : 0.3}
+		/>
 	);
 };
 
@@ -141,7 +151,7 @@ const SidebarComponents = ({
 						onClick={() =>
 							navigate("/home/notes/editor", { state: { note: null } })
 						}
-						className={`grow flex-nowrap bg-accent-light/80 dark:bg-accent-dark/70 gap-1 truncate ${collapsed ? "order-2" : "order-1"}`}>
+						className={`grow flex-nowrap bg-accent-light/60 hover:bg-accent-light/80 dark:bg-accent-dark/60 dark:hover:bg-accent-dark/80 gap-1 truncate ${collapsed ? "order-2" : "order-1"}`}>
 						<RiStickyNoteAddLine size={16} className="shrink-0" />
 						{!collapsed && (
 							<span className="text-[12px] truncate text-nowrap">Add Note</span>
@@ -151,7 +161,7 @@ const SidebarComponents = ({
 						onClick={() =>
 							navigate("/home/events/editor", { state: { event: undefined } })
 						}
-						className={`grow flex-nowrap bg-accent-light/80 dark:bg-accent-dark/70 gap-1 truncate ${collapsed ? "order-2" : "order-1"}`}>
+						className={`grow flex-nowrap bg-accent-light/60 hover:bg-accent-light/80 dark:bg-accent-dark/60 dark:hover:bg-accent-dark/80 gap-1 truncate ${collapsed ? "order-2" : "order-1"}`}>
 						<LuCalendarPlus size={16} className="shrink-0" />
 						{!collapsed && (
 							<span className="text-[12px] truncate text-nowrap">

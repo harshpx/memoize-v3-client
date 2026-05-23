@@ -83,9 +83,9 @@ const HomePage = () => {
 							navigate("/home/notes/editor", { state: { note: null } })
 						}
 						className="min-w-0
-							text-sm shadow-2xl bg-accent-light/40 dark:bg-accent-light/30 gap-1 items-center
-							hover:border-accent-light dark:hover:border-accent-dark 
-							hover:bg-accent-light dark:hover:bg-accent-dark text-black dark:text-white hover:text-white
+							text-sm shadow-2xl gap-1 items-center
+							bg-accent-light/60 hover:bg-accent-light/80 dark:bg-accent-dark/60 dark:hover:bg-accent-dark/80
+							text-black dark:text-white
 							transition-colors">
 						<RiStickyNoteAddLine className="size-4 shrink-0" />
 						<span className="text-[12px] leading-[1.5rem] truncate">
@@ -97,9 +97,9 @@ const HomePage = () => {
 							navigate("/home/events/editor", { state: { event: undefined } })
 						}
 						className="min-w-0
-							text-sm shadow-2xl bg-accent-light/40 dark:bg-accent-light/30 gap-1 items-center
-							hover:border-accent-light dark:hover:border-accent-dark 
-							hover:bg-accent-light dark:hover:bg-accent-dark text-black dark:text-white hover:text-white
+							text-sm shadow-2xl gap-1 items-center
+							bg-accent-light/60 hover:bg-accent-light/80 dark:bg-accent-dark/60 dark:hover:bg-accent-dark/80
+							text-black dark:text-white
 							transition-colors">
 						<LuCalendarPlus className="size-4 shrink-0" />
 						<span className="text-[12px] leading-[1.5rem] truncate">
@@ -192,7 +192,10 @@ const HomePage = () => {
 										return (
 											<div
 												key={dayString}
-												className="flex flex-col gap-1 p-2 rounded-xl backdrop-blur-sm bg-accent-light/20 dark:bg-accent-light/10 w-full">
+												className={cn(
+													"flex flex-col gap-2 p-2 rounded-xl backdrop-blur-sm w-full",
+													"bg-neutral-600/5 dark:bg-neutral-300/5 border border-neutral-200 dark:border-neutral-800",
+												)}>
 												<div className="text-sm font-medium">
 													{dayjs.utc(dayString).format("ddd, DD MMM")}
 												</div>

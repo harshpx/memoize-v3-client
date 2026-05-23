@@ -420,9 +420,9 @@ export const eventDeleteHandler = async (eventId: string, notify = false) => {
 
 // -------------- LLM Chat services ----------------
 export const conversationsFetchHandler = async (): Promise<void> => {
-	const { conversationsLoading } = useStore.getState();
+	const { conversationsLoading, conversations } = useStore.getState();
 
-	if (conversationsLoading) return;
+	if (conversationsLoading || conversations.length > 0) return;
 
 	try {
 		useStore.setState(() => ({ conversationsLoading: true }));
@@ -430,7 +430,10 @@ export const conversationsFetchHandler = async (): Promise<void> => {
 			fetchConversations,
 			[],
 		);
-		useStore.setState(() => ({ conversations: conversationsData }));
+		useStore.setState(() => ({
+			conversations: conversationsData,
+			selectedConversation: conversationsData?.[0]?.id || "",
+		}));
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
 		toast.error("Failed to fetch conversations.", { duration: 1000 });
@@ -452,7 +455,9 @@ export const conversationInfoFetchHandler = async (
 				conv.id === conversationId ? conversation : conv,
 			),
 		}));
-	} catch (error) {}
+	} catch (error) {
+		if (error instanceof Error) console.error(error.message);
+	}
 };
 
 export const conversationCreateHandler = async (notify = false) => {
@@ -469,7 +474,6 @@ export const conversationCreateHandler = async (notify = false) => {
 		}
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
-		toast.error("Failed to create conversation.", { duration: 1000 });
 	}
 };
 
@@ -480,6 +484,7 @@ export const conversationDeleteHandler = async (
 	try {
 		await retryWithRefresh(deleteConversation, [conversationId]);
 		useStore.setState((state) => {
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const { [conversationId]: _, ...remainingChats } = state.chats;
 			return {
 				conversations: state.conversations.filter(

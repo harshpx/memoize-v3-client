@@ -37,6 +37,7 @@ interface DataState {
 	eventsFetched: boolean;
 	eventsLoading: boolean;
 	conversations: Conversation[];
+	selectedConversation: string;
 	conversationsLoading: boolean;
 	chats: Record<string, Chat[]>;
 	chatsLoading: boolean;
@@ -78,6 +79,7 @@ export const useStore = create<AppState>((set) => ({
 			eventsFetched: false,
 			eventsLoading: false,
 			conversations: [],
+			selectedConversation: "",
 			conversationsLoading: false,
 			chats: {},
 			chatsLoading: false,
@@ -115,6 +117,7 @@ export const useStore = create<AppState>((set) => ({
 	eventsFetched: false,
 	eventsLoading: false,
 	conversations: [],
+	selectedConversation: "",
 	conversationsLoading: false,
 	chats: {},
 	chatsLoading: false,

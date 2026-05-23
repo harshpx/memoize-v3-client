@@ -9,7 +9,7 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { Switch } from "../ui/switch";
-import { ACCENTS, getAccentColor } from "@/lib/utils";
+import { ACCENTS, cn, getAccentColor } from "@/lib/utils";
 import { useStore, type Accent } from "@/context/store";
 
 interface ThemeSwitchProps {
@@ -18,7 +18,7 @@ interface ThemeSwitchProps {
 
 const styleMap = {
 	accent:
-		"bg-accent-light hover:bg-accent-light/80 dark:bg-accent-dark dark:hover:bg-accent-dark/80 text-white",
+		"bg-accent-light/60 hover:bg-accent-light/80 dark:bg-accent-dark/60 dark:hover:bg-accent-dark/80 text-black dark:text-white",
 	themed:
 		"bg-white dark:bg-black hover:bg-white/80 hover:dark:bg-black/80 text-accent-dark",
 };
@@ -34,7 +34,10 @@ const ThemeSwitch: FC<ThemeSwitchProps> = ({ buttonStyle = "accent" }) => {
 		<Popover>
 			<PopoverTrigger asChild>
 				<Button
-					className={`rounded-full p-2 cursor-pointer box-border ${styleMap[buttonStyle]} z-50`}>
+					className={cn(
+						"rounded-full p-2 cursor-pointer box-border backdrop-blur-sm z-50",
+						styleMap[buttonStyle],
+					)}>
 					{theme === "dark" ? <Moon /> : <Sun />}
 				</Button>
 			</PopoverTrigger>

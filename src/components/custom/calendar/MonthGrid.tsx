@@ -61,13 +61,14 @@ const MonthGrid = ({ calendarMonth, eventMap }: MonthGridProps) => {
 								onClick={() => setSelectedDate(dayString)}
 								key={dayString}
 								className={cn(
-									`w-full h-full overflow-hidden
-									box-border border-2 border-neutral-200 dark:border-neutral-800 rounded-xl 
-									flex flex-col p-1 sm:p-2 gap-1 cursor-pointer`,
+									"w-full h-full overflow-hidden backdrop-blur-sm",
+									"box-border border border-neutral-200 dark:border-neutral-800 rounded-xl",
+									"flex flex-col p-1 sm:p-2 gap-1 cursor-pointer",
+									"hover:bg-neutral-800/10 dark:hover:bg-neutral-200/10",
 									selectedDate === dayString &&
-										"border-accent-light dark:border-accent-dark",
+										"bg-neutral-800/10 dark:bg-neutral-200/10",
 									today === dayString &&
-										"bg-accent-light dark:bg-accent-dark text-white",
+										"bg-accent-light/60 hover:bg-accent-light/80 dark:bg-accent-dark/60 dark:hover:bg-accent-dark/80",
 								)}>
 								{dayObj.date()}
 								<div className="flex flex-wrap gap-1 items-center text-xs sm:text-sm md:text-base">

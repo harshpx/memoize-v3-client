@@ -1,6 +1,7 @@
 import type { CalendarMonth, Event } from "@/lib/commonTypes";
 import dayjs, { Dayjs } from "dayjs";
 import EventCard from "./EventCard";
+import { cn } from "@/lib/utils";
 
 interface MonthListProps {
 	calendarMonth: CalendarMonth;
@@ -35,7 +36,11 @@ const MonthList = ({ calendarMonth, eventMap }: MonthListProps) => {
 						return (
 							<div
 								key={key}
-								className="flex flex-col gap-2 p-2 rounded-xl backdrop-blur-sm bg-accent-light/20 dark:bg-accent-light/10 w-full">
+								className={cn(
+									"flex flex-col gap-2 p-2 rounded-xl backdrop-blur-sm w-full",
+									"bg-neutral-600/5 dark:bg-neutral-300/5 backdrop-blur-sm",
+									"border border-neutral-200 dark:border-neutral-800",
+								)}>
 								<div className="text-sm font-medium">
 									{day.format("ddd DD MMM, YYYY")}
 								</div>
