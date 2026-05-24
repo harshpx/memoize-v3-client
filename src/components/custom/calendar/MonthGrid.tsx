@@ -64,9 +64,9 @@ const MonthGrid = ({ calendarMonth, eventMap }: MonthGridProps) => {
 									"w-full h-full overflow-hidden backdrop-blur-sm",
 									"box-border border border-neutral-200 dark:border-neutral-800 rounded-xl",
 									"flex flex-col p-1 sm:p-2 gap-1 cursor-pointer",
-									"hover:bg-neutral-800/10 dark:hover:bg-neutral-200/10",
+									"hover:bg-neutral-700/20 hover:dark:bg-neutral-400/20",
 									selectedDate === dayString &&
-										"bg-neutral-800/10 dark:bg-neutral-200/10",
+										"bg-neutral-700/20 dark:bg-neutral-400/20",
 									today === dayString &&
 										"bg-accent-light/60 hover:bg-accent-light/80 dark:bg-accent-dark/60 dark:hover:bg-accent-dark/80",
 								)}>
@@ -100,7 +100,11 @@ const MonthGrid = ({ calendarMonth, eventMap }: MonthGridProps) => {
 							</span>
 						) : (
 							eventMap[selectedDate].map((event, idx) => (
-								<EventCard key={event.id + idx} event={event} />
+								<EventCard
+									key={event.id + idx}
+									event={event}
+									className="bg-accent-light/40 hover:bg-accent-light/60 dark:bg-accent-dark/40 dark:hover:bg-accent-dark/60"
+								/>
 							))
 						)}
 					</div>

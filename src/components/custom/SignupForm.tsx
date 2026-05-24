@@ -422,12 +422,9 @@ const SignupForm = () => {
 						type="button"
 						onClick={handleOTPSend}
 						className="
-							border border-accent-light/50 dark:border-accent-dark/40 
-							shadow-2xl bg-accent-light/40 dark:bg-accent-light/30
-							hover:border-accent-light dark:hover:border-accent-dark 
-							hover:bg-accent-light dark:hover:bg-accent-dark hover:text-white
-							transition-colors mt-6
-						">
+						bg-accent-light/60 hover:bg-accent-light/80 dark:bg-accent-dark/60 dark:hover:bg-accent-dark/80
+						hover:border-accent-light dark:hover:border-accent-dark 
+						transition-colors mt-6 shadow-2xl">
 						{" "}
 						<span className="text-sm">Send OTP</span>
 					</CustomizableButton>
@@ -452,12 +449,9 @@ const SignupForm = () => {
 					<CustomizableButton
 						type="submit"
 						className="
-						border border-accent-light/50 dark:border-accent-dark/40 
-						shadow-2xl bg-accent-light/40 dark:bg-accent-light/30
+						bg-accent-light/60 hover:bg-accent-light/80 dark:bg-accent-dark/60 dark:hover:bg-accent-dark/80
 						hover:border-accent-light dark:hover:border-accent-dark 
-						hover:bg-accent-light dark:hover:bg-accent-dark hover:text-white
-						transition-colors mt-6
-					">
+						transition-colors mt-6 shadow-2xl">
 						<div className="flex items-center gap-2">
 							<span className="text-sm">Signup</span>
 							<ArrowRight size={14} className="" />

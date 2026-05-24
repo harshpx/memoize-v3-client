@@ -27,11 +27,8 @@ const LandingPage: FC = () => {
 			</div>
 			<CustomizableButton
 				className="
-          border-2 border-white dark:border-black
-					text-white dark:text-black
-					shadow-2xl bg-accent-dark
-					hover:brightness-110
-          transition-colors
+          bg-accent-light/60 hover:bg-accent-light/80 dark:bg-accent-dark/60 dark:hover:bg-accent-dark/80
+					shadow-2xl transition-colors
         "
 				onClick={() => navigate("/auth")}>
 				<div className="flex items-center gap-2">

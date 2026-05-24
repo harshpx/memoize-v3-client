@@ -15,7 +15,7 @@ import type {
 	SignupRequest,
 	User,
 } from "@/lib/commonTypes";
-import { AuthError } from "@/lib/errors";
+import { AcceptableError, AuthError } from "@/lib/errors";
 
 export let BASE_URL = "http://localhost:8086";
 if (Capacitor.isNativePlatform() || window.__ENV__?.APP_ENV === "PROD") {
@@ -137,12 +137,11 @@ export const refresh = async (): Promise<AccessTokenResponse> => {
 	};
 	const response = await fetch(url, options);
 	const result: ApiResponse<AccessTokenResponse> = await response.json();
-	if (!response.ok || !result.success) {
-		const errorString = String(result.data);
-		throw new Error(
-			errorString.substring(0, Math.min(100, errorString.length)) ||
-				"Unable to refresh token",
-		);
+	if (!response.ok) {
+		if (response.status === 401) {
+			throw new AuthError("Unauthorized / Invalid refresh token");
+		}
+		throw new Error(String(result?.data) || "Failed to fetch user info");
 	}
 	return result.data as AccessTokenResponse;
 };
@@ -661,6 +660,9 @@ export const createConversation = async (): Promise<Conversation> => {
 	const response = await fetch(url, options);
 	const result: ApiResponse<Conversation> = await response.json();
 	if (!response.ok) {
+		if (response.status === 409) {
+			throw new AcceptableError("Conversation already exists.");
+		}
 		if (response.status === 401) {
 			throw new AuthError("Unauthorized. Please log in again.");
 		}

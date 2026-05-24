@@ -126,8 +126,10 @@ export const retryWithRefresh = async <T, A extends any[]>(
 			// retry the original API call
 			return await apiCall(...args);
 		} catch (refreshError) {
-			// log out the user on 2nd failure
-			await logoutUser();
+			if (refreshError instanceof AuthError) {
+				// log out the user on 2nd failure of auth
+				await logoutUser();
+			}
 			throw refreshError;
 		}
 	}
@@ -460,7 +462,19 @@ export const conversationInfoFetchHandler = async (
 	}
 };
 
-export const conversationCreateHandler = async (notify = false) => {
+export const conversationCreateHandler = async (
+	notify = false,
+): Promise<void> => {
+	const { conversations } = useStore.getState();
+
+	const existingNew = conversations.find((c) => c.isNew);
+	if (existingNew) {
+		useStore.setState(() => ({
+			selectedConversation: existingNew.id,
+		}));
+		return;
+	}
+
 	try {
 		const newConversation: Conversation = await retryWithRefresh(
 			createConversation,
@@ -468,6 +482,7 @@ export const conversationCreateHandler = async (notify = false) => {
 		);
 		useStore.setState((state) => ({
 			conversations: [newConversation, ...state.conversations],
+			selectedConversation: newConversation.id,
 		}));
 		if (notify) {
 			toast.success("Conversation created successfully!", { duration: 1000 });
@@ -480,7 +495,7 @@ export const conversationCreateHandler = async (notify = false) => {
 export const conversationDeleteHandler = async (
 	conversationId: string,
 	notify = false,
-) => {
+): Promise<void> => {
 	try {
 		await retryWithRefresh(deleteConversation, [conversationId]);
 		useStore.setState((state) => {
@@ -555,7 +570,7 @@ export const llmQueryHandler = async (
 		chatStreaming: true,
 		chats: {
 			...state.chats,
-			[conversationId]: [question, ...state.chats[conversationId]],
+			[conversationId]: [...state.chats[conversationId], question],
 		},
 	}));
 
@@ -572,7 +587,7 @@ export const llmQueryHandler = async (
 			chatStreaming: true,
 			chats: {
 				...state.chats,
-				[conversationId]: [answer, ...state.chats[conversationId]],
+				[conversationId]: [...state.chats[conversationId], answer],
 			},
 		}));
 
@@ -601,6 +616,8 @@ export const llmQueryHandler = async (
 			controller.signal,
 		]);
 
+		useStore.setState(() => ({ chatStreaming: false }));
+
 		if (!conversation.isProperName) {
 			const updatedConversation: Conversation = await retryWithRefresh(
 				fetchConversationById,
@@ -614,5 +631,6 @@ export const llmQueryHandler = async (
 		}
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
+		useStore.setState(() => ({ chatStreaming: false }));
 	}
 };

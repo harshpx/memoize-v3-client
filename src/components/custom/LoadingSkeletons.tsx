@@ -74,4 +74,5 @@ export {
 	NotesLoadingSkeletonItem,
 	EventsLoadingSkeletonItem,
 	ChatsLoadingSkeleton,
+	ChatsLoadingSkeletonItem,
 };

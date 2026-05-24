@@ -70,23 +70,31 @@ const Calendar = () => {
 						{MONTHS[currCalendarMonth.month]}, {currCalendarMonth.year}
 					</div>
 				</div>
-				<div className="flex items-stretch text-sm">
-					<CustomizableButton
+				<div className="flex items-center text-sm">
+					<div
 						className={cn(
-							calendarView === "GRID" &&
-								"bg-accent-light dark:bg-accent-dark text-white",
-						)}
-						onClick={() => changeCalendarView("GRID")}>
-						Grid
-					</CustomizableButton>
-					<CustomizableButton
-						className={cn(
-							calendarView === "LIST" &&
-								"bg-accent-light dark:bg-accent-dark text-white",
-						)}
-						onClick={() => changeCalendarView("LIST")}>
-						List
-					</CustomizableButton>
+							"p-0.5 flex items-center rounded-2xl",
+							"border-2 border-accent-light/60 dark:border-accent-dark/60",
+						)}>
+						<CustomizableButton
+							className={cn(
+								"rounded-xl px-2 py-1.5",
+								calendarView === "GRID" &&
+									"bg-accent-light/60 dark:bg-accent-dark/60",
+							)}
+							onClick={() => changeCalendarView("GRID")}>
+							Grid
+						</CustomizableButton>
+						<CustomizableButton
+							className={cn(
+								"rounded-xl px-2 py-1.5",
+								calendarView === "LIST" &&
+									"bg-accent-light/60 dark:bg-accent-dark/60",
+							)}
+							onClick={() => changeCalendarView("LIST")}>
+							List
+						</CustomizableButton>
+					</div>
 					<div className="ml-4">
 						<ThemeSwitch />
 					</div>

@@ -74,7 +74,7 @@ const HomeLayout = () => {
 						</div>
 					)}
 				</ResizablePanel>
-				{(isDesktop || pathname !== "/home/notes/editor") && (
+				{(isDesktop || !["/home/notes/editor"].includes(pathname)) && (
 					<>
 						<ResizableHandle className=" invisible w-0" />
 						<ResizablePanel
@@ -103,7 +103,7 @@ const Background = () => {
 	return (
 		<BgIcons
 			className="text-accent-dark"
-			iconOpacity={theme === "dark" ? 0.1 : 0.3}
+			iconOpacity={theme === "dark" ? 0.1 : 0.2}
 		/>
 	);
 };
@@ -194,6 +194,26 @@ const SidebarComponents = ({
 					</div>
 				</CustomizableButton>
 				<CustomizableButton
+					onClick={() => navigate("/home/ai")}
+					className={cn(
+						"w-full hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
+						pathname.split("/").includes("ai")
+							? "bg-accent-light/40 dark:bg-accent-light/30"
+							: "",
+						collapsed ? "justify-center" : "justify-start",
+					)}>
+					<div
+						className={cn(
+							"flex items-center gap-1",
+							collapsed && "flex-col gap-0.5",
+						)}>
+						<LuBotMessageSquare />
+						<span className={cn(collapsed ? "text-[10px]" : "text-[14px]")}>
+							MemoAI
+						</span>
+					</div>
+				</CustomizableButton>
+				<CustomizableButton
 					onClick={() => navigate("/home/notes")}
 					className={cn(
 						"w-full hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
@@ -230,26 +250,6 @@ const SidebarComponents = ({
 						<LuCalendar />
 						<span className={cn(collapsed ? "text-[10px]" : "text-[14px]")}>
 							Events
-						</span>
-					</div>
-				</CustomizableButton>
-				<CustomizableButton
-					onClick={() => navigate("/home/ai")}
-					className={cn(
-						"w-full hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
-						pathname.split("/").includes("ai")
-							? "bg-accent-light/40 dark:bg-accent-light/30"
-							: "",
-						collapsed ? "justify-center" : "justify-start",
-					)}>
-					<div
-						className={cn(
-							"flex items-center gap-1",
-							collapsed && "flex-col gap-0.5",
-						)}>
-						<LuBotMessageSquare />
-						<span className={cn(collapsed ? "text-[10px]" : "text-[14px]")}>
-							MemoAI
 						</span>
 					</div>
 				</CustomizableButton>
@@ -292,7 +292,8 @@ const DockComponents = () => {
 		<div
 			className="
 			w-full flex grow gap-1 px-2 py-1 rounded-xl items-center
-			border bg-neutral-100 dark:bg-neutral-900 shadow-sm
+			border border-neutral-300 dark:border-neutral-700
+			bg-neutral-100 dark:bg-neutral-900 shadow-sm
 		">
 			{/* Nav group 1 */}
 			<div className="flex gap-1 grow">
@@ -307,6 +308,19 @@ const DockComponents = () => {
 					<div className="flex flex-col items-center justify-center">
 						<LuHouse className="size-4" />
 						<span className="text-[10px]">Home</span>
+					</div>
+				</CustomizableButton>
+				<CustomizableButton
+					onClick={() => navigate("/home/ai")}
+					className={cn(
+						"hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
+						pathname.split("/").reverse()?.[0] === "ai"
+							? "bg-accent-light/40 dark:bg-accent-light/30"
+							: "",
+					)}>
+					<div className="flex flex-col items-center justify-center">
+						<LuBotMessageSquare className="size-4" />
+						<span className="text-[10px]">MemoAI</span>
 					</div>
 				</CustomizableButton>
 				<CustomizableButton
@@ -333,19 +347,6 @@ const DockComponents = () => {
 					<div className="flex flex-col items-center justify-center">
 						<LuCalendar className="size-4" />
 						<span className="text-[10px]">Events</span>
-					</div>
-				</CustomizableButton>
-				<CustomizableButton
-					onClick={() => navigate("/home/ai")}
-					className={cn(
-						"hover:bg-accent-light/40 dark:hover:bg-accent-light/30",
-						pathname.split("/").reverse()?.[0] === "ai"
-							? "bg-accent-light/40 dark:bg-accent-light/30"
-							: "",
-					)}>
-					<div className="flex flex-col items-center justify-center">
-						<LuBotMessageSquare className="size-4" />
-						<span className="text-[10px]">MemoAI</span>
 					</div>
 				</CustomizableButton>
 				<CustomizableButton

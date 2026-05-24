@@ -78,7 +78,7 @@ const Auth: FC = () => {
 						transition={{ duration: 0.15 }}>
 						<div
 							className={`absolute top-0 ${activePage === "signup" ? "right-0" : "left-0"}`}>
-							<ThemeSwitch buttonStyle="themed" />
+							<ThemeSwitch />
 						</div>
 						<p className="text-3xl text-black dark:text-white text-center font-semibold">
 							{activePage === "login" ? "Welcome back to" : "Get started with"}

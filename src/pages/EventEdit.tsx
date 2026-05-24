@@ -108,7 +108,10 @@ const EventEdit = () => {
 	return (
 		<div
 			ref={pageRef}
-			className="p-4 flex flex-col gap-2 bg-white dark:bg-black rounded-xl shadow-xl h-full w-full sm:h-auto sm:w-auto">
+			className={cn(
+				"p-4 flex flex-col gap-2 rounded-xl shadow-xl h-full w-full sm:h-auto sm:w-auto",
+				"bg-white dark:bg-black border border-neutral-200 dark:border-neutral-800/80",
+			)}>
 			<div className="flex flex-col gap-0">
 				{/* Title */}
 				<Input
