@@ -29,6 +29,7 @@ const MemoAi = () => {
 
 	const didRun = useRef(false);
 	const chatContainerRef = useRef<HTMLDivElement>(null);
+	const inputBoxRef = useRef<HTMLInputElement>(null);
 
 	useEffect(() => {
 		if (didRun.current) return;
@@ -61,6 +62,13 @@ const MemoAi = () => {
 		const temp = currentQuery.trim();
 		await llmQueryHandler(selectedConversation, temp);
 	};
+
+	useEffect(() => {
+		if (!inputBoxRef.current) return;
+		if (!chatStreaming) {
+			inputBoxRef.current.focus();
+		}
+	}, [chatStreaming]);
 
 	if (conversationsLoading) {
 		return (
@@ -113,6 +121,7 @@ const MemoAi = () => {
 				<div className="flex gap-1 items-center w-full h-10 shrink-0">
 					<Input
 						autoFocus
+						ref={inputBoxRef}
 						value={currentQuery}
 						disabled={chatStreaming}
 						onChange={(e) => setCurrentQuery(e.target.value)}
