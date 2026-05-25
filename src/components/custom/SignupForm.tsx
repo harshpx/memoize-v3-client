@@ -432,7 +432,12 @@ const SignupForm = () => {
 				{otpSent && (
 					<div className="flex flex-col items-start justify-center gap-1 mt-4">
 						<div className="text-[14px] font-medium">One time password</div>
-						<InputOTP maxLength={6} onChange={(val) => setOtp(val)} value={otp}>
+						<InputOTP
+							inputMode="text"
+							type="text"
+							maxLength={6}
+							onChange={(val) => setOtp(val)}
+							value={otp}>
 							<InputOTPGroup>
 								<InputOTPSlot index={0} />
 								<InputOTPSlot index={1} />
