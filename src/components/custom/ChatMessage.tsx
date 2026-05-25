@@ -70,21 +70,26 @@ const ChatMessage = ({ chat, className = "" }: ChatMessageProps) => {
 		<div
 			className={cn(
 				"flex gap-1",
-				chat.type === "QUESTION" ? "self-end items-center" : "self-start",
+				chat.type === "QUESTION" ? "self-end max-w-2/3" : "self-start",
 				className,
 			)}>
 			{chat.type === "ANSWER" && (
-				<LuBotMessageSquare className="size-6 text-black dark:text-white mt-1.5" />
+				<LuBotMessageSquare className="size-6 shrink-0 text-black dark:text-white mt-1.5" />
 			)}
 			<div
 				className={cn(
 					"text-sm rounded-xl p-2 w-fit backdrop-blur-sm",
-					"bg-neutral-600/5 dark:bg-neutral-300/5 border border-neutral-200 dark:border-neutral-800",
+					chat.type === "QUESTION"
+						? "bg-accent-light/50 dark:bg-accent-dark/50"
+						: "bg-neutral-600/5 dark:bg-neutral-300/5",
+					chat.type === "QUESTION"
+						? ""
+						: "border border-neutral-200 dark:border-neutral-800",
 				)}>
 				<ChatPrettyView text={chat.content} />
 			</div>
 			{chat.type === "QUESTION" && (
-				<LuUser className="size-6 text-black dark:text-white" />
+				<LuUser className="size-6 shrink-0 text-black dark:text-white mt-1.5" />
 			)}
 		</div>
 	);

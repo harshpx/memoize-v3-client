@@ -3,7 +3,7 @@ import ConversationDrawer from "@/components/custom/ConversationDrawer";
 import CustomizableButton from "@/components/custom/CustomizableButton";
 import { ChatsLoadingSkeleton } from "@/components/custom/LoadingSkeletons";
 import ThemeSwitch from "@/components/custom/ThemeSwitch";
-import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { useStore } from "@/context/store";
 import type { Chat } from "@/lib/commonTypes";
 import { cn } from "@/lib/utils";
@@ -29,7 +29,7 @@ const MemoAi = () => {
 
 	const didRun = useRef(false);
 	const chatContainerRef = useRef<HTMLDivElement>(null);
-	const inputBoxRef = useRef<HTMLInputElement>(null);
+	const inputBoxRef = useRef<HTMLTextAreaElement>(null);
 
 	useEffect(() => {
 		if (didRun.current) return;
@@ -118,8 +118,8 @@ const MemoAi = () => {
 					</div>
 				</div>
 				{/* input box */}
-				<div className="flex gap-1 items-center w-full h-10 shrink-0">
-					<Input
+				<div className="flex gap-1 items-end w-full shrink-0">
+					<Textarea
 						autoFocus
 						ref={inputBoxRef}
 						value={currentQuery}
@@ -127,21 +127,24 @@ const MemoAi = () => {
 						onChange={(e) => setCurrentQuery(e.target.value)}
 						onKeyDown={(e) => {
 							if (e.key === "Enter" && !e.shiftKey) {
+								e.preventDefault();
 								sendQuery();
 							}
 						}}
+						rows={2}
 						placeholder="Ask Memo AI anything..."
 						className={cn(
 							"backdrop-blur-md shadow-sm bg-neutral-100 dark:bg-neutral-900",
-							"rounded-xl h-full outline-none border border-neutral-300 dark:border-neutral-700",
+							"rounded-xl outline-none border border-neutral-300 dark:border-neutral-700",
 							"focus-visible:ring-0 focus-visible:border-neutral-300 focus-visible:dark:border-neutral-700",
+							"resize-none p-3 overflow-y-auto min-h-[48px] max-h-32",
 						)}
 					/>
 					<CustomizableButton
 						onClick={sendQuery}
 						className={cn(
 							"bg-accent-light/60 hover:bg-accent-light/80 dark:bg-accent-dark/60 dark:hover:bg-accent-dark/80",
-							"px-4 py-2 rounded-xl h-full",
+							"px-4 py-2 rounded-xl h-[48px] self-end",
 						)}>
 						<LuSendHorizontal />
 					</CustomizableButton>

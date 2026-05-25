@@ -206,12 +206,22 @@ const HomePage = () => {
 												))}
 										</>
 									) : (
-										<div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 p-2">
-											<LuBotMessageSquare className="size-14" />
-											<div className="flex flex-col items-start text-[12px]">
-												<span>No conversations,</span>
-												<span>Ask MemoAI!</span>
-											</div>
+										<div className="text-neutral-600 dark:text-neutral-400 p-2 text-[12px]">
+											<CustomizableButton
+												onClick={gotoNewChat}
+												className={cn(
+													"p-3 rounded-xl backdrop-blur-sm",
+													"flex items-center gap-2",
+													"bg-neutral-500/10 dark:bg-neutral-400/10",
+													"border border-neutral-300 dark:border-neutral-700/50",
+													"hover:bg-neutral-500/20 dark:hover:bg-neutral-400/20",
+												)}>
+												<LuBotMessageSquare className="size-10" />
+												<div className="flex flex-col items-start truncate">
+													<span>No conversations,</span>
+													<span>Start a chat!</span>
+												</div>
+											</CustomizableButton>
 										</div>
 									)}
 								</CollapsibleContent>
@@ -250,12 +260,26 @@ const HomePage = () => {
 												/>
 											))
 									) : (
-										<div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 p-2">
-											<LuNotebookPen className="size-14" />
-											<div className="flex flex-col items-start text-[12px]">
-												<span>No notes,</span>
-												<span>add one</span>
-											</div>
+										<div className="text-neutral-600 dark:text-neutral-400 p-2 text-[12px]">
+											<CustomizableButton
+												onClick={() =>
+													navigate("/home/notes/editor", {
+														state: { note: null },
+													})
+												}
+												className={cn(
+													"p-3 rounded-xl backdrop-blur-sm",
+													"flex items-center gap-2",
+													"bg-neutral-500/10 dark:bg-neutral-400/10",
+													"border border-neutral-300 dark:border-neutral-700/50",
+													"hover:bg-neutral-500/20 dark:hover:bg-neutral-400/20",
+												)}>
+												<LuNotebookPen className="size-10" />
+												<div className="flex flex-col items-start truncate">
+													<span>No notes found,</span>
+													<span>Add one</span>
+												</div>
+											</CustomizableButton>
 										</div>
 									)}
 								</CollapsibleContent>
@@ -287,11 +311,26 @@ const HomePage = () => {
 										(acc, eventList) => acc + eventList.length,
 										0,
 									) === 0 ? (
-										<div className="flex items-center gap-2 text-neutral-600 dark:text-neutral-400 p-2">
-											<LuCalendarPlus className="size-14" />
-											<div className="flex flex-col items-start text-[12px]">
-												<span>No upcoming events for next 7 days!</span>
-											</div>
+										<div className="text-neutral-600 dark:text-neutral-400 p-2 text-[12px]">
+											<CustomizableButton
+												onClick={() =>
+													navigate("/home/events/editor", {
+														state: { event: undefined },
+													})
+												}
+												className={cn(
+													"p-3 rounded-xl backdrop-blur-sm",
+													"flex items-center gap-2",
+													"bg-neutral-500/10 dark:bg-neutral-400/10",
+													"border border-neutral-300 dark:border-neutral-700/50",
+													"hover:bg-neutral-500/20 dark:hover:bg-neutral-400/20",
+												)}>
+												<LuCalendarPlus className="size-10" />
+												<div className="flex flex-col items-start truncate">
+													<span>No upcoming events for next 7 days!</span>
+													<span>Add one</span>
+												</div>
+											</CustomizableButton>
 										</div>
 									) : (
 										Object.keys(upcomingEvents)

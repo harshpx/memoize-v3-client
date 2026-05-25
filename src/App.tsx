@@ -17,6 +17,7 @@ import OAuth2Redirect from "./pages/OAuth2Redirect";
 import EventLayout from "./pages/EventLayout";
 import NativeBackHandler from "./pages/NativeBackHandler";
 import MemoAi from "./pages/MemoAi";
+import NativeNetworkMonitor from "./pages/NativeNetworkMonitor";
 
 const App: FC = () => {
 	return (
@@ -24,6 +25,7 @@ const App: FC = () => {
 			<AuthInit>
 				<BrowserRouter>
 					<NativeBackHandler />
+					<NativeNetworkMonitor />
 					<Routes>
 						<Route element={<PublicRoute />}>
 							<Route path="/" element={<LandingPage />} />

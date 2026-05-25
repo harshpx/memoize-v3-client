@@ -116,6 +116,7 @@ const EventEdit = () => {
 				{/* Title */}
 				<Input
 					id="title"
+					autoFocus
 					value={eventData?.title}
 					onInput={(e) =>
 						setEventData({ ...eventData, title: e.currentTarget.value })
@@ -126,7 +127,7 @@ const EventEdit = () => {
 						"focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none",
 						"focus-within:outline-none focus-within:ring-0 shadow-none",
 					)}
-					placeholder="Title"
+					placeholder="Title *"
 				/>
 				{/* Description */}
 				<Input
@@ -215,9 +216,9 @@ const EventEdit = () => {
 								}))
 							}
 							className={cn(
-								"text-xs border-2",
+								"text-xs border",
 								eventData.eventRepeat === repeat &&
-									"border-accent-light dark:border-accent-dark bg-accent-light dark:bg-accent-dark text-white",
+									"border-accent-light/40 dark:border-accent-dark/40 bg-accent-light/60 dark:bg-accent-dark/60",
 							)}>
 							{toSentenceCase(repeat)}
 						</CustomizableButton>
@@ -238,9 +239,9 @@ const EventEdit = () => {
 								}))
 							}
 							className={cn(
-								"text-xs border-2",
+								"text-xs border",
 								eventData.eventType === type &&
-									"border-accent-light dark:border-accent-dark bg-accent-light dark:bg-accent-dark text-white",
+									"border-accent-light/40 dark:border-accent-dark/40 bg-accent-light/60 dark:bg-accent-dark/60",
 							)}>
 							{toSentenceCase(type)}
 						</CustomizableButton>

@@ -501,11 +501,13 @@ export const conversationDeleteHandler = async (
 		useStore.setState((state) => {
 			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			const { [conversationId]: _, ...remainingChats } = state.chats;
+			const updatedConversations = state.conversations.filter(
+				(c) => c.id !== conversationId,
+			);
 			return {
-				conversations: state.conversations.filter(
-					(conv) => conv.id !== conversationId,
-				),
+				conversations: updatedConversations,
 				chats: remainingChats,
+				selectedConversation: updatedConversations?.[0]?.id || "",
 			};
 		});
 		if (notify) {
@@ -619,18 +621,49 @@ export const llmQueryHandler = async (
 		useStore.setState(() => ({ chatStreaming: false }));
 
 		if (!conversation.isProperName) {
-			const updatedConversation: Conversation = await retryWithRefresh(
-				fetchConversationById,
-				[conversationId],
+			const updatedConversation: Conversation | null = await pollApiCalls(
+				() => retryWithRefresh(fetchConversationById, [conversationId]),
+				(conv: Conversation) => conv.isProperName,
+				5,
+				1000,
 			);
-			useStore.setState((state) => ({
-				conversations: state.conversations.map((conv) =>
-					conv.id === conversationId ? updatedConversation : conv,
-				),
-			}));
+			if (updatedConversation) {
+				useStore.setState((state) => ({
+					conversations: state.conversations.map((conv) =>
+						conv.id === conversationId ? updatedConversation : conv,
+					),
+				}));
+			}
 		}
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
 		useStore.setState(() => ({ chatStreaming: false }));
 	}
+};
+
+export const delay = (ms: number) =>
+	new Promise((resolve) => setTimeout(resolve, ms));
+
+export const pollApiCalls = async <T>(
+	method: () => Promise<T>,
+	condition: (result: T) => boolean,
+	attempts: number,
+	interval: number,
+): Promise<T | null> => {
+	for (let i = 0; i < attempts; i++) {
+		try {
+			await delay(interval);
+			const result = await method();
+			if (condition(result)) {
+				return result;
+			}
+		} catch (error) {
+			console.error(
+				`Polling attempt ${i + 1} failed: `,
+				error instanceof Error ? error.message : error,
+			);
+		}
+	}
+	console.warn("Polling exhausted without satisfying the condition.");
+	return null;
 };
