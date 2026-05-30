@@ -756,15 +756,21 @@ export const askLLM = async (
 	const reader = response.body!.getReader();
 	const decoder = new TextDecoder();
 
+	let buffer = "";
+
 	while (true) {
 		const { done, value } = await reader.read();
 		if (done) break;
 
-		const chunk = decoder.decode(value, { stream: true });
-		const cleanedChunk = chunk
-			.split("\n")
+		buffer += decoder.decode(value, { stream: true });
+
+		const lines = buffer.split("\n");
+
+		buffer = lines.pop() || "";
+
+		const cleanedChunk = lines
 			.filter((line) => line.startsWith("data:"))
-			.map((line) => line.replace("data:", ""))
+			.map((line) => line.replace(/^data:\s*/, ""))
 			.join("\n");
 
 		if (cleanedChunk) {

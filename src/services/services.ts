@@ -576,23 +576,23 @@ export const llmQueryHandler = async (
 		},
 	}));
 
+	const answerId = crypto.randomUUID();
+	const answer: Chat = {
+		id: answerId,
+		content: "Thinking...",
+		type: "ANSWER",
+		createdAt: new Date().toISOString(),
+	};
+
+	useStore.setState((state) => ({
+		chatStreaming: true,
+		chats: {
+			...state.chats,
+			[conversationId]: [...state.chats[conversationId], answer],
+		},
+	}));
+
 	try {
-		const answerId = crypto.randomUUID();
-		const answer: Chat = {
-			id: answerId,
-			content: "Thinking...",
-			type: "ANSWER",
-			createdAt: new Date().toISOString(),
-		};
-
-		useStore.setState((state) => ({
-			chatStreaming: true,
-			chats: {
-				...state.chats,
-				[conversationId]: [...state.chats[conversationId], answer],
-			},
-		}));
-
 		await retryWithRefresh(askLLM, [
 			conversationId,
 			query,
@@ -637,7 +637,41 @@ export const llmQueryHandler = async (
 		}
 	} catch (error) {
 		if (error instanceof Error) console.error(error.message);
-		useStore.setState(() => ({ chatStreaming: false }));
+		// stop streaming and show error message in the answer chat bubble
+		useStore.setState((state) => ({
+			chatStreaming: false,
+			chats: {
+				...state.chats,
+				[conversationId]: state.chats[conversationId].map((chat) =>
+					chat.id === answerId && chat.content === "Thinking..."
+						? { ...chat, content: "Failed to get response." }
+						: chat,
+				),
+			},
+		}));
+		// update conversation info in case the failure
+		if (!conversation.isProperName) {
+			try {
+				const updatedConversation: Conversation | null = await pollApiCalls(
+					() => retryWithRefresh(fetchConversationById, [conversationId]),
+					(conv: Conversation) => conv.isProperName,
+					6,
+					2000,
+				);
+				if (updatedConversation) {
+					useStore.setState((state) => ({
+						conversations: state.conversations.map((conv) =>
+							conv.id === conversationId ? updatedConversation : conv,
+						),
+					}));
+				}
+			} catch (error) {
+				console.error(
+					"Error inside conversation info update after LLM failure: ",
+					error,
+				);
+			}
+		}
 	}
 };
 
@@ -650,11 +684,12 @@ export const pollApiCalls = async <T>(
 	attempts: number,
 	interval: number,
 ): Promise<T | null> => {
+	let result = null;
 	for (let i = 0; i < attempts; i++) {
 		try {
 			await delay(interval);
-			const result = await method();
-			if (condition(result)) {
+			result = await method();
+			if (condition(result as T)) {
 				return result;
 			}
 		} catch (error) {
@@ -665,5 +700,5 @@ export const pollApiCalls = async <T>(
 		}
 	}
 	console.warn("Polling exhausted without satisfying the condition.");
-	return null;
+	return result;
 };

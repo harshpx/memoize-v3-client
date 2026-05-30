@@ -13,7 +13,11 @@ import {
 	llmQueryHandler,
 } from "@/services/services";
 import { useEffect, useRef, useState } from "react";
-import { LuBotMessageSquare, LuSendHorizontal } from "react-icons/lu";
+import {
+	LuBotMessageSquare,
+	LuSendHorizontal,
+	LuLoaderCircle,
+} from "react-icons/lu";
 
 const MemoAi = () => {
 	const {
@@ -67,8 +71,31 @@ const MemoAi = () => {
 		if (!inputBoxRef.current) return;
 		if (!chatStreaming) {
 			inputBoxRef.current.focus();
+			stopTimer();
+		} else {
+			startTimer();
 		}
+
+		return () => {
+			stopTimer();
+		};
 	}, [chatStreaming]);
+
+	const [timer, setTimer] = useState<number>(0);
+	let inv: number | null = null;
+
+	const startTimer = () => {
+		inv = setInterval(() => {
+			setTimer((prev) => prev + 1);
+		}, 1000);
+	};
+
+	const stopTimer = () => {
+		if (inv) {
+			clearInterval(inv);
+		}
+		setTimer(0);
+	};
 
 	if (conversationsLoading) {
 		return (
@@ -113,6 +140,12 @@ const MemoAi = () => {
 									<span>Hi {user?.name || "there"}!</span>
 									<span>Ask Memo AI anything.</span>
 								</div>
+							</div>
+						)}
+						{chatStreaming && (
+							<div className="text-sm text-muted-foreground ml-8 flex items-center gap-x-1">
+								<LuLoaderCircle className="animate-spin" />
+								<span>{`${timer}s ${".".repeat(timer % 3)}`}</span>
 							</div>
 						)}
 					</div>
